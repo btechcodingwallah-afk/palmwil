@@ -1,0 +1,11 @@
+{
+  "documentType": "aadhaar_card",
+  "storageFolder": "therapist_resources/aadhaar",
+  "specification": "12-digit Indian UIDAI Identity Card with QR code verification",
+  "mandatory": true,
+  "verificationChecks": [
+    "UIDAI format validation (XXXX XXXX XXXX)",
+    "DOB consistency check against age >= 21",
+    "Clear holographic watermark or QR code preview"
+  ]
+}

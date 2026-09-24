@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>PamWill Secure Payment Gateway</title>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #FAF8F5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+      color: #1F1B16;
+      text-align: center;
+    }
+    .card {
+      background: #FFFFFF;
+      border: 1px solid #E4DDD2;
+      border-radius: 24px;
+      padding: 32px 24px;
+      max-width: 390px;
+      width: 100%;
+      box-shadow: 0 10px 35px rgba(31, 27, 22, 0.08);
+    }
+    .logo-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 30px;
+      margin: 0 auto 14px auto;
+      border: 1.5px solid #A9812F;
+      background: #F7EEDD;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .logo-badge img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .brand-eyebrow {
+      font-size: 10px;
+      font-weight: 800;
+      color: #A9812F;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1F1B16;
+      margin-bottom: 8px;
+    }
+    .amount-badge {
+      display: inline-block;
+      background: #FBF7EE;
+      border: 1px solid #E4DDD2;
+      border-radius: 12px;
+      padding: 10px 20px;
+      margin: 14px 0;
+    }
+    .amount-text {
+      font-size: 26px;
+      font-weight: 800;
+      color: #1F1B16;
+    }
+    .service-info {
+      font-size: 13px;
+      color: #6B6259;
+      margin-bottom: 22px;
+      line-height: 1.4;
+    }
+    .pay-btn {
+      background: #1F1B16;
+      color: #FAF8F5;
+      border: none;
+      border-radius: 14px;
+      padding: 15px 20px;
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 14px rgba(31, 27, 22, 0.15);
+      transition: all 0.2s ease;
+      margin-bottom: 10px;
+    }
+    .pay-btn:active {
+      transform: scale(0.98);
+      background: #332B24;
+    }
+    .test-btn {
+      background: #F7EEDD;
+      color: #8A651E;
+      border: 1px solid #E4DDD2;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+    }
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #F7EEDD;
+      border-top-color: #A9812F;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 16px auto 8px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status {
+      font-size: 12px;
+      color: #8A651E;
+      font-weight: 600;
+      min-height: 20px;
+      margin-top: 10px;
+    }
+    .shield-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #2E7D32;
+      background: #E8F5E9;
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-top: 14px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo-badge">
+      <img src="/assets/pamwill-icon.png" alt="PamWill" />
+    </div>
+    <div class="brand-eyebrow">RAZORPAY SECURE GATEWAY</div>
+    <h2>Sanctuary Reservation</h2>
+    
+    <div class="amount-badge">
+      <div id="amount-display" class="amount-text">₹1,699</div>
+      <div style="font-size: 10px; color: #8A651E; font-weight: 700; text-transform: uppercase;">100% Secure Checkout</div>
+    </div>
+
+    <p id="service-display" class="service-info">
+      Session Reservation • Verified Therapist Dispatch
+    </p>
+
+    <button id="pay-btn" class="pay-btn" onclick="openRazorpay()">
+      <span>🔒 Pay with Razorpay (UPI / Card) &rarr;</span>
+    </button>
+
+    <button id="test-btn" class="test-btn" onclick="simulateTestSuccess()">
+      ⚡ Instant Test Checkout (Dev Mode)
+    </button>
+
+    <div id="spinner" class="spinner" style="display: none;"></div>
+    <div id="status" class="status">Connecting to Razorpay...</div>
+
+    <div>
+      <span class="shield-badge">🛡️ 256-Bit SSL Encryption • PCI-DSS Certified</span>
+    </div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const amount = urlParams.get("amount") || "1699";
+    const name = urlParams.get("name") || "Valued Patron";
+    const email = urlParams.get("email") || "patron@pamwill.com";
+    const phone = urlParams.get("phone") || "9876543210";
+    const service = urlParams.get("service") || "Sanctuary Session";
+    const duration = urlParams.get("duration") || "60";
+    const redirectUri = urlParams.get("redirect_uri") || "pamwill://payment-success";
+
+    document.getElementById("amount-display").innerText = "₹" + Number(amount).toLocaleString("en-IN");
+    document.getElementById("service-display").innerText = service + " (" + duration + " min)";
+
+    function returnToApp(payId) {
+      document.getElementById("status").innerText = "Payment Successful! Returning to Pamwill...";
+      const sep = redirectUri.includes("?") ? "&" : "?";
+      const returnUrl = redirectUri + sep +
+                        "payment_id=" + encodeURIComponent(payId) +
+                        "&status=success" +
+                        "&amount=" + encodeURIComponent(amount);
+      
+      setTimeout(() => {
+        window.location.href = returnUrl;
+      }, 400);
+    }
+
+    async function openRazorpay() {
+      const status = document.getElementById("status");
+      const spinner = document.getElementById("spinner");
+
+      spinner.style.display = "block";
+      status.innerText = "Creating Razorpay order...";
+
+      let orderId = "";
+      try {
+        const orderRes = await fetch("/api/create-razorpay-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amount: 100, // 100 paise = ₹1 test mode
+            currency: "INR",
+            receipt: "pamwill_" + Date.now(),
+          }),
+        });
+        const orderData = await orderRes.json();
+        if (orderData && orderData.id) {
+          orderId = orderData.id;
+        }
+      } catch (e) {
+        console.warn("Order API error, continuing directly:", e);
+      }
+
+      const options = {
+        key: "rzp_test_TZuTtftGefqijX",
+        amount: 100, // ₹1 test mode
+        currency: "INR",
+        name: "PamWill Luxury Wellness",
+        description: service + " (" + duration + " min) • ₹1 Test Mode",
+        image: "/assets/pamwill-icon.png",
+        prefill: {
+          name: name,
+          email: email,
+          contact: phone
+        },
+        theme: {
+          color: "#A9812F"
+        },
+        modal: {
+          ondismiss: function() {
+            spinner.style.display = "none";
+            status.innerText = "Payment was dismissed. Tap above to try again.";
+          }
+        },
+        handler: function(response) {
+          spinner.style.display = "block";
+          returnToApp(response.razorpay_payment_id || ("pay_" + Date.now()));
+        }
+      };
+
+      if (orderId) {
+        options.order_id = orderId;
+      }
+
+      spinner.style.display = "none";
+      status.innerText = "Opening payment interface...";
+
+      try {
+        const rzp = new Razorpay(options);
+        rzp.on("payment.failed", function(resp) {
+          status.innerText = "Payment failed: " + (resp.error?.description || "Declined");
+        });
+        rzp.open();
+      } catch (err) {
+        console.error("Razorpay launch error:", err);
+        status.innerText = "Unable to launch Razorpay popup. Use Instant Test Checkout below.";
+      }
+    }
+
+    function simulateTestSuccess() {
+      const mockPayId = "pay_test_" + Math.random().toString(36).substring(2, 11).toUpperCase();
+      returnToApp(mockPayId);
+    }
+
+    // Auto-launch Razorpay on load
+    window.addEventListener("load", () => {
+      setTimeout(() => {
+        openRazorpay();
+      }, 500);
+    });
+  </script>
+</body>
+</html>

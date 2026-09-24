@@ -1,0 +1,13 @@
+{
+  "documentType": "police_character_clearance",
+  "storageFolder": "therapist_resources/police_clearance",
+  "specification": "State Police Character Certificate / No Criminal Record Verification",
+  "mandatory": true,
+  "validityPeriodDays": 180,
+  "issuingAuthorities": [
+    "Delhi Police Special Cell / District Police",
+    "Mumbai Police Criminal Investigation Dept",
+    "State Crime Record Bureau (SCRB)",
+    "Government Passport Seva Verification"
+  ]
+}

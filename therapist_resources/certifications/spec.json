@@ -1,0 +1,12 @@
+{
+  "documentType": "wellness_diploma_certification",
+  "storageFolder": "therapist_resources/certifications",
+  "recognizedBoards": [
+    "CIDESCO International (Comité International d'Esthétique et de Cosmétologie)",
+    "NASM (National Academy of Sports Medicine)",
+    "Ayurvedic Panchakarma & Marma Chikitsa Board (Ministry of AYUSH)",
+    "Thai Traditional Medical Services Society (Wat Pho)",
+    "Swedish Institute & Sports Massage Therapy Association"
+  ],
+  "minimumHandsOnHours": 300
+}

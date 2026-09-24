@@ -1,0 +1,8 @@
+{
+  "documentType": "direct_payout_mandate",
+  "storageFolder": "therapist_resources/banking",
+  "payoutRails": ["IMPS", "NEFT", "UPI Autopay"],
+  "payoutFrequency": "Daily / Instant Settlement upon Booking Completion",
+  "therapistSharePercentage": 80,
+  "gratuitySharePercentage": 100
+}
