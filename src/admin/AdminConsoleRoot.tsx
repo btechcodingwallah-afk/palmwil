@@ -9,15 +9,17 @@ import { IndianCitiesManager } from './screens/IndianCitiesManager';
 import { CommissionsMembershipsView } from './screens/CommissionsMembershipsView';
 import { DoctorPayoutRequestsView } from './screens/DoctorPayoutRequestsView';
 import { TrainingInternshipManager } from './screens/TrainingInternshipManager';
+import { ContactInquiriesManager } from './screens/ContactInquiriesManager';
 
 export const AdminConsoleRoot: React.FC = () => {
-  const { therapists, bookings, payoutRequests, trainingApplications } = usePamwill();
+  const { therapists, bookings, payoutRequests, trainingApplications, connectInquiries } = usePamwill();
   const [currentSection, setCurrentSection] = useState<AdminSection>('overview');
 
   const pendingCount = therapists.filter(t => t.status === 'Pending' || t.status === 'Under Review').length;
   const sosCount = bookings.filter(b => b.sosTriggered).length;
   const pendingPayoutsCount = payoutRequests.filter(p => p.status === 'Pending').length;
   const pendingTrainingCount = trainingApplications.filter(a => a.status === 'Pending').length;
+  const pendingInquiriesCount = connectInquiries.filter(i => i.status === 'New').length;
 
   return (
     <div style={{
@@ -36,6 +38,7 @@ export const AdminConsoleRoot: React.FC = () => {
         sosAlertCount={sosCount}
         pendingPayoutsCount={pendingPayoutsCount}
         pendingTrainingCount={pendingTrainingCount}
+        pendingInquiriesCount={pendingInquiriesCount}
       />
 
       {/* Main Administrative Workbench */}
@@ -46,6 +49,7 @@ export const AdminConsoleRoot: React.FC = () => {
         backgroundColor: 'var(--bg-primary)'
       }}>
         {currentSection === 'overview' && <AdminOverviewKPI />}
+        {currentSection === 'inquiries' && <ContactInquiriesManager />}
         {currentSection === 'payouts' && <DoctorPayoutRequestsView />}
         {currentSection === 'training' && <TrainingInternshipManager />}
         {currentSection === 'verification' && <TherapistVerificationQueue />}

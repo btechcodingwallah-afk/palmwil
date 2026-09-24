@@ -122,3 +122,49 @@ export const INITIAL_TRAINING_APPLICATIONS = [
     adminNotes: "Panchakarma diploma verified. Approved for in-person masterclass audition."
   }
 ];
+
+export const INITIAL_CONNECT_INQUIRIES = [
+  {
+    id: "inq-2026-081",
+    fullName: "Vikramaditya Oberoi",
+    email: "concierge@grandpalacegoa.com",
+    phone: "+91 98221 55678",
+    city: "Goa",
+    inquiryType: "Hotel & Resort Concierge Partnership" as const,
+    organization: "The Grand Palace Resort & Villas, Goa",
+    message: "We manage 45 private luxury villas in Candolim and are interested in integrating PamWill on-demand therapist services as our exclusive guest spa amenity.",
+    preferredContactMethod: "Phone Call" as const,
+    status: "New" as const,
+    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
+    adminNotes: "High value resort lead. Schedule call with partnerships director."
+  },
+  {
+    id: "inq-2026-082",
+    fullName: "Sneha Kapoor",
+    email: "sneha.k@techworks.io",
+    phone: "+91 98452 33410",
+    city: "Bengaluru",
+    inquiryType: "Corporate Wellness & Retreats" as const,
+    organization: "TechWorks Solutions Pvt Ltd",
+    message: "Planning our annual executive wellness week for 200 leadership members in Indiranagar. Requesting quote for chair massage and express de-stress sessions.",
+    preferredContactMethod: "WhatsApp" as const,
+    status: "In Progress" as const,
+    createdAt: new Date(Date.now() - 3600000 * 18).toISOString(),
+    adminNotes: "Sent corporate rate card via WhatsApp. Awaiting date confirmation."
+  },
+  {
+    id: "inq-2026-083",
+    fullName: "Deepak Nambiar",
+    email: "deepak.ayurveda@gmail.com",
+    phone: "+91 98200 87654",
+    city: "Mumbai",
+    inquiryType: "Therapist Partner Onboarding" as const,
+    organization: "",
+    message: "Certified Ayurvedic therapist with 6 years experience in Kerala panchakarma. Inquiring about joining the Mumbai south cluster therapist network.",
+    preferredContactMethod: "Phone Call" as const,
+    status: "Contacted" as const,
+    createdAt: new Date(Date.now() - 3600000 * 36).toISOString(),
+    adminNotes: "Certificates verified. Sent link to complete onboarding document upload."
+  }
+];
+

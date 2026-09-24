@@ -20,7 +20,7 @@ interface HomeFooterProps {
 }
 
 export const HomeFooter: React.FC<HomeFooterProps> = ({ onNavigateRole }) => {
-  const { setTrainingModalOpen } = usePamwill();
+  const { setTrainingModalOpen, setConnectModalOpen } = usePamwill();
   const currentYear = new Date().getFullYear();
 
   const scrollToSection = (id: string) => {
@@ -183,14 +183,12 @@ export const HomeFooter: React.FC<HomeFooterProps> = ({ onNavigateRole }) => {
                 </button>
               </li>
               <li>
-                <a
-                  href={CONNECT_WITH_US_FORM_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ ...footerLinkBtnStyle, color: 'var(--accent-gold-light)', display: 'inline-flex', alignItems: 'center', gap: '4px' }}
+                <button
+                  onClick={() => setConnectModalOpen(true)}
+                  style={{ ...footerLinkBtnStyle, color: 'var(--accent-gold-light)', display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 >
-                  Connect With Us (Form) <ExternalLink size={12} />
-                </a>
+                  <Sparkles size={13} color="var(--accent-gold)" /> Connect With Us (Inquiries)
+                </button>
               </li>
             </ul>
           </div>

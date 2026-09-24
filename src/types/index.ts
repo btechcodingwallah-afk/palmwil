@@ -220,3 +220,28 @@ export interface TrainingApplication {
   appliedAt: string;
   adminNotes?: string;
 }
+
+export type InquiryType = 
+  | 'Therapist Partner Onboarding'
+  | 'Hotel & Resort Concierge Partnership'
+  | 'Corporate Wellness & Retreats'
+  | 'VIP Booking & Concierge Support'
+  | 'General Inquiry & Feedback';
+
+export type InquiryStatus = 'New' | 'In Progress' | 'Contacted' | 'Resolved' | 'Closed';
+
+export interface ConnectInquiry {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  city: string;
+  inquiryType: InquiryType;
+  organization?: string;
+  message: string;
+  preferredContactMethod: 'WhatsApp' | 'Phone Call' | 'Email';
+  status: InquiryStatus;
+  createdAt: string;
+  adminNotes?: string;
+}
+

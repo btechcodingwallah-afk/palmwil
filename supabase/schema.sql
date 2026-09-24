@@ -102,6 +102,16 @@ CREATE TABLE IF NOT EXISTS public.users (
   updated_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- Drop existing policies if re-running script to avoid duplicate policy errors
+DROP POLICY IF EXISTS "Allow public read services" ON public.services;
+DROP POLICY IF EXISTS "Allow all write services" ON public.services;
+DROP POLICY IF EXISTS "Allow public read therapists" ON public.therapists;
+DROP POLICY IF EXISTS "Allow all write therapists" ON public.therapists;
+DROP POLICY IF EXISTS "Allow public read bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Allow all write bookings" ON public.bookings;
+DROP POLICY IF EXISTS "Allow public read users" ON public.users;
+DROP POLICY IF EXISTS "Allow all write users" ON public.users;
+
 -- Enable RLS and create permissive policies for marketplace operations
 ALTER TABLE public.services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.therapists ENABLE ROW LEVEL SECURITY;
@@ -137,6 +147,8 @@ CREATE TABLE IF NOT EXISTS public.payout_requests (
 );
 
 ALTER TABLE public.payout_requests ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read payout_requests" ON public.payout_requests;
+DROP POLICY IF EXISTS "Allow all write payout_requests" ON public.payout_requests;
 CREATE POLICY "Allow public read payout_requests" ON public.payout_requests FOR SELECT USING (true);
 CREATE POLICY "Allow all write payout_requests" ON public.payout_requests FOR ALL USING (true);
 
@@ -158,13 +170,62 @@ CREATE TABLE IF NOT EXISTS public.training_applications (
 );
 
 ALTER TABLE public.training_applications ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read training_applications" ON public.training_applications;
+DROP POLICY IF EXISTS "Allow all write training_applications" ON public.training_applications;
 CREATE POLICY "Allow public read training_applications" ON public.training_applications FOR SELECT USING (true);
 CREATE POLICY "Allow all write training_applications" ON public.training_applications FOR ALL USING (true);
 
--- Enable Realtime Replication for instant cross-app synchronization
-ALTER PUBLICATION supabase_realtime ADD TABLE public.services;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.therapists;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.bookings;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.users;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.payout_requests;
-ALTER PUBLICATION supabase_realtime ADD TABLE public.training_applications;
+-- 7. Connect With Us / Business Inquiries Table
+CREATE TABLE IF NOT EXISTS public.connect_inquiries (
+  id TEXT PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  city TEXT NOT NULL,
+  inquiry_type TEXT NOT NULL,
+  organization TEXT,
+  message TEXT NOT NULL,
+  preferred_contact_method TEXT DEFAULT 'WhatsApp' NOT NULL,
+  status TEXT DEFAULT 'New' NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL,
+  admin_notes TEXT
+);
+
+ALTER TABLE public.connect_inquiries ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Allow public read connect_inquiries" ON public.connect_inquiries;
+DROP POLICY IF EXISTS "Allow all write connect_inquiries" ON public.connect_inquiries;
+CREATE POLICY "Allow public read connect_inquiries" ON public.connect_inquiries FOR SELECT USING (true);
+CREATE POLICY "Allow all write connect_inquiries" ON public.connect_inquiries FOR ALL USING (true);
+
+-- Enable Realtime Replication safely without deadlocks (only adds tables not already published)
+DO $$
+DECLARE
+  tbl text;
+  tables text[] := ARRAY[
+    'services', 
+    'therapists', 
+    'bookings', 
+    'users', 
+    'payout_requests', 
+    'training_applications', 
+    'connect_inquiries'
+  ];
+BEGIN
+  FOREACH tbl IN ARRAY tables LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_publication_tables 
+      WHERE pubname = 'supabase_realtime' 
+        AND schemaname = 'public' 
+        AND tablename = tbl
+    ) THEN
+      BEGIN
+        EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE public.%I;', tbl);
+      EXCEPTION WHEN OTHERS THEN
+        -- Ignore concurrent lock race or permission errors gracefully
+        RAISE NOTICE 'Could not add % to supabase_realtime: %', tbl, SQLERRM;
+      END;
+    END IF;
+  END LOOP;
+END $$;
+
+

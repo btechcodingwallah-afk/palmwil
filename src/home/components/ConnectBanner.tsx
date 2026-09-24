@@ -1,8 +1,11 @@
 import React from 'react';
-import { Mail, MessageCircle, ExternalLink, Sparkles, Building, Briefcase, HelpCircle } from 'lucide-react';
-import { CONNECT_WITH_US_FORM_URL, COMPANY_INFO } from '../../config/env';
+import { Mail, MessageCircle, Sparkles, Building, Briefcase, HelpCircle } from 'lucide-react';
+import { COMPANY_INFO } from '../../config/env';
+import { usePamwill } from '../../state/store';
 
 export const ConnectBanner: React.FC = () => {
+  const { setConnectModalOpen } = usePamwill();
+
   return (
     <section id="connect" style={{
       padding: '70px 24px',
@@ -133,11 +136,9 @@ export const ConnectBanner: React.FC = () => {
               Fill in our official form and a PamWill concierge or partner manager will get back to you within 2 hours.
             </p>
 
-            {/* Official Connect With Us Button -> Links to Google Form from .env */}
-            <a
-              href={CONNECT_WITH_US_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            {/* Official Connect With Us Button -> Opens In-Built Form */}
+            <button
+              onClick={() => setConnectModalOpen(true)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -150,14 +151,15 @@ export const ConnectBanner: React.FC = () => {
                 color: '#FFFFFF',
                 fontSize: '15px',
                 fontWeight: 600,
-                textDecoration: 'none',
+                border: 'none',
+                cursor: 'pointer',
                 boxShadow: '0 6px 20px rgba(169, 129, 47, 0.4)',
                 transition: 'all 200ms ease'
               }}
-              title="Open Google Form in a new tab"
+              title="Open Connect Form"
             >
-              Connect With Us <ExternalLink size={16} />
-            </a>
+              <Sparkles size={16} /> Connect With Us
+            </button>
 
             <div style={{ fontSize: '11px', color: '#7E7366', marginTop: '14px' }}>
               Direct email: <a href={`mailto:${COMPANY_INFO.email}`} style={{ color: 'var(--accent-gold-light)', textDecoration: 'none' }}>{COMPANY_INFO.email}</a>

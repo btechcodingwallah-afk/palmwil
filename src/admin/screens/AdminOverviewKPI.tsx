@@ -1,12 +1,13 @@
 import React from 'react';
 import { 
   TrendingUp, Users, UserCheck, DollarSign, 
-  Calendar, ShieldAlert, AlertTriangle, ArrowUpRight, Sparkles 
+  Calendar, ShieldAlert, AlertTriangle, ArrowUpRight, Sparkles, MessageSquare 
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
 export const AdminOverviewKPI: React.FC = () => {
-  const { bookings, therapists, services } = usePamwill();
+  const { bookings, therapists, services, connectInquiries } = usePamwill();
+  const newInquiriesCount = connectInquiries.filter(i => i.status === 'New').length;
 
   const totalRevenue = bookings.reduce((sum, b) => sum + b.totalPaid, 0);
   const totalPlatformEarnings = bookings.reduce((sum, b) => sum + (b.platformCommission || 0), 0);
@@ -143,6 +144,54 @@ export const AdminOverviewKPI: React.FC = () => {
           }}>
             Open Incident Command →
           </button>
+        </div>
+      )}
+
+      {/* New Inbound Inquiries Banner */}
+      {newInquiriesCount > 0 && (
+        <div style={{
+          backgroundColor: '#1E1A16',
+          border: '1px solid rgba(212, 175, 55, 0.45)',
+          padding: '14px 20px',
+          borderRadius: 'var(--radius-lg)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          boxShadow: '0 4px 20px rgba(212, 175, 55, 0.1)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
+              backgroundColor: 'rgba(212, 175, 55, 0.18)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#E8D298'
+            }}>
+              <MessageSquare size={16} />
+            </div>
+            <div>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: '#FAF8F5' }}>
+                {newInquiriesCount} New Partner & Client {newInquiriesCount === 1 ? 'Inquiry' : 'Inquiries'} Awaiting Concierge Review
+              </div>
+              <div style={{ fontSize: '12px', color: '#9E9284' }}>
+                Resort amenities, corporate wellness requests, and therapist applications require executive response within 2 hours SLA.
+              </div>
+            </div>
+          </div>
+          <div style={{
+            fontSize: '12px',
+            fontWeight: 600,
+            color: '#E8D298',
+            backgroundColor: 'rgba(212, 175, 55, 0.12)',
+            padding: '6px 12px',
+            borderRadius: '8px',
+            border: '1px solid rgba(212, 175, 55, 0.3)'
+          }}>
+            See Inbound Inquiries tab →
+          </div>
         </div>
       )}
 

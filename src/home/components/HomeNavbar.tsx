@@ -11,12 +11,14 @@ import {
   Download 
 } from 'lucide-react';
 import { COMPANY_INFO, CONNECT_WITH_US_FORM_URL } from '../../config/env';
+import { usePamwill } from '../../state/store';
 
 interface HomeNavbarProps {
   onNavigateRole: (role: 'client' | 'therapist' | 'admin') => void;
 }
 
 export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
+  const { setConnectModalOpen } = usePamwill();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoDropdownOpen, setDemoDropdownOpen] = useState(false);
 
@@ -218,11 +220,9 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
             )}
           </div>
 
-          {/* Connect With Us Button -> Redirects to Google Form from .env */}
-          <a
-            href={CONNECT_WITH_US_FORM_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          {/* Connect With Us Button -> Opens In-Built Concierge Form */}
+          <button
+            onClick={() => setConnectModalOpen(true)}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -233,14 +233,15 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
               color: '#FFFFFF',
               fontSize: '13px',
               fontWeight: 600,
-              textDecoration: 'none',
+              border: 'none',
+              cursor: 'pointer',
               boxShadow: '0 4px 16px rgba(169, 129, 47, 0.35)',
               transition: 'all 200ms ease'
             }}
-            title="Open Google Form in a new tab"
+            title="Connect With Us / Concierge Inquiries"
           >
-            Connect With Us <ExternalLink size={14} />
-          </a>
+            <Sparkles size={13} /> Connect With Us
+          </button>
         </div>
 
         {/* Mobile Hamburger Toggle */}
@@ -329,10 +330,11 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
               <Briefcase size={16} color="#4C6B4F" /> Try Therapist App Simulator
             </button>
 
-            <a
-              href={CONNECT_WITH_US_FORM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setConnectModalOpen(true);
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -344,12 +346,13 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
                 color: '#FFFFFF',
                 fontSize: '14px',
                 fontWeight: 600,
-                textDecoration: 'none',
+                border: 'none',
+                cursor: 'pointer',
                 marginTop: '4px'
               }}
             >
-              Connect With Us <ExternalLink size={16} />
-            </a>
+              <Sparkles size={15} /> Connect With Us
+            </button>
           </div>
         </div>
       )}

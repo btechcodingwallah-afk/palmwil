@@ -8,10 +8,18 @@ import {
   BookingReview,
   PayoutRequest,
   TrainingApplication,
-  ApplicationStatus
+  ApplicationStatus,
+  ConnectInquiry,
+  InquiryStatus
 } from '../types';
 import { MASSAGE_SERVICES } from '../data/services';
-import { INITIAL_THERAPISTS, INITIAL_USER, INITIAL_BOOKINGS, INITIAL_TRAINING_APPLICATIONS } from '../data/mockData';
+import { 
+  INITIAL_THERAPISTS, 
+  INITIAL_USER, 
+  INITIAL_BOOKINGS, 
+  INITIAL_TRAINING_APPLICATIONS,
+  INITIAL_CONNECT_INQUIRIES 
+} from '../data/mockData';
 import { 
   dbFetchServices, 
   dbUpsertService, 
@@ -27,6 +35,9 @@ import {
   dbFetchTrainingApplications,
   dbInsertTrainingApplication,
   dbUpdateTrainingApplicationStatus,
+  dbFetchConnectInquiries,
+  dbInsertConnectInquiry,
+  dbUpdateConnectInquiryStatus,
   subscribeToRealtimeUpdates 
 } from '../services/supabase';
 import { onFirebaseAuthStateChange, firebaseSignOutUser } from '../services/firebase';
@@ -115,6 +126,13 @@ interface PamwillContextType {
   updateTrainingApplicationStatus: (id: string, status: ApplicationStatus, notes?: string) => Promise<void>;
   trainingModalOpen: boolean;
   setTrainingModalOpen: (open: boolean) => void;
+
+  // Connect With Us & Executive Inquiries
+  connectInquiries: ConnectInquiry[];
+  submitConnectInquiry: (inquiryData: Omit<ConnectInquiry, 'id' | 'createdAt' | 'status'>) => Promise<{ success: boolean; id: string }>;
+  updateConnectInquiryStatus: (id: string, status: InquiryStatus, notes?: string) => Promise<void>;
+  connectModalOpen: boolean;
+  setConnectModalOpen: (open: boolean) => void;
 
   logout: () => void;
   pendingGoogleUser: { email: string; name: string; photoUrl: string } | null;
@@ -303,6 +321,27 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.setItem('pamwill_training_applications', JSON.stringify(trainingApplications));
   }, [trainingApplications]);
 
+  // Connect With Us & Executive Inquiries State
+  const [connectInquiries, setConnectInquiries] = useState<ConnectInquiry[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_connect_inquiries');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          return INITIAL_CONNECT_INQUIRIES;
+        }
+      }
+    }
+    return INITIAL_CONNECT_INQUIRIES;
+  });
+
+  const [connectModalOpen, setConnectModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    localStorage.setItem('pamwill_connect_inquiries', JSON.stringify(connectInquiries));
+  }, [connectInquiries]);
+
   const [incomingBookingModal, setIncomingBookingModal] = useState<Booking | null>(null);
   const [activeTrackingBookingId, setActiveTrackingBookingId] = useState<string | null>(null);
 
@@ -344,12 +383,13 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Load from Supabase on Mount
   const loadFromSupabase = useCallback(async () => {
     try {
-      const [remoteServices, remoteTherapists, remoteBookings, remotePayouts, remoteTrainingApps] = await Promise.all([
+      const [remoteServices, remoteTherapists, remoteBookings, remotePayouts, remoteTrainingApps, remoteInquiries] = await Promise.all([
         dbFetchServices(),
         dbFetchTherapists(),
         dbFetchBookings(),
         dbFetchPayoutRequests(),
-        dbFetchTrainingApplications()
+        dbFetchTrainingApplications(),
+        dbFetchConnectInquiries()
       ]);
 
       let connected = false;
@@ -412,6 +452,9 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       if (remoteTrainingApps && remoteTrainingApps.length > 0) {
         setTrainingApplications(remoteTrainingApps);
+      }
+      if (remoteInquiries && remoteInquiries.length > 0) {
+        setConnectInquiries(remoteInquiries);
       }
 
       setIsSupabaseConnected(connected);
@@ -1032,6 +1075,35 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         },
         trainingModalOpen,
         setTrainingModalOpen,
+        connectInquiries,
+        submitConnectInquiry: async (inquiryData: Omit<ConnectInquiry, 'id' | 'createdAt' | 'status'>) => {
+          const newId = `inq-${Date.now().toString().slice(-6)}`;
+          const newInq: ConnectInquiry = {
+            id: newId,
+            ...inquiryData,
+            status: 'New',
+            createdAt: new Date().toISOString()
+          };
+
+          setConnectInquiries(prev => [newInq, ...prev]);
+          await dbInsertConnectInquiry(newInq);
+          return { success: true, id: newId };
+        },
+        updateConnectInquiryStatus: async (id: string, status: InquiryStatus, notes?: string) => {
+          setConnectInquiries(prev => prev.map(inq => {
+            if (inq.id === id) {
+              return {
+                ...inq,
+                status,
+                ...(notes !== undefined ? { adminNotes: notes } : {})
+              };
+            }
+            return inq;
+          }));
+          await dbUpdateConnectInquiryStatus(id, status, notes);
+        },
+        connectModalOpen,
+        setConnectModalOpen,
         refreshData: loadFromSupabase
       }}
     >

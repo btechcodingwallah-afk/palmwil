@@ -10,6 +10,7 @@ import { HomeFooter } from './components/HomeFooter';
 import { QrCodeModal } from './components/QrCodeModal';
 import { DownloadToast } from './components/DownloadToast';
 import { TrainingApplicationModal } from './components/TrainingApplicationModal';
+import { ConnectWithUsModal } from './components/ConnectWithUsModal';
 import { APP_DOWNLOADS } from '../config/env';
 import { usePamwill } from '../state/store';
 
@@ -18,7 +19,12 @@ interface PamwillHomePageProps {
 }
 
 export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole }) => {
-  const { trainingModalOpen, setTrainingModalOpen } = usePamwill();
+  const { 
+    trainingModalOpen, 
+    setTrainingModalOpen,
+    connectModalOpen,
+    setConnectModalOpen
+  } = usePamwill();
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [qrModal, setQrModal] = useState<{
     isOpen: boolean;
@@ -117,6 +123,12 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
       <TrainingApplicationModal
         isOpen={trainingModalOpen}
         onClose={() => setTrainingModalOpen(false)}
+      />
+
+      {/* In-Built Connect With Us / Concierge Inquiries Modal */}
+      <ConnectWithUsModal
+        isOpen={connectModalOpen}
+        onClose={() => setConnectModalOpen(false)}
       />
 
       {/* Download Toast Notification */}

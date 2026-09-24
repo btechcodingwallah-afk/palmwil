@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { MassageService, Therapist, Booking, UserProfile, PayoutRequest, TrainingApplication } from '../types';
+import { MassageService, Therapist, Booking, UserProfile, PayoutRequest, TrainingApplication, ConnectInquiry } from '../types';
 
 export const SUPABASE_URL = 'https://hauruoczbsxsgptojglt.supabase.co';
 export const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhdXJ1b2N6YnN4c2dwdG9qZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5NDY4NzMsImV4cCI6MjEwNDUyMjg3M30.nAU5XU2nBshbNBRsfjiKTud4naOGhUCEpp8Q39eN2EA';
@@ -766,4 +766,148 @@ export async function dbUpdateTrainingApplicationStatus(
     return false;
   }
 }
+
+// ================= CONNECT WITH US / INQUIRIES API =================
+export async function dbFetchConnectInquiries(): Promise<ConnectInquiry[] | null> {
+  try {
+    const { data, error } = await supabase
+      .from('connect_inquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      return data.map((r: any): ConnectInquiry => ({
+        id: r.id,
+        fullName: r.full_name,
+        email: r.email,
+        phone: r.phone,
+        city: r.city,
+        inquiryType: r.inquiry_type,
+        organization: r.organization || '',
+        message: r.message,
+        preferredContactMethod: r.preferred_contact_method || 'WhatsApp',
+        status: r.status || 'New',
+        createdAt: r.created_at,
+        adminNotes: r.admin_notes
+      }));
+    }
+
+    // Resilient fallback: read from system_connect_inquiries in users table
+    const { data: fallbackRow } = await supabase
+      .from('users')
+      .select('saved_addresses')
+      .eq('id', 'system_connect_inquiries')
+      .maybeSingle();
+
+    if (fallbackRow && Array.isArray(fallbackRow.saved_addresses)) {
+      return fallbackRow.saved_addresses as ConnectInquiry[];
+    }
+
+    return null;
+  } catch (err) {
+    console.warn('Supabase dbFetchConnectInquiries error:', err);
+    return null;
+  }
+}
+
+export async function dbInsertConnectInquiry(inquiry: ConnectInquiry): Promise<boolean> {
+  try {
+    const row = {
+      id: inquiry.id,
+      full_name: inquiry.fullName,
+      email: inquiry.email,
+      phone: inquiry.phone,
+      city: inquiry.city,
+      inquiry_type: inquiry.inquiryType,
+      organization: inquiry.organization,
+      message: inquiry.message,
+      preferred_contact_method: inquiry.preferredContactMethod,
+      status: inquiry.status,
+      created_at: inquiry.createdAt,
+      admin_notes: inquiry.adminNotes
+    };
+
+    const { error } = await supabase.from('connect_inquiries').insert([row]);
+    if (!error) return true;
+
+    // Resilient fallback in users table
+    const { data: existing } = await supabase
+      .from('users')
+      .select('saved_addresses')
+      .eq('id', 'system_connect_inquiries')
+      .maybeSingle();
+
+    const currentList: ConnectInquiry[] = (existing && Array.isArray(existing.saved_addresses))
+      ? existing.saved_addresses
+      : [];
+
+    const updated = [inquiry, ...currentList.filter(i => i.id !== inquiry.id)];
+
+    const { error: upsertErr } = await supabase
+      .from('users')
+      .upsert([{
+        id: 'system_connect_inquiries',
+        name: 'System Connect Inquiries Registry',
+        saved_addresses: updated
+      }]);
+
+    return !upsertErr;
+  } catch (err) {
+    console.warn('Supabase dbInsertConnectInquiry error:', err);
+    return false;
+  }
+}
+
+export async function dbUpdateConnectInquiryStatus(
+  inquiryId: string,
+  status: string,
+  notes?: string
+): Promise<boolean> {
+  try {
+    const updates: any = { status };
+    if (notes !== undefined) updates.admin_notes = notes;
+
+    const { error } = await supabase
+      .from('connect_inquiries')
+      .update(updates)
+      .eq('id', inquiryId);
+
+    if (!error) return true;
+
+    // Fallback in users table
+    const { data: existing } = await supabase
+      .from('users')
+      .select('saved_addresses')
+      .eq('id', 'system_connect_inquiries')
+      .maybeSingle();
+
+    if (existing && Array.isArray(existing.saved_addresses)) {
+      const currentList: ConnectInquiry[] = existing.saved_addresses;
+      const updatedList = currentList.map(item => {
+        if (item.id === inquiryId) {
+          return {
+            ...item,
+            status: status as any,
+            ...(notes !== undefined ? { adminNotes: notes } : {})
+          };
+        }
+        return item;
+      });
+
+      const { error: upsertErr } = await supabase
+        .from('users')
+        .upsert([{
+          id: 'system_connect_inquiries',
+          name: 'System Connect Inquiries Registry',
+          saved_addresses: updatedList
+        }]);
+
+      return !upsertErr;
+    }
+    return false;
+  } catch (err) {
+    return false;
+  }
+}
+
 

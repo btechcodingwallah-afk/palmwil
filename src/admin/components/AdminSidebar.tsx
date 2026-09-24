@@ -1,12 +1,13 @@
 import React from 'react';
 import { 
   BarChart3, Users, UserCheck, CalendarDays, MapPin, 
-  Sparkles, Percent, Crown, ShieldAlert, FileText, Settings, LogOut, Wallet, GraduationCap 
+  Sparkles, Percent, Crown, ShieldAlert, FileText, Settings, LogOut, Wallet, GraduationCap, MessageSquare 
 } from 'lucide-react';
 
 export type AdminSection = 
   | 'overview' 
   | 'payouts'
+  | 'inquiries'
   | 'training'
   | 'verification' 
   | 'therapists' 
@@ -23,6 +24,7 @@ interface AdminSidebarProps {
   sosAlertCount: number;
   pendingPayoutsCount?: number;
   pendingTrainingCount?: number;
+  pendingInquiriesCount?: number;
 }
 
 export const AdminSidebar: React.FC<AdminSidebarProps> = ({
@@ -31,10 +33,12 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
   pendingVerificationsCount,
   sosAlertCount,
   pendingPayoutsCount = 0,
-  pendingTrainingCount = 0
+  pendingTrainingCount = 0,
+  pendingInquiriesCount = 0
 }) => {
   const navItems = [
     { id: 'overview' as const, label: 'KPI Overview', icon: BarChart3 },
+    { id: 'inquiries' as const, label: 'Inbound Inquiries', icon: MessageSquare, badge: pendingInquiriesCount },
     { id: 'payouts' as const, label: 'Doctor UPI Payouts', icon: Wallet, badge: pendingPayoutsCount },
     { id: 'training' as const, label: 'Training & Internships', icon: GraduationCap, badge: pendingTrainingCount },
     { id: 'verification' as const, label: 'Verification Queue', icon: UserCheck, badge: pendingVerificationsCount },
