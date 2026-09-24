@@ -27,8 +27,5 @@ dist-ssr
 .env
 .env.local
 .env.*.local
-
 # Large mobile binary builds
-*.apk
-apks/
-public/apks
+/apks/
