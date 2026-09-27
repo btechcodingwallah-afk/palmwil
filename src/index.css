@@ -11,10 +11,10 @@
   --text-muted: #9A8F82;
   --text-inverse: #FAF8F5;
 
-  --accent-gold: #A9812F;
-  --accent-gold-hover: #7C5E22;
+  --accent-gold: #C6A567;
+  --accent-gold-hover: #b39458;
   --accent-gold-light: #F7EEDD;
-  --accent-gold-subtle: rgba(169, 129, 47, 0.08);
+  --accent-gold-subtle: rgba(198, 165, 103, 0.12);
 
   --border-hairline: #E4DDD2;
   --border-subtle: #EDE7DE;
@@ -45,6 +45,87 @@
   --transition-slow: 350ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* ==========================================================================
+   MINIMALIST LUXURY THEME SYSTEM (Light & Nocturne Dark Modes)
+   Reference: Sparsh Care Minimalist Theme
+   ========================================================================== */
+
+/* Theme 1: Minimalist Luxury (Light Mode) */
+[data-theme="minimalist-light"] {
+  --primary: #17181A;
+  --cta: #C6A567;
+  --accent: #A9825A;
+  --background: #FAFAF8;
+  --surface: #FFFFFF;
+  --surface-card: #F1EFEA;
+  --surface-card-subtle: #F7F5F1;
+  --surface-hover: #E8E5DD;
+  --text: #262626;
+  --text-primary: #17181A;
+  --text-muted: #6b6b6b;
+  --text-subtle: #8A857D;
+  --primary-light: rgba(23, 24, 26, 0.06);
+  --cta-hover: #b39458;
+  --cta-subtle: rgba(198, 165, 103, 0.12);
+  --hero-overlay: linear-gradient(135deg, rgba(23,24,26,0.88) 0%, rgba(23,24,26,0.50) 100%);
+  --hero-bg: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(198, 165, 103, 0.18), rgba(250, 250, 248, 0) 70%), #FAFAF8;
+  --card-shadow: 0 8px 32px rgba(23, 24, 26, 0.06);
+  --theme-label: "Minimalist Luxury";
+  --nav-bg: rgba(250, 250, 248, 0.94);
+  --nav-border: rgba(23, 24, 26, 0.08);
+  --footer-bg: #EAE6DF;
+  --footer-border: rgba(23, 24, 26, 0.10);
+  --footer-text: #17181A;
+  --footer-muted: #6b6b6b;
+  --border-hairline: rgba(23, 24, 26, 0.10);
+  --border-subtle: rgba(23, 24, 26, 0.06);
+  --border-gold: rgba(198, 165, 103, 0.40);
+  --input-bg: #FFFFFF;
+  --input-border: #DCD6CD;
+  --input-text: #17181A;
+  --pill-bg: rgba(198, 165, 103, 0.12);
+  --pill-border: rgba(198, 165, 103, 0.35);
+  --pill-text: #7C5E22;
+}
+
+/* Theme 2: Minimalist Nocturne (Dark Mode) */
+[data-theme="minimalist-dark"] {
+  --primary: #FAF8F5;
+  --cta: #C6A567;
+  --accent: #A9825A;
+  --background: #100E0C;
+  --surface: #161310;
+  --surface-card: #181512;
+  --surface-card-subtle: #1D1A16;
+  --surface-hover: #221E1A;
+  --text: #FAF8F5;
+  --text-primary: #FAF8F5;
+  --text-muted: #A89E92;
+  --text-subtle: #7A7267;
+  --primary-light: rgba(198, 165, 103, 0.14);
+  --cta-hover: #b39458;
+  --cta-subtle: rgba(198, 165, 103, 0.15);
+  --hero-overlay: linear-gradient(135deg, rgba(16,14,12,0.92) 0%, rgba(16,14,12,0.60) 100%);
+  --hero-bg: radial-gradient(ellipse 70% 50% at 50% -10%, rgba(169, 129, 47, 0.22), rgba(16, 14, 12, 0) 70%), #100E0C;
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --theme-label: "Minimalist Nocturne";
+  --nav-bg: rgba(16, 14, 12, 0.94);
+  --nav-border: rgba(169, 129, 47, 0.2);
+  --footer-bg: #0A0908;
+  --footer-border: rgba(169, 129, 47, 0.2);
+  --footer-text: #FAF8F5;
+  --footer-muted: #A89E92;
+  --border-hairline: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-gold: rgba(169, 129, 47, 0.35);
+  --input-bg: rgba(255, 255, 255, 0.04);
+  --input-border: rgba(255, 255, 255, 0.14);
+  --input-text: #FAF8F5;
+  --pill-bg: rgba(169, 129, 47, 0.16);
+  --pill-border: rgba(169, 129, 47, 0.35);
+  --pill-text: var(--accent-gold-light);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -55,10 +136,11 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #12100E;
-  color: var(--text-primary);
+  background-color: var(--background);
+  color: var(--text);
   line-height: 1.5;
   overflow-x: hidden;
+  transition: background-color 200ms ease, color 200ms ease;
 }
 
 /* Master Typography */
@@ -521,4 +603,279 @@ h1, h2, h3, .font-serif {
     transform: translateY(-6px);
   }
 }
+
+/* ==========================================================================
+   PAMWILL LUXURY RESPONSIVE WEBSITE REDESIGN SYSTEM
+   ========================================================================== */
+
+@media (min-width: 900px) {
+  .pamwill-desktop-nav {
+    display: flex !important;
+  }
+  .pamwill-desktop-actions {
+    display: flex !important;
+  }
+  .pamwill-mobile-toggle {
+    display: none !important;
+  }
+  .pamwill-mobile-bottom-bar {
+    display: none !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .pamwill-desktop-nav {
+    display: none !important;
+  }
+  .pamwill-desktop-actions {
+    display: none !important;
+  }
+  .pamwill-mobile-toggle {
+    display: inline-flex !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .pamwill-mobile-bottom-bar {
+    display: block !important;
+  }
+  /* Prevent iOS zoom on input focus with 16px minimum font size */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+  /* Extra bottom padding to avoid obstruction by sticky bottom bar */
+  body {
+    padding-bottom: 74px;
+  }
+}
+
+/* ==========================================================================
+   THEME SWITCHER COMPONENT STYLES (from Sparsh Care)
+   ========================================================================== */
+
+.theme-switcher-container {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 9999;
+}
+
+@media (max-width: 768px) {
+  .theme-switcher-container {
+    bottom: 86px;
+    right: 18px;
+  }
+}
+
+.theme-toggle-btn {
+  width: 52px;
+  height: 52px;
+  background: var(--cta);
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 20px rgba(198, 165, 103, 0.3);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  z-index: 2;
+}
+
+.theme-toggle-btn:hover {
+  transform: scale(1.08) translateY(-2px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45), 0 0 28px rgba(198, 165, 103, 0.5);
+}
+
+.theme-panel {
+  position: absolute;
+  bottom: 66px;
+  right: 0;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 20px;
+  padding: 22px;
+  width: 290px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px) scale(0.95);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--border-hairline);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.theme-panel.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.theme-panel-header {
+  margin-bottom: 14px;
+}
+
+.theme-panel h3 {
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-panel p {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.theme-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: var(--surface-card);
+  text-align: left;
+  width: 100%;
+}
+
+.theme-option:hover {
+  border-color: var(--cta);
+  background: var(--surface-hover);
+}
+
+.theme-option.active {
+  border-color: var(--cta);
+  background: var(--primary-light);
+  box-shadow: 0 2px 12px rgba(198, 165, 103, 0.15);
+}
+
+.theme-swatches {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.theme-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(128, 128, 128, 0.25);
+}
+
+.theme-option-label {
+  flex: 1;
+}
+
+.theme-option-label strong {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: block;
+  line-height: 1.25;
+}
+
+.theme-option-label small {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.2;
+}
+
+.theme-option-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-hairline);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.theme-option.active .theme-option-check {
+  background: var(--cta);
+  border-color: var(--cta);
+  color: #FFFFFF;
+}
+
+/* ==========================================================================
+   COLLAPSIBLE MOBILE FOOTER SYSTEM
+   ========================================================================== */
+
+.footer-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .footer-accordion-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 14px 0;
+    cursor: pointer;
+    border-bottom: 1px solid var(--footer-border);
+    color: inherit;
+    text-align: left;
+  }
+
+  .footer-accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, padding 0.25s ease;
+  }
+
+  .footer-accordion-content.is-open {
+    max-height: 600px;
+    opacity: 1;
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+}
+
+@media (min-width: 769px) {
+  .footer-accordion-btn {
+    cursor: default !important;
+    pointer-events: none !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+  .footer-accordion-btn .footer-accordion-icon {
+    display: none !important;
+  }
+  .footer-accordion-content {
+    max-height: none !important;
+    opacity: 1 !important;
+    display: block !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+}
+
+
 

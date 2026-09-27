@@ -911,3 +911,121 @@ export async function dbUpdateConnectInquiryStatus(
 }
 
 
+
+
+// ================= VOUCHERS & PROMOTIONS API =================
+export async function dbFetchVouchers(): Promise<any[] | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('saved_addresses')
+      .eq('id', 'system_vouchers')
+      .maybeSingle();
+
+    if (!error && data && Array.isArray(data.saved_addresses) && data.saved_addresses.length > 0) {
+      return data.saved_addresses;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Supabase dbFetchVouchers error:', err);
+    return null;
+  }
+}
+
+export async function dbSaveVouchers(vouchers: any[]): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .upsert([
+        {
+          id: 'system_vouchers',
+          name: 'System Promotional Vouchers Registry',
+          saved_addresses: vouchers,
+          updated_at: new Date().toISOString(),
+        }
+      ], { onConflict: 'id' });
+
+    return !error;
+  } catch (err) {
+    console.warn('Supabase dbSaveVouchers error:', err);
+    return false;
+  }
+}
+
+
+// ================= E-COMMERCE / STORE INVENTORY & ORDERS =================
+export async function dbFetchStoreProducts(): Promise<any[] | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('saved_addresses')
+      .eq('id', 'system_store_products')
+      .maybeSingle();
+
+    if (!error && data && Array.isArray(data.saved_addresses) && data.saved_addresses.length > 0) {
+      return data.saved_addresses;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Supabase dbFetchStoreProducts error:', err);
+    return null;
+  }
+}
+
+export async function dbSaveStoreProducts(products: any[]): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .upsert([
+        {
+          id: 'system_store_products',
+          name: 'Pamwill Sanctuary Store Products Registry',
+          saved_addresses: products,
+          updated_at: new Date().toISOString(),
+        }
+      ], { onConflict: 'id' });
+
+    return !error;
+  } catch (err) {
+    console.warn('Supabase dbSaveStoreProducts error:', err);
+    return false;
+  }
+}
+
+export async function dbFetchStoreOrders(): Promise<any[] | null> {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('saved_addresses')
+      .eq('id', 'system_store_orders')
+      .maybeSingle();
+
+    if (!error && data && Array.isArray(data.saved_addresses)) {
+      return data.saved_addresses;
+    }
+    return null;
+  } catch (err) {
+    console.warn('Supabase dbFetchStoreOrders error:', err);
+    return null;
+  }
+}
+
+export async function dbSaveStoreOrders(orders: any[]): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('users')
+      .upsert([
+        {
+          id: 'system_store_orders',
+          name: 'Pamwill Sanctuary Store Orders Registry',
+          saved_addresses: orders,
+          updated_at: new Date().toISOString(),
+        }
+      ], { onConflict: 'id' });
+
+    return !error;
+  } catch (err) {
+    console.warn('Supabase dbSaveStoreOrders error:', err);
+    return false;
+  }
+}

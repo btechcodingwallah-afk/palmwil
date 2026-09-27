@@ -53,6 +53,11 @@ interface PamwillContextType {
   selectedCity: string;
   setSelectedCity: (city: string) => void;
 
+  // Visual Theme ('light' | 'dark')
+  websiteTheme: 'light' | 'dark';
+  setWebsiteTheme: (theme: 'light' | 'dark') => void;
+  toggleWebsiteTheme: () => void;
+
   // Supabase Sync Status
   isSupabaseConnected: boolean;
 
@@ -160,6 +165,38 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
     return 'home';
   });
+
+  const [websiteTheme, setWebsiteThemeState] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_theme');
+      if (saved === 'light' || saved === 'dark') return saved;
+    }
+    return 'light';
+  });
+
+  const setWebsiteTheme = (theme: 'light' | 'dark') => {
+    setWebsiteThemeState(theme);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pamwill_theme', theme);
+      document.documentElement.setAttribute(
+        'data-theme',
+        theme === 'light' ? 'minimalist-light' : 'minimalist-dark'
+      );
+    }
+  };
+
+  const toggleWebsiteTheme = () => {
+    setWebsiteTheme(websiteTheme === 'dark' ? 'light' : 'dark');
+  };
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      document.documentElement.setAttribute(
+        'data-theme',
+        websiteTheme === 'light' ? 'minimalist-light' : 'minimalist-dark'
+      );
+    }
+  }, [websiteTheme]);
 
   const setCurrentRole = (role: PlatformRole) => {
     setCurrentRoleState(role);
@@ -993,6 +1030,9 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setDeviceFrame,
         selectedCity,
         setSelectedCity,
+        websiteTheme,
+        setWebsiteTheme,
+        toggleWebsiteTheme,
         isSupabaseConnected,
         user,
         updateUser,

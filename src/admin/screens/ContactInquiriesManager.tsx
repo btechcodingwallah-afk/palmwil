@@ -361,6 +361,7 @@ export const ContactInquiriesManager: React.FC = () => {
               <option value="Therapist Partner Onboarding">Therapist Network</option>
               <option value="VIP Booking & Concierge Support">VIP Concierge</option>
               <option value="General Inquiry & Feedback">General Inquiry</option>
+              <option value="Patron Feedback">Patron App Feedback</option>
             </select>
           </div>
 

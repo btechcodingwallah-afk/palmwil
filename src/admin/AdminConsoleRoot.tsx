@@ -10,6 +10,9 @@ import { CommissionsMembershipsView } from './screens/CommissionsMembershipsView
 import { DoctorPayoutRequestsView } from './screens/DoctorPayoutRequestsView';
 import { TrainingInternshipManager } from './screens/TrainingInternshipManager';
 import { ContactInquiriesManager } from './screens/ContactInquiriesManager';
+import { VouchersPromotionsManager } from './screens/VouchersPromotionsManager';
+import { StoreInventoryManager } from './screens/StoreInventoryManager';
+import { StoreOrdersManager } from './screens/StoreOrdersManager';
 
 export const AdminConsoleRoot: React.FC = () => {
   const { therapists, bookings, payoutRequests, trainingApplications, connectInquiries } = usePamwill();
@@ -59,6 +62,9 @@ export const AdminConsoleRoot: React.FC = () => {
         {currentSection === 'cities' && <IndianCitiesManager />}
         {currentSection === 'commissions' && <CommissionsMembershipsView />}
         {currentSection === 'memberships' && <CommissionsMembershipsView />}
+        {currentSection === 'vouchers' && <VouchersPromotionsManager />}
+        {currentSection === 'inventory' && <StoreInventoryManager />}
+        {currentSection === 'store_orders' && <StoreOrdersManager />}
       </main>
     </div>
   );

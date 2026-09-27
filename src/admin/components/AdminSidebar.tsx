@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  BarChart3, Users, UserCheck, CalendarDays, MapPin, 
+  BarChart3, Package, ShoppingBag, Ticket, Users, UserCheck, CalendarDays, MapPin, 
   Sparkles, Percent, Crown, ShieldAlert, FileText, Settings, LogOut, Wallet, GraduationCap, MessageSquare 
 } from 'lucide-react';
 
@@ -15,7 +15,10 @@ export type AdminSection =
   | 'services' 
   | 'cities' 
   | 'commissions' 
-  | 'memberships';
+  | 'memberships'
+  | 'vouchers'
+  | 'inventory'
+  | 'store_orders';
 
 interface AdminSidebarProps {
   currentSection: AdminSection;
@@ -47,7 +50,10 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({
     { id: 'services' as const, label: 'Services Catalog (69)', icon: Sparkles },
     { id: 'cities' as const, label: 'Indian Cities & Districts', icon: MapPin },
     { id: 'commissions' as const, label: 'Platform Economics', icon: Percent },
-    { id: 'memberships' as const, label: 'Membership Tiers', icon: Crown }
+    { id: 'memberships' as const, label: 'Membership Tiers', icon: Crown },
+    { id: 'vouchers' as const, label: 'Vouchers & Promos', icon: Ticket },
+    { id: 'inventory' as const, label: 'Store Inventory', icon: Package },
+    { id: 'store_orders' as const, label: 'Store Orders', icon: ShoppingBag }
   ];
 
   return (

@@ -14,13 +14,15 @@ const AppContent: React.FC = () => {
   return (
     <div style={{
       minHeight: '100vh',
-      backgroundColor: currentRole === 'admin' ? 'var(--bg-primary)' : '#100E0C',
+      backgroundColor: currentRole === 'admin' ? 'var(--bg-primary)' : currentRole === 'home' ? 'var(--background)' : '#100E0C',
+      color: currentRole === 'home' ? 'var(--text)' : '#FAF8F5',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: currentRole === 'home' ? 'flex-start' : 'center',
       position: 'relative',
-      overflowX: 'hidden'
+      overflowX: 'hidden',
+      transition: 'background-color 200ms ease, color 200ms ease'
     }}>
       {/* 1. Official Landing / Home Page */}
       {currentRole === 'home' && (

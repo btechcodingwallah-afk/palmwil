@@ -226,7 +226,8 @@ export type InquiryType =
   | 'Hotel & Resort Concierge Partnership'
   | 'Corporate Wellness & Retreats'
   | 'VIP Booking & Concierge Support'
-  | 'General Inquiry & Feedback';
+  | 'General Inquiry & Feedback'
+  | 'Patron Feedback';
 
 export type InquiryStatus = 'New' | 'In Progress' | 'Contacted' | 'Resolved' | 'Closed';
 
@@ -245,3 +246,111 @@ export interface ConnectInquiry {
   adminNotes?: string;
 }
 
+
+
+export interface Voucher {
+  id: string;
+  code: string;
+  title: string;
+  description: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  minSpend: number;
+  expiryDate: string;
+  category: 'Wellness' | 'Therapy' | 'Ayurveda' | 'All';
+  tag?: string;
+  accentColor?: string;
+  isActive: boolean;
+}
+
+
+export interface DeliveryAddress {
+  id: string;
+  label: 'Home' | 'Office' | 'College' | 'Hotel' | 'Other' | string;
+  recipientName?: string;
+  phone?: string;
+  street?: string;
+  address?: string;
+  apartment?: string;
+  landmark?: string;
+  city: string;
+  state?: string;
+  postalCode?: string;
+  isDefault?: boolean;
+}
+
+export interface ProductSpecification {
+  label: string;
+  value: string;
+}
+
+export type ProductCategory = 'All' | 'Ayurvedic Oils' | 'Aromatherapy' | 'Therapy Tools' | 'Bath & Body' | 'Wellness Teas';
+
+export interface Product {
+  id: string;
+  name: string;
+  tagline?: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  category: 'Ayurvedic Oils' | 'Aromatherapy' | 'Therapy Tools' | 'Bath & Body' | 'Wellness Teas' | string;
+  images: string[];
+  stock: number;
+  inStock: boolean;
+  rating: number;
+  reviewsCount: number;
+  specifications: ProductSpecification[];
+  volumeOrWeight?: string;
+  featured?: boolean;
+  isEnabled?: boolean;
+}
+
+export type OrderStatus =
+  | 'Order Placed'
+  | 'Order Confirmed'
+  | 'Processing'
+  | 'Packed'
+  | 'Shipped'
+  | 'Out for Delivery'
+  | 'Delivered'
+  | 'Cancelled'
+  | 'Refunded';
+
+export interface StoreOrderItem {
+  productId: string;
+  productName: string;
+  productImage: string;
+  price: number;
+  quantity: number;
+  volumeOrWeight?: string;
+}
+
+export interface OrderTimelineEvent {
+  status: OrderStatus;
+  timestamp: string;
+  note?: string;
+}
+
+export interface StoreOrder {
+  id: string;
+  customerId: string;
+  customerName: string;
+  customerPhone: string;
+  customerEmail?: string;
+  items: StoreOrderItem[];
+  subtotal: number;
+  deliveryFee: number;
+  discount: number;
+  voucherCode?: string;
+  totalAmount: number;
+  deliveryAddress: DeliveryAddress;
+  paymentMethod: 'COD' | 'Razorpay';
+  paymentStatus: 'Pending' | 'Paid' | 'Failed' | 'Refunded';
+  paymentId?: string;
+  orderStatus: OrderStatus;
+  trackingPartner?: string;
+  trackingNumber?: string;
+  createdAt: string;
+  updatedAt: string;
+  timeline: OrderTimelineEvent[];
+}
