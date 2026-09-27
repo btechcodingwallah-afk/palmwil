@@ -96,8 +96,9 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundColor: 'rgba(8, 7, 6, 0.88)',
-      backdropFilter: 'blur(12px)',
+      backgroundColor: 'rgba(0, 0, 0, 0.70)',
+      backdropFilter: 'blur(10px)',
+      WebkitBackdropFilter: 'blur(10px)',
       zIndex: 10000,
       display: 'flex',
       alignItems: 'center',
@@ -107,15 +108,15 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
       
       <div
         style={{
-          backgroundColor: '#171411',
-          border: '1px solid rgba(169, 129, 47, 0.4)',
+          backgroundColor: 'var(--surface)',
+          border: '1px solid var(--border-gold)',
           borderRadius: '24px',
           width: '100%',
           maxWidth: '680px',
           maxHeight: '90vh',
           overflowY: 'auto',
-          boxShadow: '0 25px 70px rgba(0,0,0,0.85), 0 0 50px rgba(169, 129, 47, 0.15)',
-          color: '#FAF8F5',
+          boxShadow: 'var(--card-shadow), 0 25px 70px rgba(0,0,0,0.35)',
+          color: 'var(--text)',
           position: 'relative',
           padding: '36px'
         }}
@@ -129,12 +130,12 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
             top: '20px',
             right: '20px',
             background: 'none',
-            border: 'none',
-            color: '#A3988B',
+            border: '1px solid var(--border-hairline)',
+            color: 'var(--text-muted)',
             cursor: 'pointer',
             padding: '6px',
             borderRadius: '50%',
-            backgroundColor: '#231E19',
+            backgroundColor: 'var(--surface-card)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center'
@@ -151,7 +152,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               width: '64px',
               height: '64px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(76, 107, 79, 0.25)',
+              backgroundColor: 'rgba(76, 107, 79, 0.15)',
               border: '1px solid var(--status-success)',
               display: 'flex',
               alignItems: 'center',
@@ -167,7 +168,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               fontWeight: 700,
               textTransform: 'uppercase',
               letterSpacing: '0.08em',
-              color: 'var(--accent-gold-light)'
+              color: 'var(--cta)'
             }}>
               Application Lodged In Database
             </span>
@@ -177,19 +178,19 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               fontSize: '28px',
               fontWeight: 600,
               margin: '8px 0 12px',
-              color: '#FAF8F5'
+              color: 'var(--text-primary)'
             }}>
               Application Received!
             </h3>
 
-            <p style={{ fontSize: '14px', color: '#C7BEB1', lineHeight: 1.6, maxWidth: '480px', margin: '0 auto 24px' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: '480px', margin: '0 auto 24px' }}>
               Thank you, <strong>{fullName}</strong>. Your application for the <strong>{programType}</strong> has been saved directly to the PamWill Academy database.
             </p>
 
             {/* Application Token Box */}
             <div style={{
-              backgroundColor: '#211C17',
-              border: '1px solid #3B3226',
+              backgroundColor: 'var(--surface-card)',
+              border: '1px solid var(--border-hairline)',
               borderRadius: 'var(--radius-lg)',
               padding: '16px 20px',
               maxWidth: '380px',
@@ -199,16 +200,16 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               alignItems: 'center'
             }}>
               <div style={{ textAlign: 'left' }}>
-                <div style={{ fontSize: '11px', color: '#9E9284', textTransform: 'uppercase' }}>Reference Application ID</div>
-                <div style={{ fontFamily: 'monospace', fontSize: '16px', fontWeight: 700, color: 'var(--accent-gold-light)' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase' }}>Reference Application ID</div>
+                <div style={{ fontFamily: 'monospace', fontSize: '16px', fontWeight: 700, color: 'var(--cta)' }}>
                   {submittedId}
                 </div>
               </div>
               <div style={{
                 fontSize: '11px',
                 fontWeight: 700,
-                backgroundColor: 'rgba(169, 129, 47, 0.2)',
-                color: 'var(--accent-gold-light)',
+                backgroundColor: 'var(--pill-bg)',
+                color: 'var(--cta)',
                 padding: '4px 10px',
                 borderRadius: 'var(--radius-pill)'
               }}>
@@ -216,14 +217,14 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               </div>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#9E9284', margin: '0 0 28px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: '0 0 28px' }}>
               Our Academic Dean and Partner Coordinator will review your details and contact you via WhatsApp / Phone at <strong>{phone}</strong> within 24–48 hours.
             </p>
 
             <button
               onClick={handleResetAndClose}
               style={{
-                backgroundColor: 'var(--accent-gold)',
+                backgroundColor: 'var(--cta)',
                 color: '#FFFFFF',
                 border: 'none',
                 padding: '12px 32px',
@@ -245,38 +246,38 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                backgroundColor: 'rgba(169, 129, 47, 0.15)',
-                border: '1px solid rgba(169, 129, 47, 0.3)',
+                backgroundColor: 'var(--pill-bg)',
+                border: '1px solid var(--pill-border)',
                 borderRadius: 'var(--radius-pill)',
                 padding: '4px 12px',
                 fontSize: '11px',
                 fontWeight: 700,
-                color: 'var(--accent-gold-light)',
+                color: 'var(--pill-text)',
                 textTransform: 'uppercase',
                 letterSpacing: '0.08em',
                 marginBottom: '10px'
               }}>
-                <GraduationCap size={14} color="var(--accent-gold)" /> PamWill Academy & Internships
+                <GraduationCap size={14} color="var(--cta)" /> PamWill Academy & Internships
               </div>
               <h2 style={{
                 fontFamily: 'var(--font-serif)',
                 fontSize: '26px',
                 fontWeight: 600,
-                color: '#FAF8F5',
+                color: 'var(--text-primary)',
                 margin: '0 0 6px'
               }}>
                 Apply for Training & Internship
               </h2>
-              <p style={{ fontSize: '13px', color: '#BDB3A6', margin: 0, lineHeight: 1.5 }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-muted)', margin: 0, lineHeight: 1.5 }}>
                 Master luxury massage protocols, holistic anatomy, and boutique spa operations. Open to beginners, graduates, and practicing therapists.
               </p>
             </div>
 
             {errorMsg && (
               <div style={{
-                backgroundColor: 'rgba(140, 58, 43, 0.2)',
-                border: '1px solid #8C3A2B',
-                color: '#F9A8A8',
+                backgroundColor: 'var(--status-error-bg)',
+                border: '1px solid var(--status-error)',
+                color: 'var(--status-error)',
                 padding: '10px 14px',
                 borderRadius: 'var(--radius-md)',
                 fontSize: '13px',
@@ -292,7 +293,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div>
                   <label style={labelStyle}>
-                    <User size={13} color="var(--accent-gold)" /> Full Legal Name *
+                    <User size={13} color="var(--cta)" /> Full Legal Name *
                   </label>
                   <input
                     type="text"
@@ -306,7 +307,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
 
                 <div>
                   <label style={labelStyle}>
-                    <MapPin size={13} color="var(--accent-gold)" /> Training Location / City *
+                    <MapPin size={13} color="var(--cta)" /> Training Location / City *
                   </label>
                   <select
                     value={city}
@@ -329,7 +330,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div>
                   <label style={labelStyle}>
-                    <Mail size={13} color="var(--accent-gold)" /> Email Address *
+                    <Mail size={13} color="var(--cta)" /> Email Address *
                   </label>
                   <input
                     type="email"
@@ -343,7 +344,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
 
                 <div>
                   <label style={labelStyle}>
-                    <Phone size={13} color="var(--accent-gold)" /> WhatsApp / Mobile Number *
+                    <Phone size={13} color="var(--cta)" /> WhatsApp / Mobile Number *
                   </label>
                   <input
                     type="tel"
@@ -359,7 +360,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               {/* Program Track Selection */}
               <div>
                 <label style={labelStyle}>
-                  <Award size={13} color="var(--accent-gold)" /> Select Program / Track *
+                  <Award size={13} color="var(--cta)" /> Select Program / Track *
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '10px' }}>
                   {[
@@ -390,8 +391,8 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                       style={{
                         padding: '12px 14px',
                         borderRadius: 'var(--radius-md)',
-                        backgroundColor: programType === prog.id ? 'rgba(169, 129, 47, 0.16)' : '#211C18',
-                        border: programType === prog.id ? '1px solid var(--accent-gold)' : '1px solid #332B22',
+                        backgroundColor: programType === prog.id ? 'var(--pill-bg)' : 'var(--surface-card-subtle)',
+                        border: programType === prog.id ? '1px solid var(--cta)' : '1px solid var(--border-hairline)',
                         cursor: 'pointer',
                         transition: 'all 150ms ease'
                       }}
@@ -399,12 +400,12 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                       <div style={{
                         fontSize: '13px',
                         fontWeight: 600,
-                        color: programType === prog.id ? 'var(--accent-gold-light)' : '#FAF8F5',
+                        color: programType === prog.id ? 'var(--cta)' : 'var(--text-primary)',
                         marginBottom: '4px'
                       }}>
                         {prog.title}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#9E9284', lineHeight: 1.3 }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.3 }}>
                         {prog.desc}
                       </div>
                     </div>
@@ -416,7 +417,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
                 <div>
                   <label style={labelStyle}>
-                    <Briefcase size={13} color="var(--accent-gold)" /> Prior Experience Level
+                    <Briefcase size={13} color="var(--cta)" /> Prior Experience Level
                   </label>
                   <select
                     value={experienceLevel}
@@ -432,7 +433,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
 
                 <div>
                   <label style={labelStyle}>
-                    <Clock size={13} color="var(--accent-gold)" /> Program Format & Availability
+                    <Clock size={13} color="var(--cta)" /> Program Format & Availability
                   </label>
                   <select
                     value={availability}
@@ -449,7 +450,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               {/* Qualification */}
               <div>
                 <label style={labelStyle}>
-                  <BookOpen size={13} color="var(--accent-gold)" /> Education / Prior Certifications
+                  <BookOpen size={13} color="var(--cta)" /> Education / Prior Certifications
                 </label>
                 <input
                   type="text"
@@ -463,7 +464,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
               {/* Statement */}
               <div>
                 <label style={labelStyle}>
-                  <FileText size={13} color="var(--accent-gold)" /> Why do you wish to join PamWill Academy?
+                  <FileText size={13} color="var(--cta)" /> Why do you wish to join PamWill Academy?
                 </label>
                 <textarea
                   rows={3}
@@ -481,8 +482,8 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                   onClick={handleResetAndClose}
                   style={{
                     backgroundColor: 'transparent',
-                    border: '1px solid #3A3228',
-                    color: '#BAAE9E',
+                    border: '1px solid var(--border-hairline)',
+                    color: 'var(--text-muted)',
                     padding: '11px 20px',
                     borderRadius: 'var(--radius-pill)',
                     fontSize: '13px',
@@ -500,7 +501,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
-                    backgroundColor: 'var(--accent-gold)',
+                    backgroundColor: 'var(--cta)',
                     color: '#FFFFFF',
                     border: 'none',
                     padding: '12px 28px',
@@ -508,7 +509,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                     fontSize: '14px',
                     fontWeight: 600,
                     cursor: submitting ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 16px rgba(169, 129, 47, 0.4)',
+                    boxShadow: '0 4px 16px rgba(198, 165, 103, 0.4)',
                     opacity: submitting ? 0.7 : 1
                   }}
                 >
@@ -535,17 +536,17 @@ const labelStyle: React.CSSProperties = {
   gap: '6px',
   fontSize: '12px',
   fontWeight: 600,
-  color: '#D4C9BC',
+  color: 'var(--text-secondary, #4A453E)',
   marginBottom: '6px'
 };
 
 const inputStyle: React.CSSProperties = {
   width: '100%',
-  backgroundColor: '#201B17',
-  border: '1px solid #362E25',
+  backgroundColor: 'var(--input-bg, #FFFFFF)',
+  border: '1px solid var(--input-border, #DCD6CD)',
   borderRadius: 'var(--radius-md)',
   padding: '10px 14px',
-  color: '#FAF8F5',
+  color: 'var(--input-text, #17181A)',
   fontSize: '13px',
   outline: 'none',
   fontFamily: 'inherit',

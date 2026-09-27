@@ -15,8 +15,11 @@ import {
   ChevronLeft, 
   ChevronRight,
   Smartphone,
-  MessageSquare
+  MessageSquare,
+  GraduationCap,
+  Briefcase
 } from 'lucide-react';
+import { usePamwill } from '../../state/store';
 
 interface HomePageProps {
   onNavigatePage: (page: WebsitePage) => void;
@@ -31,6 +34,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   onSelectService,
   onOpenAppDownload
 }) => {
+  const { setTrainingModalOpen } = usePamwill();
   const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0);
 
   // Take top 3 curated featured services
@@ -731,6 +735,248 @@ export const HomePage: React.FC<HomePageProps> = ({
               <MessageSquare size={16} /> Contact Concierge
             </button>
           </div>
+        </div>
+      </section>
+
+      {/* 6. PAMWILL ACADEMY: CLINICAL TRAINING & APPRENTICESHIP / INTERNSHIP */}
+      <section style={{
+        padding: '80px 24px',
+        backgroundColor: 'var(--surface-card)',
+        borderTop: '1px solid var(--border-subtle)',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        <div style={{ maxWidth: '1240px', margin: '0 auto' }}>
+          
+          {/* Header */}
+          <div style={{ textAlign: 'center', maxWidth: '780px', margin: '0 auto 48px' }}>
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              backgroundColor: 'var(--pill-bg)',
+              border: '1px solid var(--pill-border)',
+              borderRadius: 'var(--radius-pill)',
+              padding: '6px 16px',
+              fontSize: '11.5px',
+              fontWeight: 700,
+              color: 'var(--pill-text)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.1em',
+              marginBottom: '16px'
+            }}>
+              <GraduationCap size={15} color="var(--cta)" /> PamWill Academy & Clinical Internships
+            </div>
+
+            <h2 style={{
+              fontFamily: 'var(--font-serif)',
+              fontSize: 'clamp(28px, 4vw, 42px)',
+              fontWeight: 600,
+              color: 'var(--text)',
+              margin: '0 0 16px',
+              letterSpacing: '-0.02em'
+            }}>
+              Launch Your Career in Luxury Clinical Wellness
+            </h2>
+
+            <p style={{
+              fontSize: '15.5px',
+              lineHeight: 1.65,
+              color: 'var(--text-muted)',
+              margin: 0
+            }}>
+              Join Bengaluru's premier accredited therapist training & apprenticeship initiative. We provide CIDESCO-aligned certification, paid apprenticeship stipends, hands-on master mentorship, and 100% guaranteed on-demand platform placement.
+            </p>
+          </div>
+
+          {/* 4 Feature Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '24px',
+            marginBottom: '44px'
+          }}>
+            {[
+              {
+                icon: <Award size={22} color="var(--cta)" />,
+                title: 'Certified 500+ Hour Curriculum',
+                desc: 'Comprehensive training in Swedish Relaxation, Deep Tissue Myofascial, Balinese Acupressure, and Posture Decompression.'
+              },
+              {
+                icon: <Briefcase size={22} color="var(--cta)" />,
+                title: 'Paid Clinical Apprenticeship',
+                desc: 'Earn a monthly stipend during hands-on clinical training, client shadowing, and live practicals with senior practitioners.'
+              },
+              {
+                icon: <Sparkles size={22} color="var(--cta)" />,
+                title: 'Complete Professional Kit',
+                desc: 'Complimentary portable ergonomic massage table, heated volcanic basalt stones, uniform pack, and pure organic botanicals.'
+              },
+              {
+                icon: <ShieldCheck size={22} color="var(--cta)" />,
+                title: '100% Guaranteed Placement',
+                desc: 'Graduate directly onto the PamWill platform with verified practitioner status, VIP guest dispatch, and weekly payouts.'
+              }
+            ].map((card, idx) => (
+              <div
+                key={idx}
+                style={{
+                  backgroundColor: 'var(--surface)',
+                  border: '1px solid var(--border-hairline)',
+                  borderRadius: '18px',
+                  padding: '28px 24px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  boxShadow: 'var(--card-shadow)',
+                  transition: 'transform 180ms ease, border-color 180ms ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.borderColor = 'var(--cta)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.borderColor = 'var(--border-hairline)';
+                }}
+              >
+                <div style={{
+                  width: '46px',
+                  height: '46px',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--primary-light)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  {card.icon}
+                </div>
+                <h3 style={{
+                  fontFamily: 'var(--font-serif)',
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  color: 'var(--text)',
+                  margin: 0
+                }}>
+                  {card.title}
+                </h3>
+                <p style={{
+                  fontSize: '13.5px',
+                  lineHeight: 1.55,
+                  color: 'var(--text-muted)',
+                  margin: 0
+                }}>
+                  {card.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Impact Stats & Action Bar */}
+          <div style={{
+            backgroundColor: 'var(--surface)',
+            border: '1.5px solid var(--border-gold)',
+            borderRadius: '20px',
+            padding: '32px 28px',
+            boxShadow: 'var(--card-shadow)',
+            display: 'flex',
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '24px'
+          }}>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              gap: '32px'
+            }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', fontWeight: 700, color: 'var(--cta)' }}>
+                  ₹45k – ₹85k+
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  Avg. Monthly Practitioner Earnings
+                </div>
+              </div>
+
+              <div style={{ width: '1px', height: '40px', backgroundColor: 'var(--border-subtle)' }} />
+
+              <div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', fontWeight: 700, color: 'var(--cta)' }}>
+                  500+ Hours
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  Accredited Clinical Training
+                </div>
+              </div>
+
+              <div style={{ width: '1px', height: '40px', backgroundColor: 'var(--border-subtle)' }} />
+
+              <div>
+                <div style={{ fontFamily: 'var(--font-serif)', fontSize: '26px', fontWeight: 700, color: 'var(--cta)' }}>
+                  100%
+                </div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  Guaranteed Job Placement
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+              <button
+                onClick={() => setTrainingModalOpen(true)}
+                style={{
+                  backgroundColor: 'var(--cta)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '14px 28px',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 16px rgba(198, 165, 103, 0.35)',
+                  transition: 'all 160ms ease'
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--cta-hover)')}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'var(--cta)')}
+              >
+                <GraduationCap size={16} /> Apply for Training & Internship <ArrowRight size={15} />
+              </button>
+
+              <button
+                onClick={() => onNavigatePage('contact')}
+                style={{
+                  backgroundColor: 'transparent',
+                  color: 'var(--text)',
+                  border: '1px solid var(--border-hairline)',
+                  borderRadius: 'var(--radius-pill)',
+                  padding: '14px 22px',
+                  fontSize: '13.5px',
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 160ms ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--cta)';
+                  e.currentTarget.style.color = 'var(--cta)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--border-hairline)';
+                  e.currentTarget.style.color = 'var(--text)';
+                }}
+              >
+                <MessageSquare size={15} /> Academy Inquiries
+              </button>
+            </div>
+          </div>
+
         </div>
       </section>
     </div>

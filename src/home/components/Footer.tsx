@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { WebsitePage } from '../types';
-import { Sparkles, Phone, Mail, Clock, MapPin, ShieldCheck, ChevronDown } from 'lucide-react';
+import { Sparkles, Phone, Mail, Clock, MapPin, ShieldCheck, ChevronDown, GraduationCap } from 'lucide-react';
 import { COMPANY_INFO } from '../../config/env';
+import { usePamwill } from '../../state/store';
 
 interface FooterProps {
   onNavigatePage: (page: WebsitePage) => void;
@@ -12,6 +13,7 @@ export const Footer: React.FC<FooterProps> = ({
   onNavigatePage,
   onNavigateRole
 }) => {
+  const { setTrainingModalOpen } = usePamwill();
   // Mobile accordion state: default collapsed on mobile so footer is compact
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
     navigation: false,
@@ -150,6 +152,28 @@ export const Footer: React.FC<FooterProps> = ({
                   </button>
                 </li>
               ))}
+              <li>
+                <button
+                  onClick={() => setTrainingModalOpen(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '13.5px',
+                    color: 'var(--cta)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: 600,
+                    transition: 'opacity 150ms ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.75')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  <GraduationCap size={14} color="var(--cta)" /> Apply for Training & Internship
+                </button>
+              </li>
             </ul>
           </div>
         </div>
