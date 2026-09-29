@@ -20,19 +20,24 @@ import {
   Briefcase
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
+import { DownloadSection } from '../components/DownloadSection';
 
 interface HomePageProps {
   onNavigatePage: (page: WebsitePage) => void;
   onOpenWellnessGuide: () => void;
   onSelectService: (service: MassageService) => void;
-  onOpenAppDownload?: () => void;
+  onOpenAppDownload?: (type?: 'patient' | 'therapist') => void;
+  onNavigateRole?: (role: 'client' | 'therapist' | 'admin') => void;
+  onShowToast?: (msg: string) => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({
   onNavigatePage,
   onOpenWellnessGuide,
   onSelectService,
-  onOpenAppDownload
+  onOpenAppDownload,
+  onNavigateRole,
+  onShowToast
 }) => {
   const { setTrainingModalOpen } = usePamwill();
   const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0);
@@ -58,9 +63,9 @@ export const HomePage: React.FC<HomePageProps> = ({
     }
   };
 
-  const handleAppLaunch = () => {
+  const handleAppLaunch = (type: 'patient' | 'therapist' = 'patient') => {
     if (onOpenAppDownload) {
-      onOpenAppDownload();
+      onOpenAppDownload(type);
     } else {
       onNavigatePage('contact');
     }
@@ -161,7 +166,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Direct App Launch Button */}
             <button
-              onClick={handleAppLaunch}
+              onClick={() => handleAppLaunch('patient')}
               style={{
                 backgroundColor: 'var(--surface-card)',
                 color: 'var(--text)',
@@ -635,7 +640,18 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 5. FOOTER CTA BANNER */}
+      {/* 5. PAMWILL MOBILE APPLICATIONS DOWNLOAD CENTER */}
+      <DownloadSection
+        onNavigateRole={onNavigateRole || (() => {})}
+        onOpenQr={(type) => {
+          if (onOpenAppDownload) {
+            onOpenAppDownload(type);
+          }
+        }}
+        onShowToast={onShowToast || (() => {})}
+      />
+
+      {/* 6. FOOTER CTA BANNER */}
       <section style={{
         padding: '70px 24px',
         backgroundColor: 'var(--background)',
@@ -685,7 +701,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '14px' }}>
             <button
-              onClick={handleAppLaunch}
+              onClick={() => handleAppLaunch('patient')}
               style={{
                 backgroundColor: 'var(--cta)',
                 color: '#FFFFFF',

@@ -1,17 +1,19 @@
 import React, { useState } from 'react';
 import { WebsitePage } from '../types';
-import { Sparkles, Phone, Mail, Clock, MapPin, ShieldCheck, ChevronDown, GraduationCap } from 'lucide-react';
+import { Sparkles, Phone, Mail, Clock, MapPin, ShieldCheck, ChevronDown, GraduationCap, Smartphone, Download } from 'lucide-react';
 import { COMPANY_INFO } from '../../config/env';
 import { usePamwill } from '../../state/store';
 
 interface FooterProps {
   onNavigatePage: (page: WebsitePage) => void;
   onNavigateRole: (role: 'client' | 'therapist' | 'admin') => void;
+  onOpenAppDownload?: (type?: 'patient' | 'therapist') => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   onNavigatePage,
-  onNavigateRole
+  onNavigateRole,
+  onOpenAppDownload
 }) => {
   const { setTrainingModalOpen } = usePamwill();
   // Mobile accordion state: default collapsed on mobile so footer is compact
@@ -288,6 +290,53 @@ export const Footer: React.FC<FooterProps> = ({
                 <MapPin size={15} color="var(--cta)" />
                 <span>Flagship: Bengaluru, Karnataka</span>
               </div>
+
+              {/* Direct App Downloads */}
+              <div style={{
+                marginTop: '8px',
+                paddingTop: '12px',
+                borderTop: '1px solid var(--border-hairline, rgba(255,255,255,0.06))',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px'
+              }}>
+                <button
+                  onClick={() => onOpenAppDownload?.('patient')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    textAlign: 'left',
+                    color: 'var(--cta)',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Smartphone size={14} /> Download Patient App (APK)
+                </button>
+                <button
+                  onClick={() => onOpenAppDownload?.('therapist')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    textAlign: 'left',
+                    color: '#5BB377',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Smartphone size={14} /> Download Therapist App (APK)
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -309,7 +358,39 @@ export const Footer: React.FC<FooterProps> = ({
           © {new Date().getFullYear()} {COMPANY_INFO.name}. All Rights Reserved. Luxury Wellness Redefined.
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+          <button
+            onClick={() => onOpenAppDownload?.('patient')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--cta)',
+              cursor: 'pointer',
+              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 600
+            }}
+          >
+            <Download size={12} /> Patient APK (92 MB)
+          </button>
+          <button
+            onClick={() => onOpenAppDownload?.('therapist')}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#5BB377',
+              cursor: 'pointer',
+              fontSize: '12px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: 600
+            }}
+          >
+            <Download size={12} /> Therapist APK (90 MB)
+          </button>
           <button
             onClick={() => onNavigateRole('client')}
             style={{

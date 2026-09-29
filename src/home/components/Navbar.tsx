@@ -7,7 +7,7 @@ interface NavbarProps {
   currentPage: WebsitePage;
   onNavigatePage: (page: WebsitePage) => void;
   onNavigateRole: (role: 'client' | 'therapist' | 'admin') => void;
-  onOpenAppDownload?: () => void;
+  onOpenAppDownload?: (type?: 'patient' | 'therapist') => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -33,12 +33,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleAppAction = () => {
+  const handleAppAction = (type: 'patient' | 'therapist' = 'patient') => {
     setMobileMenuOpen(false);
     if (onOpenAppDownload) {
-      onOpenAppDownload();
+      onOpenAppDownload(type);
     } else {
-      onNavigateRole('client');
+      onNavigateRole(type === 'patient' ? 'client' : 'therapist');
     }
   };
 
@@ -226,7 +226,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Primary Action: Get The App (Since massages are booked on App) */}
             <button
-              onClick={handleAppAction}
+              onClick={() => handleAppAction('patient')}
               style={{
                 backgroundColor: 'var(--cta)',
                 color: '#FFFFFF',
@@ -377,27 +377,52 @@ export const Navbar: React.FC<NavbarProps> = ({
             borderTop: '1px solid var(--border-hairline)'
           }}>
             {/* Get App To Book */}
-            <button
-              onClick={handleAppAction}
-              style={{
-                width: '100%',
-                minHeight: '48px',
-                backgroundColor: 'var(--cta)',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: 'var(--radius-pill)',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 16px rgba(198, 165, 103, 0.35)'
-              }}
-            >
-              <Smartphone size={17} /> Get The App to Book
-            </button>
+            {/* Separate App Download Buttons for Mobile */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
+              <button
+                onClick={() => handleAppAction('patient')}
+                style={{
+                  width: '100%',
+                  minHeight: '46px',
+                  backgroundColor: 'var(--cta)',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: 'var(--radius-pill)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 16px rgba(198, 165, 103, 0.35)'
+                }}
+              >
+                <Smartphone size={16} /> Get Patient App (APK)
+              </button>
+
+              <button
+                onClick={() => handleAppAction('therapist')}
+                style={{
+                  width: '100%',
+                  minHeight: '46px',
+                  backgroundColor: '#3E7B52',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: 'var(--radius-pill)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  boxShadow: '0 4px 16px rgba(62, 123, 82, 0.35)'
+                }}
+              >
+                <Smartphone size={16} /> Get Therapist Partner App (APK)
+              </button>
+            </div>
 
             {/* Inquire with Concierge */}
             <button

@@ -73,8 +73,21 @@ function apkServePlugin(): Plugin {
           const fs = await import('fs');
           const path = await import('path');
           const rawUrl = (req.url || '').split('?')[0];
-          const filename = path.basename(rawUrl);
-          const filePath = path.resolve(process.cwd(), 'apks', filename);
+          let filename = path.basename(rawUrl);
+
+          // Support aliases and case variations
+          const lower = filename.toLowerCase();
+          if (lower.includes('patient') || lower.includes('client')) {
+            filename = 'pamwill-client.apk';
+          } else if (lower.includes('therapist')) {
+            filename = 'palwill-therapist.apk';
+          }
+
+          // Check in public/apks first, then root apks/
+          let filePath = path.resolve(process.cwd(), 'public', 'apks', filename);
+          if (!fs.existsSync(filePath)) {
+            filePath = path.resolve(process.cwd(), 'apks', filename);
+          }
 
           if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
             const stat = fs.statSync(filePath);

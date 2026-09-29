@@ -12,6 +12,7 @@ import { ServiceDetailModal } from './components/ServiceDetailModal';
 import { TrainingApplicationModal } from './components/TrainingApplicationModal';
 import { ConnectWithUsModal } from './components/ConnectWithUsModal';
 import { QrCodeModal } from './components/QrCodeModal';
+import { DownloadToast } from './components/DownloadToast';
 import { ThemeSwitcher } from './components/ThemeSwitcher';
 import { MassageService } from '../types';
 import { usePamwill } from '../state/store';
@@ -42,7 +43,25 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
   const [wellnessGuideOpen, setWellnessGuideOpen] = useState(false);
   const [selectedServiceDetail, setSelectedServiceDetail] = useState<MassageService | null>(null);
   const [preselectedBookingServiceId, setPreselectedBookingServiceId] = useState<string | null>(null);
-  const [appQrOpen, setAppQrOpen] = useState(false);
+  const [downloadModal, setDownloadModal] = useState<{
+    isOpen: boolean;
+    type: 'patient' | 'therapist';
+  }>({
+    isOpen: false,
+    type: 'patient'
+  });
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleOpenAppDownload = (type: 'patient' | 'therapist' = 'patient') => {
+    setDownloadModal({ isOpen: true, type });
+  };
+
+  const handleShowToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage(null);
+    }, 6000);
+  };
 
   // Sync hash with browser history
   useEffect(() => {
@@ -88,7 +107,7 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
         currentPage={currentPage}
         onNavigatePage={handleNavigatePage}
         onNavigateRole={onNavigateRole}
-        onOpenAppDownload={() => setAppQrOpen(true)}
+        onOpenAppDownload={handleOpenAppDownload}
       />
 
       {/* 2. Main Multi-Page Routed View */}
@@ -98,7 +117,9 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
             onNavigatePage={handleNavigatePage}
             onOpenWellnessGuide={() => setWellnessGuideOpen(true)}
             onSelectService={handleSelectServiceForBooking}
-            onOpenAppDownload={() => setAppQrOpen(true)}
+            onOpenAppDownload={handleOpenAppDownload}
+            onNavigateRole={onNavigateRole}
+            onShowToast={handleShowToast}
           />
         )}
 
@@ -107,21 +128,21 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
             onNavigatePage={handleNavigatePage}
             onOpenServiceDetail={(svc) => setSelectedServiceDetail(svc)}
             onSelectService={handleSelectServiceForBooking}
-            onOpenAppDownload={() => setAppQrOpen(true)}
+            onOpenAppDownload={handleOpenAppDownload}
           />
         )}
 
         {currentPage === 'about' && (
           <AboutPage
             onNavigatePage={handleNavigatePage}
-            onOpenAppDownload={() => setAppQrOpen(true)}
+            onOpenAppDownload={handleOpenAppDownload}
           />
         )}
 
         {currentPage === 'how-it-works' && (
           <HowItWorksPage
             onNavigatePage={handleNavigatePage}
-            onOpenAppDownload={() => setAppQrOpen(true)}
+            onOpenAppDownload={handleOpenAppDownload}
           />
         )}
 
@@ -130,7 +151,7 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
             onNavigatePage={handleNavigatePage}
             onNavigateRole={onNavigateRole}
             preselectedServiceId={preselectedBookingServiceId}
-            onOpenAppDownload={() => setAppQrOpen(true)}
+            onOpenAppDownload={handleOpenAppDownload}
           />
         )}
       </main>
@@ -149,7 +170,7 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
       >
         <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '10px' }}>
           <button
-            onClick={() => setAppQrOpen(true)}
+            onClick={() => handleOpenAppDownload('patient')}
             style={{
               backgroundColor: 'var(--cta)',
               color: '#FFFFFF',
@@ -196,37 +217,43 @@ export const PamwillHomePage: React.FC<PamwillHomePageProps> = ({ onNavigateRole
       <Footer
         onNavigatePage={handleNavigatePage}
         onNavigateRole={onNavigateRole}
+        onOpenAppDownload={handleOpenAppDownload}
       />
 
       {/* 5. Sparsh Care Minimalist Theme Switcher (Floating) */}
       <ThemeSwitcher />
 
-      {/* 6. PamWill App Installation & Download QR Modal */}
+      {/* 6. PamWill Separate App Installation & Download QR Modal */}
       <QrCodeModal
-        isOpen={appQrOpen}
-        onClose={() => setAppQrOpen(false)}
-        title="Get PamWill Mobile App"
-        subtitle="Live massage bookings, instant verified therapist dispatch, and real-time GPS tracking are managed exclusively via the PamWill mobile application."
-        downloadUrl="/apks/PamWill-patient.apk"
-        fileName="PamWill-patient.apk"
+        isOpen={downloadModal.isOpen}
+        initialType={downloadModal.type}
+        onClose={() => setDownloadModal(prev => ({ ...prev, isOpen: false }))}
+        onShowToast={handleShowToast}
       />
 
-      {/* 7. Strategic Wellness Guide Modal */}
+      {/* 7. Download Toast Notification */}
+      <DownloadToast
+        message={toastMessage}
+        onClose={() => setToastMessage(null)}
+        subtext="Direct package download started. On official store release, store links open automatically."
+      />
+
+      {/* 8. Strategic Wellness Guide Modal */}
       <WellnessGuideModal
         isOpen={wellnessGuideOpen}
         onClose={() => setWellnessGuideOpen(false)}
         onNavigatePage={handleNavigatePage}
       />
 
-      {/* 8. Service Detail Modal */}
+      {/* 9. Service Detail Modal */}
       <ServiceDetailModal
         service={selectedServiceDetail}
         onClose={() => setSelectedServiceDetail(null)}
         onBookService={handleSelectServiceForBooking}
-        onOpenAppDownload={() => setAppQrOpen(true)}
+        onOpenAppDownload={handleOpenAppDownload}
       />
 
-      {/* 9. Support Modals */}
+      {/* 10. Support Modals */}
       <TrainingApplicationModal
         isOpen={trainingModalOpen}
         onClose={() => setTrainingModalOpen(false)}

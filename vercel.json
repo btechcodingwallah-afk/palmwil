@@ -1,7 +1,46 @@
 {
+  "headers": [
+    {
+      "source": "/apks/(.*)",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/vnd.android.package-archive"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/apks/PamWill-patient.apk",
+      "destination": "/apks/pamwill-client.apk"
+    },
+    {
+      "source": "/apks/pamwill-patient.apk",
+      "destination": "/apks/pamwill-client.apk"
+    },
+    {
+      "source": "/apks/PamWill-client.apk",
+      "destination": "/apks/pamwill-client.apk"
+    },
+    {
+      "source": "/apks/pamwill-therapist.apk",
+      "destination": "/apks/palwill-therapist.apk"
+    },
+    {
+      "source": "/apks/PalWill-therapist.apk",
+      "destination": "/apks/palwill-therapist.apk"
+    },
+    {
+      "source": "/((?!assets/|apks/|therapist_resources/|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
