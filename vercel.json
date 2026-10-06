@@ -20,6 +20,10 @@
   ],
   "rewrites": [
     {
+      "source": "/privacy",
+      "destination": "/privacy.html"
+    },
+    {
       "source": "/apks/PamWill-patient.apk",
       "destination": "/apks/pamwill-client.apk"
     },
