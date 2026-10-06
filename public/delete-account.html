@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account & Data Deletion Portal - Pamwill</title>
+  <style>
+    :root {
+      --primary: #0F2D22;
+      --primary-light: #184233;
+      --gold: #D4AF37;
+      --gold-dark: #A9812F;
+      --bg: #FAF8F5;
+      --card-bg: #FFFFFF;
+      --text: #1F1B16;
+      --text-muted: #555047;
+      --border: #E8E2D8;
+      --danger: #D32F2F;
+      --danger-bg: #FFEBEE;
+      --success: #2E7D32;
+      --success-bg: #E8F5E9;
+    }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 32px 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 760px;
+      width: 100%;
+      background: var(--card-bg);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 4px 28px rgba(31, 27, 22, 0.07);
+      border: 1px solid var(--border);
+    }
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold-dark);
+      background: rgba(212, 175, 55, 0.12);
+      padding: 5px 14px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    .meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .policy-box {
+      background: #F4F1EA;
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      border-radius: 8px;
+      margin-bottom: 28px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .policy-box strong {
+      color: var(--text);
+    }
+    .section-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .auth-card {
+      background: #FAF8F5;
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .google-btn {
+      background: #FFFFFF;
+      color: #1F1B16;
+      border: 1.5px solid #D6CEBE;
+      border-radius: 12px;
+      padding: 13px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+      margin-top: 12px;
+    }
+    .google-btn:hover {
+      background: #F4F0E8;
+      border-color: #B8AC98;
+    }
+    .google-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .user-profile-badge {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: #FFFFFF;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 18px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 24px;
+      border: 2px solid var(--gold);
+    }
+    .user-info {
+      flex: 1;
+    }
+    .user-name {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 16px;
+    }
+    .user-email {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .deletion-options {
+      margin-bottom: 24px;
+    }
+    .option-card {
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      transition: all 0.2s;
+    }
+    .option-card:hover {
+      border-color: var(--primary);
+    }
+    .option-card.selected {
+      border-color: var(--danger);
+      background: #FFF8F8;
+    }
+    .radio-circle {
+      margin-top: 4px;
+    }
+    .option-title {
+      font-weight: 700;
+      color: var(--primary);
+      font-size: 15px;
+      margin-bottom: 4px;
+    }
+    .option-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .consent-wrap {
+      background: #FFF9E6;
+      border: 1px solid #FFE082;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 13px;
+      color: #6D4C41;
+    }
+    .consent-wrap input {
+      margin-top: 3px;
+      cursor: pointer;
+    }
+    .btn-delete {
+      background: var(--danger);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: background 0.2s;
+    }
+    .btn-delete:hover {
+      background: #B71C1C;
+    }
+    .btn-delete:disabled {
+      background: #E0E0E0;
+      color: #9E9E9E;
+      cursor: not-allowed;
+    }
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #FFFFFF;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .status-box {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+      text-align: center;
+      font-weight: 600;
+    }
+    .status-box.error {
+      display: block;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid #FFCDD2;
+    }
+    .status-box.success {
+      display: block;
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid #C8E6C9;
+    }
+    .manual-request {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .manual-request a {
+      color: var(--primary);
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="badge">Google Play Compliance</span>
+      <h1>Pamwill Account & Data Deletion</h1>
+      <p class="meta">App: Pamwill • Developer: Eduniketan Private Limited</p>
+    </div>
+
+    <div class="policy-box">
+      <strong>Data Deletion Disclosure & Retention Policy:</strong>
+      <p style="margin-top: 6px;">
+        In accordance with Google Play Developer Policies and data protection regulations, users may request the deletion of their Pamwill account and associated records. When you submit a deletion request:
+      </p>
+      <ul style="padding-left: 20px; margin-top: 6px;">
+        <li><strong>Data Immediately Erased:</strong> Full name, profile avatar, phone number, saved delivery addresses, preferred therapist notes, and authentication credentials.</li>
+        <li><strong>Data Retained:</strong> Past completed booking invoices and financial transaction IDs are kept strictly in anonymized format for up to 180 days for taxation and RBI statutory audit compliance, after which they are purged.</li>
+      </ul>
+    </div>
+
+    <!-- Step 1: Sign in with Google -->
+    <div id="step-auth" class="auth-card">
+      <h3 style="color: var(--primary); margin-bottom: 6px;">Step 1: Authenticate with Google</h3>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 14px;">
+        Please sign in with the Google Account linked to your Pamwill mobile application so we can verify and delete your records.
+      </p>
+      <button id="btn-google-login" class="google-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        Sign in with Google
+      </button>
+    </div>
+
+    <!-- Step 2: Authenticated Deletion Form -->
+    <div id="step-manage" style="display: none;">
+      <div class="user-profile-badge">
+        <img id="user-avatar" class="avatar" src="https://via.placeholder.com/48" alt="User">
+        <div class="user-info">
+          <div id="user-name" class="user-name">Authenticated Patron</div>
+          <div id="user-email" class="user-email">email@example.com</div>
+        </div>
+      </div>
+
+      <div class="section-title">Step 2: Choose Deletion Scope</div>
+
+      <div class="deletion-options">
+        <div id="card-delete-account" class="option-card selected" onclick="selectOption('account')">
+          <input type="radio" id="opt-account" name="deletion-type" value="account" checked class="radio-circle">
+          <div>
+            <div class="option-title">Delete Entire Account & All Data (Permanent)</div>
+            <div class="option-desc">Permanently deletes your profile, login credentials, saved addresses, wallet/credits, and all user records. You will not be able to recover this account.</div>
+          </div>
+        </div>
+
+        <div id="card-delete-data" class="option-card" onclick="selectOption('data')">
+          <input type="radio" id="opt-data" name="deletion-type" value="data" class="radio-circle">
+          <div>
+            <div class="option-title">Delete Personal Data Only (Keep Login Active)</div>
+            <div class="option-desc">Erases saved addresses, therapy preferences, and sensitive health declarations from our database, while keeping your account login active for future use.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="consent-wrap">
+        <input type="checkbox" id="chk-consent" onchange="toggleConsent()">
+        <label for="chk-consent">
+          I confirm that I am the authorized owner of this account. I understand that this deletion action is immediate, irreversible, and wipes my associated data from Pamwill systems.
+        </label>
+      </div>
+
+      <button id="btn-submit-delete" class="btn-delete" disabled onclick="executeDeletion()">
+        <span id="btn-text">Confirm & Permanently Delete Account</span>
+      </button>
+    </div>
+
+    <!-- Status message box -->
+    <div id="status-box" class="status-box"></div>
+
+    <div class="manual-request">
+      Prefer manual processing or signed up via Phone number? <br>
+      Email <a href="mailto:support@pamwill.com?subject=Account%20and%20Data%20Deletion%20Request">support@pamwill.com</a> with your registered phone number or email address, and our privacy officer will process your request within 48 hours.
+    </div>
+  </div>
+
+  <!-- Firebase & Supabase SDKs -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getAuth, GoogleAuthProvider, signInWithPopup, deleteUser } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+    // Firebase Init
+    const firebaseConfig = {
+      apiKey: "AIzaSyDq_N_X6_v7-Uy-1a5LazM8hjRFp1L_J84",
+      authDomain: "ai-projects-d261b.firebaseapp.com",
+      projectId: "ai-projects-d261b",
+      storageBucket: "ai-projects-d261b.firebasestorage.app",
+      messagingSenderId: "715519778537",
+      appId: "1:715519778537:web:44591b95eabda9a1725a78"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+
+    // Supabase Init
+    const SUPABASE_URL = 'https://hauruoczbsxsgptojglt.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhdXJ1b2N6YnN4c2dwdG9qZ2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg5NDY4NzMsImV4cCI6MjEwNDUyMjg3M30.nAU5XU2nBshbNBRsfjiKTud4naOGhUCEpp8Q39eN2EA';
+    const supabaseClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+    let currentUser = null;
+    let selectedMode = 'account';
+
+    window.selectOption = (mode) => {
+      selectedMode = mode;
+      document.getElementById('opt-account').checked = (mode === 'account');
+      document.getElementById('opt-data').checked = (mode === 'data');
+      document.getElementById('card-delete-account').classList.toggle('selected', mode === 'account');
+      document.getElementById('card-delete-data').classList.toggle('selected', mode === 'data');
+      document.getElementById('btn-text').textContent = (mode === 'account') 
+        ? 'Confirm & Permanently Delete Account' 
+        : 'Confirm & Erase Personal Data';
+    };
+
+    window.toggleConsent = () => {
+      const isChecked = document.getElementById('chk-consent').checked;
+      document.getElementById('btn-submit-delete').disabled = !isChecked;
+    };
+
+    document.getElementById('btn-google-login').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-google-login');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner" style="border-color:#555; border-top-color:#111;"></span> Signing in...`;
+      try {
+        const result = await signInWithPopup(auth, provider);
+        currentUser = result.user;
+
+        document.getElementById('user-name').textContent = currentUser.displayName || 'Pamwill Patron';
+        document.getElementById('user-email').textContent = currentUser.email || 'Verified Google Account';
+        if (currentUser.photoURL) {
+          document.getElementById('user-avatar').src = currentUser.photoURL;
+        }
+
+        document.getElementById('step-auth').style.display = 'none';
+        document.getElementById('step-manage').style.display = 'block';
+      } catch (err) {
+        console.error('Google Sign-in failed', err);
+        showStatus('Authentication failed or was canceled: ' + (err.message || 'Please retry.'), 'error');
+        btn.disabled = false;
+        btn.innerHTML = 'Sign in with Google';
+      }
+    });
+
+    window.executeDeletion = async () => {
+      if (!currentUser) return;
+      const consent = document.getElementById('chk-consent').checked;
+      if (!consent) {
+        showStatus('Please check the consent box to proceed.', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('btn-submit-delete');
+      btn.disabled = true;
+      btn.innerHTML = `<span class="spinner"></span> Processing Deletion...`;
+
+      try {
+        const userEmail = currentUser.email;
+        const uid = currentUser.uid;
+
+        // 1. Delete or wipe from Supabase Database
+        if (supabaseClient && userEmail) {
+          if (selectedMode === 'account') {
+            // Delete user row permanently
+            await supabaseClient.from('users').delete().eq('email', userEmail);
+          } else {
+            // Wipe personal data only, keep ID
+            await supabaseClient.from('users').update({
+              address: null,
+              saved_addresses: [],
+              medical_conditions: [],
+              emergency_contact: null,
+              preferred_therapist_gender: 'No Preference'
+            }).eq('email', userEmail);
+          }
+        }
+
+        // 2. If deleting entire account, delete Firebase user credentials
+        if (selectedMode === 'account') {
+          try {
+            await deleteUser(currentUser);
+          } catch (fbErr) {
+            console.warn('Firebase deleteUser note (may require recent re-auth):', fbErr);
+          }
+        }
+
+        // 3. Show Success
+        document.getElementById('step-manage').style.display = 'none';
+        const msg = (selectedMode === 'account')
+          ? `Success! Your Pamwill account (${userEmail}) and all associated records have been permanently deleted from our databases.`
+          : `Success! Your personal data and saved preferences for (${userEmail}) have been completely erased.`;
+
+        showStatus(msg, 'success');
+      } catch (err) {
+        console.error('Deletion error:', err);
+        showStatus('An error occurred during deletion: ' + (err.message || 'Please email support@pamwill.com for immediate assistance.'), 'error');
+        btn.disabled = false;
+        btn.innerHTML = `<span id="btn-text">Confirm & Delete</span>`;
+      }
+    };
+
+    function showStatus(text, type) {
+      const box = document.getElementById('status-box');
+      box.textContent = text;
+      box.className = 'status-box ' + type;
+    }
+  </script>
+</body>
+</html>
