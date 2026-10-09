@@ -241,10 +241,17 @@
         return;
       }
 
-      const returnUrl = 'pamwill://auth?name=' + encodeURIComponent(name || email.split('@')[0]) +
-                        '&email=' + encodeURIComponent(email) +
-                        '&photo=' + encodeURIComponent('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200') +
-                        '&uid=' + encodeURIComponent('google-' + Date.now());
+      const urlParams = new URLSearchParams(window.location.search);
+      const baseRedirect = urlParams.get('redirect_uri') || '';
+      const isTherapist = (baseRedirect && baseRedirect.includes('therapist')) || window.location.search.includes('therapist');
+
+      const queryStr = 'name=' + encodeURIComponent(name || email.split('@')[0]) +
+                       '&email=' + encodeURIComponent(email) +
+                       '&photo=' + encodeURIComponent('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200') +
+                       '&uid=' + encodeURIComponent('google-' + Date.now());
+
+      const pamwillUrl = (isTherapist ? 'palwill-therapist://auth?' : 'pamwill://auth?') + queryStr;
+      const returnUrl = baseRedirect ? (baseRedirect + (baseRedirect.includes('?') ? '&' : '?') + queryStr) : pamwillUrl;
 
       window.location.replace(returnUrl);
     };
