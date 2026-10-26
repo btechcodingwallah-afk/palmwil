@@ -248,7 +248,18 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       </section>
 
-      {/* 2. WHY CHOOSE PAMWILL (4 Scannable Pillars) */}
+      {/* 2. PAMWILL MOBILE APPLICATIONS DOWNLOAD CENTER */}
+      <DownloadSection
+        onNavigateRole={onNavigateRole || (() => {})}
+        onOpenQr={(type) => {
+          if (onOpenAppDownload) {
+            onOpenAppDownload(type);
+          }
+        }}
+        onShowToast={onShowToast || (() => {})}
+      />
+
+      {/* 3. WHY CHOOSE PAMWILL (4 Scannable Pillars) */}
       <section style={{
         padding: '70px 24px',
         backgroundColor: 'var(--surface-card)',
@@ -639,17 +650,6 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
         </div>
       </section>
-
-      {/* 5. PAMWILL MOBILE APPLICATIONS DOWNLOAD CENTER */}
-      <DownloadSection
-        onNavigateRole={onNavigateRole || (() => {})}
-        onOpenQr={(type) => {
-          if (onOpenAppDownload) {
-            onOpenAppDownload(type);
-          }
-        }}
-        onShowToast={onShowToast || (() => {})}
-      />
 
       {/* 6. FOOTER CTA BANNER */}
       <section style={{
