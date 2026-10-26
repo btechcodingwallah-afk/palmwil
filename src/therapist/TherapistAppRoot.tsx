@@ -15,7 +15,7 @@ import { TherapistEditProfileView } from './screens/TherapistEditProfileView';
 import { DailyGoalGameView } from './screens/DailyGoalGameView';
 import { TherapistStoreView } from './screens/TherapistStoreView';
 import { TherapistBottomNav } from './components/TherapistBottomNav';
-import { ClientChatView } from '../client/screens/ClientChatView';
+import { TherapistChatView } from './screens/TherapistChatView';
 import { TherapistRegisterModal } from './screens/TherapistRegisterModal';
 import { TherapistAuthGatewayView } from './components/TherapistAuthGatewayView';
 import { Booking } from '../types';
@@ -120,8 +120,8 @@ export const TherapistAppRoot: React.FC = () => {
         ) : therapistSubRoute === 'earnings' ? (
           <TherapistEarningsView />
         ) : therapistSubRoute === 'chat' ? (
-          <div style={{ maxWidth: '800px', margin: '20px auto', height: 'calc(100vh - 120px)' }}>
-            <ClientChatView />
+          <div style={{ maxWidth: '960px', margin: '16px auto', height: 'calc(100vh - 175px)', padding: '0 16px' }}>
+            <TherapistChatView />
           </div>
         ) : therapistSubRoute === 'profile' ? (
           <TherapistProfileView />

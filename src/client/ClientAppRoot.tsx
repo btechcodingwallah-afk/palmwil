@@ -113,7 +113,7 @@ export const ClientAppRoot: React.FC = () => {
             }}
           />
         ) : clientSubRoute === 'chat' ? (
-          <div style={{ maxWidth: '800px', margin: '20px auto', height: 'calc(100vh - 120px)' }}>
+          <div style={{ maxWidth: '960px', margin: '16px auto', height: 'calc(100vh - 175px)', padding: '0 16px' }}>
             <ClientChatView />
           </div>
         ) : clientSubRoute === 'profile' ? (

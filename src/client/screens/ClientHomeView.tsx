@@ -644,12 +644,13 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                 style={{
                   width: '100%',
                   padding: '12px 38px 12px 42px',
-                  backgroundColor: '#1E1A16',
-                  border: '1.5px solid rgba(212, 163, 89, 0.35)',
+                  backgroundColor: 'var(--bg-surface)',
+                  border: '1.5px solid var(--border-hairline)',
                   borderRadius: 'var(--radius-pill)',
-                  color: '#FAF8F5',
+                  color: 'var(--text-primary)',
                   fontSize: '13px',
-                  outline: 'none'
+                  outline: 'none',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
               />
               {physioSearch && (
@@ -660,7 +661,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                     right: '14px',
                     background: 'none',
                     border: 'none',
-                    color: '#BAAE9E',
+                    color: 'var(--text-muted)',
                     cursor: 'pointer'
                   }}
                 >
@@ -682,13 +683,14 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                 style={{
                   padding: '6px 14px',
                   borderRadius: 'var(--radius-pill)',
-                  border: activePhysioCategory === 'All' ? '1.5px solid var(--accent-gold)' : '1px solid #332B22',
-                  backgroundColor: activePhysioCategory === 'All' ? 'var(--accent-gold)' : '#1E1A16',
-                  color: activePhysioCategory === 'All' ? '#100E0C' : '#BAAE9E',
+                  border: activePhysioCategory === 'All' ? '1.5px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                  backgroundColor: activePhysioCategory === 'All' ? 'var(--accent-gold)' : 'var(--bg-surface)',
+                  color: activePhysioCategory === 'All' ? '#100E0C' : 'var(--text-secondary)',
                   fontSize: '12px',
                   fontWeight: 600,
                   whiteSpace: 'nowrap',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: 'var(--shadow-sm)'
                 }}
               >
                 All (130)
@@ -701,13 +703,14 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                   style={{
                     padding: '6px 14px',
                     borderRadius: 'var(--radius-pill)',
-                    border: activePhysioCategory === cat.title ? '1.5px solid var(--accent-gold)' : '1px solid #332B22',
-                    backgroundColor: activePhysioCategory === cat.title ? 'var(--accent-gold)' : '#1E1A16',
-                    color: activePhysioCategory === cat.title ? '#100E0C' : '#BAAE9E',
+                    border: activePhysioCategory === cat.title ? '1.5px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                    backgroundColor: activePhysioCategory === cat.title ? 'var(--accent-gold)' : 'var(--bg-surface)',
+                    color: activePhysioCategory === cat.title ? '#100E0C' : 'var(--text-secondary)',
                     fontSize: '12px',
                     fontWeight: 600,
                     whiteSpace: 'nowrap',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: 'var(--shadow-sm)'
                   }}
                 >
                   {cat.title} ({cat.conditionsCount})
@@ -725,24 +728,34 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                 <div
                   key={c.id}
                   onClick={() => setSelectedCondition(c)}
+                  className="card-luxury"
                   style={{
-                    backgroundColor: '#1E1A16',
-                    border: '1px solid #332B22',
-                    borderRadius: '12px',
+                    backgroundColor: 'var(--bg-surface)',
+                    border: '1px solid var(--border-hairline)',
+                    borderRadius: '14px',
                     padding: '12px 14px',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     gap: '10px',
+                    boxShadow: 'var(--shadow-sm)',
                     transition: 'all 150ms ease'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-1px)';
+                    e.currentTarget.style.borderColor = 'var(--accent-gold)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.borderColor = 'var(--border-hairline)';
                   }}
                 >
                   <div>
-                    <div style={{ fontSize: '13.5px', fontWeight: 600, color: '#FAF8F5' }}>
+                    <div style={{ fontSize: '13.5px', fontWeight: 600, color: 'var(--text-primary)' }}>
                       {c.condition}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#BAAE9E', marginTop: '3px' }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '3px' }}>
                       <span style={{ color: 'var(--accent-gold)', marginRight: '4px' }}>●</span>
                       {c.commonSymptoms}
                     </div>
@@ -756,17 +769,18 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
             <div style={{
               marginTop: '16px',
               padding: '14px 18px',
-              backgroundColor: '#181411',
+              backgroundColor: 'var(--bg-surface)',
               borderRadius: '14px',
-              border: '1px solid #2B241D',
+              border: '1px solid var(--border-hairline)',
+              boxShadow: 'var(--shadow-sm)',
               display: 'flex',
               flexWrap: 'wrap',
               alignItems: 'center',
               justifyContent: 'space-between',
               gap: '12px'
             }}>
-              <div style={{ fontSize: '12.5px', color: '#BAAE9E' }}>
-                Showing <strong style={{ color: 'var(--accent-gold)' }}>{filteredConditions.length === 0 ? 0 : startIndex + 1} - {endIndex}</strong> of <strong style={{ color: '#FAF8F5' }}>{filteredConditions.length}</strong> conditions • Page <strong style={{ color: 'var(--accent-gold)' }}>{physioPage}</strong> of <strong>{totalPages}</strong>
+              <div style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                Showing <strong style={{ color: 'var(--accent-gold)' }}>{filteredConditions.length === 0 ? 0 : startIndex + 1} - {endIndex}</strong> of <strong style={{ color: 'var(--text-primary)' }}>{filteredConditions.length}</strong> conditions • Page <strong style={{ color: 'var(--accent-gold)' }}>{physioPage}</strong> of <strong>{totalPages}</strong>
               </div>
 
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -776,9 +790,9 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                   style={{
                     padding: '8px 16px',
                     borderRadius: 'var(--radius-pill)',
-                    backgroundColor: physioPage <= 1 ? '#1A1613' : '#231E19',
-                    border: '1px solid ' + (physioPage <= 1 ? '#2E2720' : 'rgba(212, 163, 89, 0.35)'),
-                    color: physioPage <= 1 ? '#5E5549' : 'var(--accent-gold)',
+                    backgroundColor: physioPage <= 1 ? 'var(--bg-secondary)' : 'var(--bg-surface)',
+                    border: '1px solid ' + (physioPage <= 1 ? 'var(--border-hairline)' : 'rgba(212, 163, 89, 0.4)'),
+                    color: physioPage <= 1 ? 'var(--text-muted)' : 'var(--accent-gold)',
                     fontSize: '12.5px',
                     fontWeight: 600,
                     cursor: physioPage <= 1 ? 'not-allowed' : 'pointer',
@@ -808,9 +822,9 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                   style={{
                     padding: '8px 18px',
                     borderRadius: 'var(--radius-pill)',
-                    backgroundColor: physioPage >= totalPages ? '#1A1613' : 'var(--accent-gold)',
+                    backgroundColor: physioPage >= totalPages ? 'var(--bg-secondary)' : 'var(--accent-gold)',
                     border: 'none',
-                    color: physioPage >= totalPages ? '#5E5549' : '#100E0C',
+                    color: physioPage >= totalPages ? 'var(--text-muted)' : '#100E0C',
                     fontSize: '12.5px',
                     fontWeight: 700,
                     cursor: physioPage >= totalPages ? 'not-allowed' : 'pointer',
@@ -916,14 +930,14 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           padding: '20px'
         }}>
           <div style={{
-            backgroundColor: '#1C1814',
+            backgroundColor: 'var(--bg-surface)',
             border: '1.5px solid var(--accent-gold)',
             borderRadius: '20px',
             maxWidth: '520px',
             width: '100%',
             padding: '24px',
-            color: '#FAF8F5',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.9)',
+            color: 'var(--text-primary)',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
             position: 'relative'
           }}>
             <button
@@ -934,7 +948,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                 right: '16px',
                 background: 'none',
                 border: 'none',
-                color: '#BAAE9E',
+                color: 'var(--text-muted)',
                 cursor: 'pointer'
               }}
             >
@@ -953,7 +967,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               {selectedCondition.category}
             </span>
 
-            <h2 style={{ fontSize: '22px', fontFamily: 'var(--font-serif)', margin: '8px 0 4px 0' }}>
+            <h2 style={{ fontSize: '22px', fontFamily: 'var(--font-serif)', margin: '8px 0 4px 0', color: 'var(--text-primary)' }}>
               {selectedCondition.condition}
             </h2>
 
@@ -962,9 +976,9 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               padding: '12px 14px',
               borderRadius: '12px',
               margin: '14px 0',
-              border: '1px solid rgba(212, 163, 89, 0.2)'
+              border: '1px solid rgba(212, 163, 89, 0.25)'
             }}>
-              <div style={{ fontSize: '11px', color: '#BAAE9E', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', marginBottom: '2px' }}>
                 Reported Common Symptoms
               </div>
               <div style={{ fontSize: '13px', color: 'var(--accent-gold)', fontWeight: 600 }}>
@@ -972,7 +986,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               </div>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#BAAE9E', lineHeight: 1.5, marginBottom: '20px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '20px' }}>
               Our licensed clinical team provides in-home clinical assessments, joint mobilization, neuromuscular re-education, and structured exercise therapy for this condition.
             </p>
 

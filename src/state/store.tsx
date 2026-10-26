@@ -14,7 +14,8 @@ import {
   Product,
   StoreOrder,
   Voucher,
-  DeliveryAddress
+  DeliveryAddress,
+  ChatMessage
 } from '../types';
 import { MASSAGE_SERVICES } from '../data/services';
 import { 
@@ -213,6 +214,11 @@ interface PamwillContextType {
   viewMode: 'responsive' | 'simulator';
   setViewMode: (mode: 'responsive' | 'simulator') => void;
   toggleViewMode: () => void;
+
+  // Real-time Chat System
+  chatMessages: Record<string, ChatMessage[]>;
+  sendChatMessage: (bookingId: string, text: string, sender: 'customer' | 'therapist' | 'system', senderName?: string) => void;
+  getBookingMessages: (bookingId: string) => ChatMessage[];
 
   // Global URL dispatcher
   navigateTo: (path: string) => void;
@@ -842,6 +848,41 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [currentRole]);
 
+  // Real-time Cross-Portal Chat Messages
+  const [chatMessages, setChatMessages] = useState<Record<string, ChatMessage[]>>(() => {
+    try {
+      const saved = localStorage.getItem('pamwill_chat_messages');
+      return saved ? JSON.parse(saved) : {};
+    } catch (e) {
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    const handleStorage = (e: StorageEvent) => {
+      if (e.key === 'pamwill_chat_messages' && e.newValue) {
+        try {
+          setChatMessages(JSON.parse(e.newValue));
+        } catch (err) {}
+      }
+    };
+    const handleCustomChat = () => {
+      try {
+        const saved = localStorage.getItem('pamwill_chat_messages');
+        if (saved) {
+          setChatMessages(JSON.parse(saved));
+        }
+      } catch (err) {}
+    };
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('pamwill_chat_updated', handleCustomChat);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('pamwill_chat_updated', handleCustomChat);
+    };
+  }, []);
+
+
   // Load from Supabase on Mount
   const loadFromSupabase = useCallback(async () => {
     try {
@@ -993,6 +1034,79 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [services]);
 
   const currentTherapist = therapists.find(t => t.id === currentTherapistId) || therapists[0];
+
+  const getBookingMessages = useCallback((bookingId: string): ChatMessage[] => {
+    if (chatMessages[bookingId] && chatMessages[bookingId].length > 0) {
+      return chatMessages[bookingId];
+    }
+    const targetBooking = bookings.find(b => b.id === bookingId);
+    if (!targetBooking) return [];
+
+    const practitionerName = targetBooking.therapistName || 'Your Certified Practitioner';
+    const clientName = targetBooking.customerName || 'Patient';
+
+    const defaultInit: ChatMessage[] = [
+      {
+        id: `sys-${bookingId}-1`,
+        bookingId: bookingId,
+        sender: 'system',
+        senderName: 'PamWill Concierge',
+        text: `Session #${bookingId} confirmed for ${targetBooking.service?.name || 'Treatment'}. Practitioner ${practitionerName} and ${clientName} are connected in this private thread.`,
+        timestamp: targetBooking.createdAt ? new Date(targetBooking.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      }
+    ];
+    return defaultInit;
+  }, [chatMessages, bookings]);
+
+  const sendChatMessage = useCallback((bookingId: string, text: string, sender: 'customer' | 'therapist' | 'system', senderName?: string) => {
+    if (!text || !text.trim()) return;
+
+    const targetBooking = bookings.find(b => b.id === bookingId);
+    let resolvedSenderName = senderName;
+    if (!resolvedSenderName) {
+      if (sender === 'customer') {
+        resolvedSenderName = user?.name || targetBooking?.customerName || 'Patient';
+      } else if (sender === 'therapist') {
+        resolvedSenderName = currentTherapist?.fullName || targetBooking?.therapistName || 'Practitioner';
+      } else {
+        resolvedSenderName = 'PamWill Concierge';
+      }
+    }
+
+    const newMsg: ChatMessage = {
+      id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      bookingId,
+      sender,
+      senderName: resolvedSenderName,
+      text: text.trim(),
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    setChatMessages(prev => {
+      const existing: ChatMessage[] = (prev[bookingId] && prev[bookingId].length > 0)
+        ? prev[bookingId]
+        : (targetBooking ? [
+            {
+              id: `sys-${bookingId}-1`,
+              bookingId: bookingId,
+              sender: 'system' as const,
+              senderName: 'PamWill Concierge',
+              text: `Session #${bookingId} confirmed for ${targetBooking.service?.name || 'Treatment'}. Practitioner ${targetBooking.therapistName || 'Practitioner'} and ${targetBooking.customerName || 'Patient'} are connected in this private thread.`,
+              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ] : []);
+
+      const updated: Record<string, ChatMessage[]> = {
+        ...prev,
+        [bookingId]: [...existing, newMsg]
+      };
+      try {
+        localStorage.setItem('pamwill_chat_messages', JSON.stringify(updated));
+      } catch (err) {}
+      window.dispatchEvent(new CustomEvent('pamwill_chat_updated', { detail: { bookingId, message: newMsg } }));
+      return updated;
+    });
+  }, [bookings, user, currentTherapist]);
 
   const updateUser = (updates: Partial<UserProfile>) => {
     setUser(prev => ({ ...prev, ...updates }));
@@ -1624,6 +1738,11 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         viewMode,
         setViewMode,
         toggleViewMode,
+
+        // Real-time Chat System
+        chatMessages,
+        sendChatMessage,
+        getBookingMessages,
 
         // Global URL Dispatcher
         navigateTo
