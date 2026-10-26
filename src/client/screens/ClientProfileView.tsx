@@ -97,7 +97,7 @@ export const ClientProfileView: React.FC = () => {
         gap: '24px',
         alignItems: 'start'
       }}>
-        {/* Left Column: Hero Patron Card, Membership, Account Actions */}
+        {/* Left Column: Hero Patron Card, Membership, Reservations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Hero Patron Card (Screenshots 2 & 4) */}
           <div style={{
@@ -271,60 +271,6 @@ export const ClientProfileView: React.FC = () => {
             </div>
           </div>
 
-          {/* Section: ACCOUNT ACTIONS (Screenshot 2) */}
-          <div>
-            <div style={{
-              fontSize: '11px',
-              fontWeight: 800,
-              color: '#6B6259',
-              letterSpacing: '0.8px',
-              textTransform: 'uppercase',
-              marginBottom: '8px',
-              paddingLeft: '4px'
-            }}>
-              ACCOUNT ACTIONS
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div
-                onClick={() => window.location.href = '/therapist'}
-                style={menuCardStyle}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={iconWrapStyle}><RefreshCw size={18} color="#A9812F" /></div>
-                  <div style={menuTitleStyle}>Switch / Relink Account</div>
-                </div>
-                <ChevronRight size={16} color="#9A8F82" />
-              </div>
-
-              <button
-                onClick={handleSignOut}
-                style={{
-                  backgroundColor: '#F9EFEF',
-                  border: '1px solid rgba(140, 58, 43, 0.15)',
-                  borderRadius: '16px',
-                  padding: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  color: '#8C3A2B',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  width: '100%',
-                  marginTop: '4px'
-                }}
-              >
-                <LogOut size={16} color="#8C3A2B" />
-                <span>Sign Out of Pamwill</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Reservations & Store, Patron Care & Voice, Governance & Platform */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Section: RESERVATIONS & STORE (Screenshot 4) */}
           <div>
             <div style={{
@@ -438,7 +384,10 @@ export const ClientProfileView: React.FC = () => {
               </div>
             </div>
           </div>
+        </div>
 
+        {/* Right Column: Patron Care & Voice, Governance & Platform, Account Actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
           {/* Section: PATRON CARE & VOICE (Screenshot 2) */}
           <div>
             <div style={{
@@ -526,6 +475,57 @@ export const ClientProfileView: React.FC = () => {
                 </div>
                 <ChevronRight size={16} color="#9A8F82" />
               </div>
+            </div>
+          </div>
+
+          {/* Section: ACCOUNT ACTIONS (Screenshot 2) */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6B6259',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '4px'
+            }}>
+              ACCOUNT ACTIONS
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div
+                onClick={() => window.location.href = '/therapist'}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><RefreshCw size={18} color="#A9812F" /></div>
+                  <div style={menuTitleStyle}>Switch / Relink Account</div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
+              </div>
+
+              <button
+                onClick={handleSignOut}
+                style={{
+                  backgroundColor: '#F9EFEF',
+                  border: '1px solid rgba(140, 58, 43, 0.15)',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  color: '#8C3A2B',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  width: '100%',
+                  marginTop: '4px'
+                }}
+              >
+                <LogOut size={16} color="#8C3A2B" />
+                <span>Sign Out of Pamwill</span>
+              </button>
             </div>
           </div>
         </div>
