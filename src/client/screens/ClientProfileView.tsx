@@ -252,7 +252,7 @@ export const ClientProfileView: React.FC = () => {
                 </span>
               </div>
               <div style={{ fontSize: '11px', color: '#6B6259', marginTop: '2px' }}>
-                Subscribe to Silver, Gold, or Platinum plans for complimentary sessions
+                Subscribe to Silver, Gold, or Platinum plans for complimentary Spa & Massage sessions
               </div>
             </div>
           </div>

@@ -98,35 +98,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           maxWidth: '680px',
           margin: '0 auto'
         }}>
-          {/* Spa Tab */}
-          <button
-            onClick={() => setClientHomeMode('spa')}
-            style={{
-              flex: 1,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '6px',
-              padding: '10px 14px',
-              borderRadius: '20px',
-              border: 'none',
-              backgroundColor: clientHomeMode === 'spa' ? '#A9812F' : 'transparent',
-              color: clientHomeMode === 'spa' ? '#FFFFFF' : '#8A7B6D',
-              fontSize: '13px',
-              fontWeight: clientHomeMode === 'spa' ? 800 : 700,
-              cursor: 'pointer',
-              boxShadow: clientHomeMode === 'spa' ? '0 2px 8px rgba(169, 129, 47, 0.3)' : 'none',
-              transition: 'all 160ms ease'
-            }}
-          >
-            <Sparkles size={15} color={clientHomeMode === 'spa' ? '#FFFFFF' : '#8A7B6D'} />
-            <span>Spa & Massage</span>
-            {clientHomeMode === 'spa' && (
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FFFFFF', marginLeft: '2px' }} />
-            )}
-          </button>
-
-          {/* Physiotherapy Tab */}
+          {/* Physiotherapy Tab (FIRST) */}
           <button
             onClick={() => setClientHomeMode('physio')}
             style={{
@@ -160,6 +132,37 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
             }}>
               DR. & INTERN
             </span>
+            {clientHomeMode === 'physio' && (
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FFFFFF', marginLeft: '2px' }} />
+            )}
+          </button>
+
+          {/* Spa & Massage Tab (SECOND) */}
+          <button
+            onClick={() => setClientHomeMode('spa')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 14px',
+              borderRadius: '20px',
+              border: 'none',
+              backgroundColor: clientHomeMode === 'spa' ? '#A9812F' : 'transparent',
+              color: clientHomeMode === 'spa' ? '#FFFFFF' : '#8A7B6D',
+              fontSize: '13px',
+              fontWeight: clientHomeMode === 'spa' ? 800 : 700,
+              cursor: 'pointer',
+              boxShadow: clientHomeMode === 'spa' ? '0 2px 8px rgba(169, 129, 47, 0.3)' : 'none',
+              transition: 'all 160ms ease'
+            }}
+          >
+            <Sparkles size={15} color={clientHomeMode === 'spa' ? '#FFFFFF' : '#8A7B6D'} />
+            <span>Spa & Massage</span>
+            {clientHomeMode === 'spa' && (
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FFFFFF', marginLeft: '2px' }} />
+            )}
           </button>
         </div>
       </div>
@@ -382,7 +385,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
                 Silver, Gold & Platinum Sanctuary
               </div>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', marginTop: '2px', lineHeight: '15px' }}>
-                Save up to 30% on all 47 therapies + get up to 4 Complimentary Free Sittings!
+                Save up to 30% on all 47 spa therapies + get up to 4 Complimentary Free Sittings! (Exclusive to Spa & Massage)
               </div>
             </div>
 
