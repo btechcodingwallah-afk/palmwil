@@ -9,6 +9,7 @@ import { usePamwill } from '../../state/store';
 export const ClientProfileView: React.FC = () => {
   const { user, updateUser, bookings, setClientSubRoute, logout } = usePamwill();
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const [editName, setEditName] = useState(user?.name || 'Valued Patron');
   const [editPhone, setEditPhone] = useState(user?.phone || '+91 98765 43210');
 
@@ -23,10 +24,9 @@ export const ClientProfileView: React.FC = () => {
     setEditModalOpen(false);
   };
 
-  const handleSignOut = () => {
-    if (window.confirm('Are you sure you want to sign out of Pamwill?')) {
-      logout();
-    }
+  const handleConfirmSignOut = async () => {
+    setSignOutModalOpen(false);
+    await logout();
   };
 
   return (
@@ -505,7 +505,7 @@ export const ClientProfileView: React.FC = () => {
               </div>
 
               <button
-                onClick={handleSignOut}
+                onClick={() => setSignOutModalOpen(true)}
                 style={{
                   backgroundColor: '#F9EFEF',
                   border: '1px solid rgba(140, 58, 43, 0.15)',
@@ -634,6 +634,102 @@ export const ClientProfileView: React.FC = () => {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {/* Luxury Sign Out Confirmation Modal */}
+      {signOutModalOpen && (
+        <div 
+          onClick={() => setSignOutModalOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(6px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '24px',
+              border: '1px solid #E4DDD2',
+              padding: '28px 24px',
+              maxWidth: '380px',
+              width: '100%',
+              boxShadow: '0 16px 40px rgba(0,0,0,0.25)',
+              textAlign: 'center',
+              animation: 'fadeIn 0.2s ease-out'
+            }}
+          >
+            {/* Icon */}
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              backgroundColor: '#F9EFEF',
+              border: '1.5px solid rgba(140, 58, 43, 0.15)',
+              color: '#8C3A2B',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 16px'
+            }}>
+              <LogOut size={26} color="#8C3A2B" />
+            </div>
+
+            <h3 style={{ margin: '0 0 8px 0', fontSize: '19px', fontWeight: 800, color: '#1F1B16' }}>
+              Sign Out of Pamwill?
+            </h3>
+            <p style={{ margin: '0 0 24px 0', fontSize: '13px', color: '#6B6259', lineHeight: 1.5 }}>
+              Are you sure you want to end your current patron session? You will need to sign back in to access your sanctuary bookings and membership credits.
+            </p>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                type="button"
+                onClick={() => setSignOutModalOpen(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  backgroundColor: '#F1ECE4',
+                  border: 'none',
+                  color: '#6B6259',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'background-color 0.15s ease'
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmSignOut}
+                style={{
+                  flex: 1,
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  backgroundColor: '#8C3A2B',
+                  border: 'none',
+                  color: '#FFFFFF',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(140, 58, 43, 0.25)',
+                  transition: 'opacity 0.15s ease'
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
