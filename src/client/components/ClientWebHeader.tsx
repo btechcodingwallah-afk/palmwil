@@ -83,9 +83,9 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
                 textTransform: 'uppercase',
                 padding: '2px 7px',
                 borderRadius: '10px',
-                backgroundColor: clientHomeMode === 'physio' ? '#CCFBF1' : '#FDF8EE',
-                color: clientHomeMode === 'physio' ? '#0F766E' : '#A9812F',
-                border: clientHomeMode === 'physio' ? '1px solid rgba(15, 118, 110, 0.25)' : '1px solid rgba(169, 129, 47, 0.3)'
+                backgroundColor: '#FDF8EE',
+                color: '#A9812F',
+                border: '1px solid rgba(169, 129, 47, 0.3)'
               }}>
                 {clientHomeMode === 'physio' ? 'CLINICAL' : 'BOUTIQUE'}
               </span>
@@ -130,10 +130,10 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
                   borderRadius: '20px',
                   border: 'none',
                   backgroundColor: isActive
-                    ? (clientHomeMode === 'physio' ? '#CCFBF1' : '#F7EEDD')
+                    ? '#F7EEDD'
                     : 'transparent',
                   color: isActive
-                    ? (clientHomeMode === 'physio' ? '#0F766E' : '#A9812F')
+                    ? '#A9812F'
                     : '#6B6259',
                   fontSize: '13px',
                   fontWeight: isActive ? 800 : 600,
@@ -144,7 +144,7 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span style={{
-                    backgroundColor: clientHomeMode === 'physio' ? '#0D9488' : '#A9812F',
+                    backgroundColor: '#A9812F',
                     color: '#FFFFFF',
                     fontSize: '10px',
                     fontWeight: 800,
@@ -181,7 +181,7 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
                 boxShadow: '0 1px 4px rgba(31, 27, 22, 0.04)'
               }}
             >
-              <MapPin size={13} color={clientHomeMode === 'physio' ? '#0D9488' : '#A9812F'} />
+              <MapPin size={13} color="#A9812F" />
               <span>{selectedCity ? selectedCity.split(' ')[0] : 'Delhi'}</span>
               <ChevronDown size={12} color="#9A8F82" />
             </button>
@@ -276,7 +276,7 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
               height: '36px',
               borderRadius: '50%',
               backgroundColor: '#F7EEDD',
-              border: `1.5px solid ${clientHomeMode === 'physio' ? '#0D9488' : '#A9812F'}`,
+              border: '1.5px solid #A9812F',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',

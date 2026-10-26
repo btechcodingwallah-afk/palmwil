@@ -113,16 +113,16 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               padding: '10px 14px',
               borderRadius: '20px',
               border: 'none',
-              backgroundColor: clientHomeMode === 'physio' ? '#0D9488' : 'transparent',
-              color: clientHomeMode === 'physio' ? '#FFFFFF' : '#0D9488',
+              backgroundColor: clientHomeMode === 'physio' ? '#A9812F' : 'transparent',
+              color: clientHomeMode === 'physio' ? '#FFFFFF' : '#8A7B6D',
               fontSize: '13px',
               fontWeight: clientHomeMode === 'physio' ? 800 : 700,
               cursor: 'pointer',
-              boxShadow: clientHomeMode === 'physio' ? '0 2px 8px rgba(13, 148, 136, 0.3)' : 'none',
+              boxShadow: clientHomeMode === 'physio' ? '0 2px 8px rgba(169, 129, 47, 0.3)' : 'none',
               transition: 'all 160ms ease'
             }}
           >
-            <Activity size={15} color={clientHomeMode === 'physio' ? '#FFFFFF' : '#0D9488'} />
+            <Activity size={15} color={clientHomeMode === 'physio' ? '#FFFFFF' : '#8A7B6D'} />
             <span>Physiotherapy</span>
             <span style={{
               fontSize: '8px',
@@ -130,8 +130,8 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               letterSpacing: '0.5px',
               padding: '2px 6px',
               borderRadius: '10px',
-              backgroundColor: clientHomeMode === 'physio' ? 'rgba(255,255,255,0.25)' : '#CCFBF1',
-              color: clientHomeMode === 'physio' ? '#FFFFFF' : '#0F766E'
+              backgroundColor: clientHomeMode === 'physio' ? 'rgba(255,255,255,0.25)' : '#F7EEDD',
+              color: clientHomeMode === 'physio' ? '#FFFFFF' : '#A9812F'
             }}>
               DR. & INTERN
             </span>
