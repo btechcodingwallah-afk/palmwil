@@ -979,6 +979,34 @@ h1, h2, h3, .font-serif {
   }
 }
 
+/* Responsive Content Containers for Mobile & Desktop */
+.client-bookings-container {
+  padding: 16px 14px 40px !important;
+}
 
+.client-home-container {
+  padding: 16px 14px 40px !important;
+}
 
+.client-profile-container {
+  padding: 16px 14px 40px !important;
+}
 
+.client-store-container {
+  padding: 16px 14px 80px !important;
+}
+
+@media (min-width: 768px) {
+  .client-bookings-container {
+    padding: 24px 32px 40px !important;
+  }
+  .client-home-container {
+    padding: 20px 32px 40px !important;
+  }
+  .client-profile-container {
+    padding: 24px 32px 40px !important;
+  }
+  .client-store-container {
+    padding: 24px 32px 80px !important;
+  }
+}

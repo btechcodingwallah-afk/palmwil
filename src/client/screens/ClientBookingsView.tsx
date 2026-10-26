@@ -127,7 +127,7 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
       ) : (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(460px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 460px), 1fr))',
           gap: '16px',
           width: '100%'
         }}>
@@ -142,7 +142,8 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
                   borderRadius: '16px',
                   border: '1px solid #E4DDD2',
                   padding: '16px',
-                  boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)'
+                  boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)',
+                  boxSizing: 'border-box'
                 }}
               >
                 {/* Top Row: Title, ID, Status Badge */}
@@ -261,7 +262,9 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
                         fontSize: '12.5px',
                         fontWeight: 700,
                         cursor: 'pointer',
-                        boxShadow: '0 2px 8px rgba(169, 129, 47, 0.35)'
+                        boxShadow: '0 2px 8px rgba(169, 129, 47, 0.35)',
+                        whiteSpace: 'nowrap',
+                        flexShrink: 0
                       }}
                     >
                       Track Session →
