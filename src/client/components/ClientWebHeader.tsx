@@ -27,6 +27,15 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   ).length;
 
+  const currentCityObj = INDIAN_CITIES.find(c => 
+    c.id.toLowerCase() === selectedCity?.toLowerCase() || 
+    c.name.toLowerCase() === selectedCity?.toLowerCase() ||
+    c.id === selectedCity?.toLowerCase().replace(/\s+/g, '-')
+  );
+  const displayCityName = currentCityObj 
+    ? currentCityObj.name.split('(')[0].trim() 
+    : (selectedCity ? selectedCity.replace(/-/g, ' ').toUpperCase() : 'Delhi');
+
   return (
     <header style={{
       position: 'sticky',
@@ -38,65 +47,54 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
       borderBottom: '1px solid #EBE5DC',
       boxShadow: '0 2px 10px rgba(31, 27, 22, 0.03)'
     }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '100%',
-        boxSizing: 'border-box',
-        padding: '10px 32px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        height: '62px'
-      }}>
+      <div className="client-header-inner">
         
         {/* Left: Brand Emblem, Name, Tag & Subtitle */}
         <div 
           onClick={() => setClientSubRoute('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', minWidth: 0, flexShrink: 1 }}
         >
           <img
             src="/assets/pamwill-icon.png"
             alt="Pamwill"
             style={{
-              width: '36px',
-              height: '36px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
               border: '1px solid #E4DDD2',
-              objectFit: 'cover'
+              objectFit: 'cover',
+              flexShrink: 0
             }}
           />
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
               <span style={{
                 fontFamily: 'var(--font-sans)',
-                fontSize: '18px',
+                fontSize: '17px',
                 fontWeight: 800,
                 color: '#1F1B16',
-                letterSpacing: '-0.3px'
+                letterSpacing: '-0.3px',
+                lineHeight: 1.2
               }}>
                 Pamwill
               </span>
               <span style={{
-                fontSize: '9px',
+                fontSize: '8.5px',
                 fontWeight: 800,
                 letterSpacing: '0.6px',
                 textTransform: 'uppercase',
-                padding: '2px 7px',
+                padding: '1.5px 6px',
                 borderRadius: '10px',
                 backgroundColor: '#FDF8EE',
                 color: '#A9812F',
-                border: '1px solid rgba(169, 129, 47, 0.3)'
+                border: '1px solid rgba(169, 129, 47, 0.3)',
+                whiteSpace: 'nowrap',
+                flexShrink: 0
               }}>
                 {clientHomeMode === 'physio' ? 'CLINICAL' : 'BOUTIQUE'}
               </span>
             </div>
-            <div style={{
-              fontSize: '10px',
-              fontWeight: 600,
-              color: '#9A8F82',
-              letterSpacing: '0.4px',
-              marginTop: '1px'
-            }}>
+            <div className="client-header-subtitle">
               {clientHomeMode === 'physio' ? 'DOCTOR-LED PHYSIOTHERAPY' : 'WELLNESS COMES HOME'}
             </div>
           </div>
@@ -160,30 +158,17 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
         </nav>
 
         {/* Right: Location Chip, Cart & Profile */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div className="client-header-right">
           
           {/* City Selector Pill */}
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '6px 12px',
-                borderRadius: '20px',
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E4DDD2',
-                color: '#1F1B16',
-                fontSize: '12px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 1px 4px rgba(31, 27, 22, 0.04)'
-              }}
+              className="client-city-btn"
             >
-              <MapPin size={13} color="#A9812F" />
-              <span>{selectedCity ? selectedCity.split(' ')[0] : 'Delhi'}</span>
-              <ChevronDown size={12} color="#9A8F82" />
+              <MapPin size={13} color="#A9812F" style={{ flexShrink: 0 }} />
+              <span style={{ whiteSpace: 'nowrap' }}>{displayCityName}</span>
+              <ChevronDown size={11} color="#9A8F82" style={{ flexShrink: 0 }} />
             </button>
 
             {cityDropdownOpen && (
@@ -233,8 +218,8 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
             onClick={() => setClientSubRoute('cart')}
             style={{
               position: 'relative',
-              width: '36px',
-              height: '36px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
               backgroundColor: '#FFFFFF',
               border: '1px solid #E4DDD2',
@@ -242,11 +227,12 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#1F1B16'
+              color: '#1F1B16',
+              flexShrink: 0
             }}
             title="Shopping Cart"
           >
-            <ShoppingBag size={16} color="#A9812F" />
+            <ShoppingBag size={15} color="#A9812F" />
             {cartTotalCount > 0 && (
               <span style={{
                 position: 'absolute',
@@ -272,8 +258,8 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
           <button
             onClick={() => setClientSubRoute('profile')}
             style={{
-              width: '36px',
-              height: '36px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
               backgroundColor: '#F7EEDD',
               border: '1.5px solid #A9812F',
@@ -283,14 +269,15 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
               cursor: 'pointer',
               color: '#A9812F',
               overflow: 'hidden',
-              padding: 0
+              padding: 0,
+              flexShrink: 0
             }}
             title="My Profile"
           >
             {user?.avatarUrl ? (
               <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <span style={{ fontSize: '13px', fontWeight: 800, color: '#A9812F' }}>
+              <span style={{ fontSize: '12px', fontWeight: 800, color: '#A9812F' }}>
                 {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
               </span>
             )}
