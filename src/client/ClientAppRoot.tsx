@@ -68,7 +68,7 @@ export const ClientAppRoot: React.FC = () => {
       <ClientWebHeader onOpenBookingFlow={() => setBookingModalOpen(true)} />
 
       {/* Main Content Area with padding for bottom navigation */}
-      <main style={{ flex: 1, position: 'relative', paddingBottom: '76px' }}>
+      <main className="client-main-content" style={{ flex: 1, position: 'relative' }}>
         
         {/* Back navigation for profile subroutes */}
         {['membership', 'pamcoin', 'vouchers', 'orders', 'addresses', 'support', 'feedback', 'about', 'privacy'].includes(clientSubRoute) && (
@@ -326,6 +326,16 @@ export const ClientAppRoot: React.FC = () => {
         />
       )}
 
+      <style>{`
+        .client-main-content {
+          padding-bottom: 76px;
+        }
+        @media (min-width: 768px) {
+          .client-main-content {
+            padding-bottom: 30px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 };

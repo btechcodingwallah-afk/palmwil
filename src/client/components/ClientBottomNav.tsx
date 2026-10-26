@@ -17,7 +17,7 @@ export const ClientBottomNav: React.FC = () => {
   ];
 
   return (
-    <nav style={{
+    <nav className="client-bottom-nav" style={{
       position: 'fixed',
       bottom: 0,
       left: 0,
@@ -27,7 +27,6 @@ export const ClientBottomNav: React.FC = () => {
       borderTop: '1px solid #E4DDD2',
       boxShadow: '0 -4px 16px rgba(31, 27, 22, 0.05)',
       height: '66px',
-      display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
     }}>

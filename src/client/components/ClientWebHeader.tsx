@@ -17,10 +17,15 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
     selectedCity, 
     setSelectedCity,
     clientHomeMode,
-    user 
+    user,
+    bookings
   } = usePamwill();
 
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
+
+  const activeBookingsCount = bookings.filter(b =>
+    ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
+  ).length;
 
   return (
     <header style={{
@@ -95,6 +100,63 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
             </div>
           </div>
         </div>
+
+        {/* Center: Desktop Navigation Tabs (Visible on >= 768px screens) */}
+        <nav className="desktop-client-nav" style={{
+          alignItems: 'center',
+          gap: '6px'
+        }}>
+          {[
+            { id: 'home', label: 'Home' },
+            { id: 'store', label: 'Store', badge: cartTotalCount > 0 ? cartTotalCount : undefined },
+            { id: 'bookings', label: 'Bookings', badge: activeBookingsCount > 0 ? activeBookingsCount : undefined },
+            { id: 'profile', label: 'Profile' }
+          ].map(tab => {
+            const isActive = tab.id === 'home'
+              ? (clientSubRoute === 'home' || !['store', 'bookings', 'profile'].includes(clientSubRoute))
+              : clientSubRoute === tab.id;
+
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setClientSubRoute(tab.id)}
+                style={{
+                  position: 'relative',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 16px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  backgroundColor: isActive
+                    ? (clientHomeMode === 'physio' ? '#CCFBF1' : '#F7EEDD')
+                    : 'transparent',
+                  color: isActive
+                    ? (clientHomeMode === 'physio' ? '#0F766E' : '#A9812F')
+                    : '#6B6259',
+                  fontSize: '13px',
+                  fontWeight: isActive ? 800 : 600,
+                  cursor: 'pointer',
+                  transition: 'all 160ms ease'
+                }}
+              >
+                <span>{tab.label}</span>
+                {tab.badge && (
+                  <span style={{
+                    backgroundColor: clientHomeMode === 'physio' ? '#0D9488' : '#A9812F',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    padding: '1px 6px',
+                    borderRadius: '10px'
+                  }}>
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
 
         {/* Right: Location Chip, Cart & Profile */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -235,6 +297,17 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
         </div>
 
       </div>
+
+      <style>{`
+        .desktop-client-nav {
+          display: none;
+        }
+        @media (min-width: 768px) {
+          .desktop-client-nav {
+            display: flex !important;
+          }
+        }
+      `}</style>
     </header>
   );
 };

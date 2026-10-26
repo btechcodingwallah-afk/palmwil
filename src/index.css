@@ -877,5 +877,40 @@ h1, h2, h3, .font-serif {
   }
 }
 
+/* ==========================================================================
+   Responsive Client Portal Website vs Webapp Alignments
+   ========================================================================== */
+.client-bottom-nav {
+  display: flex;
+}
+
+.desktop-client-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .client-bottom-nav {
+    display: none !important;
+  }
+  .desktop-client-nav {
+    display: flex !important;
+  }
+  .client-main-content {
+    padding-bottom: 30px !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .client-bottom-nav {
+    display: flex !important;
+  }
+  .desktop-client-nav {
+    display: none !important;
+  }
+  .client-main-content {
+    padding-bottom: 76px !important;
+  }
+}
+
 
 

@@ -79,15 +79,17 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
   const currentTenConditions = filteredConditions.slice(startIndex, endIndex);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '30px' }}>
+    <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
       
       {/* ========================================================================= */}
       {/* SWIGGY / INSTAMART STYLE DUAL INTERFACE TAB SWITCHER (Screenshot 1)         */}
       {/* ========================================================================= */}
       <div style={{
         backgroundColor: '#FFFFFF',
-        padding: '8px 16px',
-        borderBottom: '1px solid #EBE5DC'
+        padding: '10px 16px',
+        borderBottom: '1px solid #EBE5DC',
+        width: '100%',
+        boxSizing: 'border-box'
       }}>
         <div style={{
           display: 'flex',
@@ -95,8 +97,9 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           borderRadius: '24px',
           padding: '4px',
           gap: '4px',
-          maxWidth: '680px',
-          margin: '0 auto'
+          maxWidth: '460px',
+          margin: '0 auto',
+          boxShadow: '0 2px 8px rgba(31, 27, 22, 0.04)'
         }}>
           {/* Physiotherapy Tab (FIRST) */}
           <button
@@ -167,23 +170,36 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
         </div>
       </div>
 
-      {/* Real-time Active Session Notification Banner (Screenshot 1) */}
-      {activeBooking && (
-        <div 
-          onClick={() => onOpenLiveTracking && onOpenLiveTracking(activeBooking.id)}
-          style={{
-            margin: '14px 16px 0 16px',
-            padding: '14px 16px',
-            borderRadius: '16px',
-            backgroundColor: '#1F1B16',
-            boxShadow: '0 8px 24px rgba(31, 27, 22, 0.25)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            cursor: 'pointer'
-          }}
-        >
+      {/* Main Responsive Sanctuary Container (1200px Max Width Centered) */}
+      <div className="client-home-container" style={{
+        width: '100%',
+        maxWidth: '1200px',
+        margin: '0 auto',
+        padding: '18px 16px 40px 16px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+
+        {/* Real-time Active Session Notification Banner (Screenshot 1) */}
+        {activeBooking && (
+          <div 
+            onClick={() => onOpenLiveTracking && onOpenLiveTracking(activeBooking.id)}
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              padding: '14px 18px',
+              borderRadius: '16px',
+              backgroundColor: '#1F1B16',
+              boxShadow: '0 8px 24px rgba(31, 27, 22, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px',
+              cursor: 'pointer'
+            }}
+          >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
             <div style={{
               width: '38px',
@@ -249,15 +265,17 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           {/* Editorial Luxury Hero Banner (Screenshot 1) */}
           <div style={{
             position: 'relative',
-            margin: '14px 16px 0 16px',
+            width: '100%',
+            boxSizing: 'border-box',
+            margin: '0',
             borderRadius: '20px',
             overflow: 'hidden',
             boxShadow: '0 8px 24px rgba(31, 27, 22, 0.08)',
-            height: '240px',
+            minHeight: '260px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
-            padding: '18px',
+            padding: '24px',
             color: '#FFFFFF'
           }}>
             <img
@@ -356,8 +374,10 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           <div 
             onClick={() => setClientSubRoute('membership')}
             style={{
-              margin: '14px 16px 0 16px',
-              padding: '16px',
+              width: '100%',
+              boxSizing: 'border-box',
+              margin: '0',
+              padding: '18px 20px',
               borderRadius: '16px',
               backgroundColor: '#1F1B16',
               border: '1px solid #3D2F1E',
@@ -408,12 +428,11 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           </div>
 
           {/* Categories Carousel (Screenshot 1) */}
-          <div style={{ marginTop: '24px' }}>
+          <div style={{ marginTop: '20px', width: '100%', boxSizing: 'border-box' }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'flex-end',
-              padding: '0 18px',
               marginBottom: '12px'
             }}>
               <div>
@@ -433,7 +452,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               display: 'flex',
               gap: '12px',
               overflowX: 'auto',
-              padding: '0 18px',
+              paddingBottom: '4px',
               scrollbarWidth: 'none'
             }}>
               {[
@@ -487,7 +506,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           </div>
 
           {/* Featured Sessions (Screenshot 1) */}
-          <div style={{ marginTop: '24px', padding: '0 18px', paddingBottom: '30px' }}>
+          <div style={{ marginTop: '24px', width: '100%', boxSizing: 'border-box', paddingBottom: '30px' }}>
             <div style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -510,7 +529,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '14px', width: '100%' }}>
               {filteredSpaServices.slice(0, 6).map(svc => {
                 const minPrice = Math.min(...Object.values(svc.basePricePerDuration));
                 return (
@@ -604,7 +623,9 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           {/* Clinical Hero Card */}
           <div style={{
             position: 'relative',
-            margin: '0 20px',
+            width: '100%',
+            boxSizing: 'border-box',
+            margin: '0',
             borderRadius: 'var(--radius-xl)',
             overflow: 'hidden',
             border: '1px solid rgba(212, 163, 89, 0.3)',
@@ -702,7 +723,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           </div>
 
           {/* 130 Medical Conditions Directory Section */}
-          <div style={{ padding: '0 20px' }}>
+          <div style={{ width: '100%', boxSizing: 'border-box', padding: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '12px' }}>
               <div>
                 <span className="eyebrow" style={{ color: 'var(--accent-gold)' }}>MEDICAL REHABILITATION DIRECTORY</span>
@@ -925,7 +946,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
           </div>
 
           {/* Clinical Treatment Protocols List */}
-          <div style={{ padding: '0 20px' }}>
+          <div style={{ width: '100%', boxSizing: 'border-box', padding: 0 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
               <div>
                 <span className="eyebrow" style={{ color: 'var(--accent-gold)' }}>DOCTOR & INTERN PROTOCOLS</span>
@@ -1101,6 +1122,7 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
         </div>
       )}
 
+      </div>
     </div>
   );
 };
