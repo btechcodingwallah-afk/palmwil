@@ -21,7 +21,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const { services, therapists, user, selectedCity, createBooking } = usePamwill();
+  const { services, therapists, user, updateUser, selectedCity, createBooking } = usePamwill();
 
   const [step, setStep] = useState<number>(initialService ? 2 : 1);
   const [selectedService, setSelectedService] = useState<MassageService>(initialService || services[0]);
@@ -127,18 +127,20 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
   // Financial calculations
+  const isSpaService = !selectedService.id.startsWith('physio-') && !selectedService.requiresCertification?.includes('Physiotherapy');
+
   const basePrice = selectedService.basePricePerDuration[durationMin] || 1699;
   const addOnsTotal = selectedAddOns.reduce((sum, item) => sum + item.priceDelta, 0);
   
   // Coupon Discount
   const couponDiscount = couponApplied ? 300 : 0;
 
-  // Membership Add-on Discount (15% off add-ons for Gold/Platinum)
-  const isMember = Boolean(user.membershipTier);
+  // Membership Add-on Discount (15% off add-ons for Gold/Platinum) - Exclusively for Spa rituals
+  const isMember = Boolean(user.membershipTier) && isSpaService;
   const membershipDiscount = isMember ? Math.round(addOnsTotal * 0.15) : 0;
 
-  // Credit Deduction if applying membership session
-  const creditDeduction = useMembershipCredits ? basePrice : 0;
+  // Credit Deduction if applying membership session - Exclusively for Spa rituals
+  const creditDeduction = (useMembershipCredits && isSpaService) ? basePrice : 0;
 
   // Final Total
   const subtotal = basePrice + addOnsTotal - couponDiscount - membershipDiscount - creditDeduction;
@@ -189,16 +191,20 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
         couponDiscount,
         membershipDiscount: membershipDiscount + creditDeduction,
         totalPaid: finalTotal,
-        paymentMethod: useMembershipCredits ? 'Membership Credits' : paymentMethod,
+        paymentMethod: (useMembershipCredits && isSpaService) ? 'Membership Credits' : paymentMethod,
         status: 'Accepted'
       });
+
+      if (useMembershipCredits && isSpaService && (user.membershipCredits || 0) > 0) {
+        updateUser({ membershipCredits: (user.membershipCredits || 0) - 1 });
+      }
 
       setIsProcessing(false);
       onSuccess(newBooking);
     };
 
-    // If using membership credit, zero total, or Pay on Arrival, complete immediately
-    if (useMembershipCredits || finalTotal === 0 || paymentMethod === 'Pay on Arrival') {
+    // If using valid membership credit, zero total, or Pay on Arrival, complete immediately
+    if ((useMembershipCredits && isSpaService) || finalTotal === 0 || paymentMethod === 'Pay on Arrival') {
       setTimeout(() => completeOrder(), 500);
       return;
     }
@@ -1149,8 +1155,8 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                 )}
               </div>
 
-              {/* Membership Credits Toggle */}
-              {user.membershipCredits > 0 && (
+              {/* Membership Credits Toggle (Exclusively for Spa Services) */}
+              {isSpaService && user.membershipCredits > 0 && (
                 <div style={{
                   padding: '12px 14px',
                   borderRadius: 'var(--radius-md)',
@@ -1184,6 +1190,25 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                   >
                     {useMembershipCredits ? 'Applied ✓' : 'Apply Credit'}
                   </button>
+                </div>
+              )}
+
+              {/* Informative notice if user is booking clinical physiotherapy */}
+              {!isSpaService && (
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'rgba(212, 163, 89, 0.08)',
+                  border: '1px dashed rgba(212, 163, 89, 0.4)',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}>
+                  <Sparkles size={16} color="var(--accent-gold)" style={{ flexShrink: 0 }} />
+                  <div style={{ fontSize: '11.5px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    <strong style={{ color: 'var(--accent-gold)' }}>Luxe Club Policy:</strong> PamWill Sovereign Club memberships & session credits apply exclusively to luxury <strong>Spa & Massage rituals</strong>, separate from clinical doctor physiotherapy care.
+                  </div>
                 </div>
               )}
 

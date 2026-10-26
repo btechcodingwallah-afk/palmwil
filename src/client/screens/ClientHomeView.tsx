@@ -82,156 +82,156 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', paddingBottom: '30px' }}>
       
       {/* ========================================================================= */}
-      {/* SWIGGY / INSTAMART STYLE DUAL INTERFACE TAB SWITCHER                       */}
+      {/* SWIGGY / INSTAMART STYLE DUAL INTERFACE TAB SWITCHER (Screenshot 1)         */}
       {/* ========================================================================= */}
       <div style={{
-        margin: '16px 20px 0 20px',
-        display: 'flex',
-        backgroundColor: '#1E1A16',
-        padding: '5px',
-        borderRadius: 'var(--radius-pill)',
-        border: '1.5px solid rgba(169, 129, 47, 0.35)',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.5)',
-        gap: '6px'
+        backgroundColor: '#FFFFFF',
+        padding: '8px 16px',
+        borderBottom: '1px solid #EBE5DC'
       }}>
-        {/* Spa Tab */}
-        <button
-          onClick={() => setClientHomeMode('spa')}
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            padding: '11px 18px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            backgroundColor: clientHomeMode === 'spa' ? 'var(--accent-gold)' : 'transparent',
-            color: clientHomeMode === 'spa' ? '#FFFFFF' : '#BAAE9E',
-            fontSize: '14px',
-            fontWeight: clientHomeMode === 'spa' ? 700 : 500,
-            cursor: 'pointer',
-            boxShadow: clientHomeMode === 'spa' ? '0 4px 18px rgba(169, 129, 47, 0.45)' : 'none',
-            transition: 'all 200ms ease'
-          }}
-        >
-          <Sparkles size={16} color={clientHomeMode === 'spa' ? '#FFFFFF' : 'var(--accent-gold)'} />
-          <span>Spa & Massage</span>
-          {clientHomeMode === 'spa' && (
-            <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FFFFFF', marginLeft: '2px' }} />
-          )}
-        </button>
+        <div style={{
+          display: 'flex',
+          backgroundColor: '#F3EFE9',
+          borderRadius: '24px',
+          padding: '4px',
+          gap: '4px',
+          maxWidth: '680px',
+          margin: '0 auto'
+        }}>
+          {/* Spa Tab */}
+          <button
+            onClick={() => setClientHomeMode('spa')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 14px',
+              borderRadius: '20px',
+              border: 'none',
+              backgroundColor: clientHomeMode === 'spa' ? '#A9812F' : 'transparent',
+              color: clientHomeMode === 'spa' ? '#FFFFFF' : '#8A7B6D',
+              fontSize: '13px',
+              fontWeight: clientHomeMode === 'spa' ? 800 : 700,
+              cursor: 'pointer',
+              boxShadow: clientHomeMode === 'spa' ? '0 2px 8px rgba(169, 129, 47, 0.3)' : 'none',
+              transition: 'all 160ms ease'
+            }}
+          >
+            <Sparkles size={15} color={clientHomeMode === 'spa' ? '#FFFFFF' : '#8A7B6D'} />
+            <span>Spa & Massage</span>
+            {clientHomeMode === 'spa' && (
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FFFFFF', marginLeft: '2px' }} />
+            )}
+          </button>
 
-        {/* Physiotherapy Tab */}
-        <button
-          onClick={() => setClientHomeMode('physio')}
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            padding: '11px 18px',
-            borderRadius: 'var(--radius-pill)',
-            border: 'none',
-            backgroundColor: clientHomeMode === 'physio' ? 'var(--accent-gold)' : 'transparent',
-            color: clientHomeMode === 'physio' ? '#100E0C' : '#BAAE9E',
-            fontSize: '14px',
-            fontWeight: clientHomeMode === 'physio' ? 700 : 500,
-            cursor: 'pointer',
-            boxShadow: clientHomeMode === 'physio' ? '0 4px 18px rgba(212, 163, 89, 0.35)' : 'none',
-            transition: 'all 200ms ease'
-          }}
-        >
-          <Activity size={16} color={clientHomeMode === 'physio' ? '#100E0C' : 'var(--accent-gold)'} />
-          <span>Physiotherapy</span>
-        </button>
+          {/* Physiotherapy Tab */}
+          <button
+            onClick={() => setClientHomeMode('physio')}
+            style={{
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              padding: '10px 14px',
+              borderRadius: '20px',
+              border: 'none',
+              backgroundColor: clientHomeMode === 'physio' ? '#0D9488' : 'transparent',
+              color: clientHomeMode === 'physio' ? '#FFFFFF' : '#0D9488',
+              fontSize: '13px',
+              fontWeight: clientHomeMode === 'physio' ? 800 : 700,
+              cursor: 'pointer',
+              boxShadow: clientHomeMode === 'physio' ? '0 2px 8px rgba(13, 148, 136, 0.3)' : 'none',
+              transition: 'all 160ms ease'
+            }}
+          >
+            <Activity size={15} color={clientHomeMode === 'physio' ? '#FFFFFF' : '#0D9488'} />
+            <span>Physiotherapy</span>
+            <span style={{
+              fontSize: '8px',
+              fontWeight: 900,
+              letterSpacing: '0.5px',
+              padding: '2px 6px',
+              borderRadius: '10px',
+              backgroundColor: clientHomeMode === 'physio' ? 'rgba(255,255,255,0.25)' : '#CCFBF1',
+              color: clientHomeMode === 'physio' ? '#FFFFFF' : '#0F766E'
+            }}>
+              DR. & INTERN
+            </span>
+          </button>
+        </div>
       </div>
 
-      {/* Real-time Active Session Notification Banner */}
+      {/* Real-time Active Session Notification Banner (Screenshot 1) */}
       {activeBooking && (
         <div 
           onClick={() => onOpenLiveTracking && onOpenLiveTracking(activeBooking.id)}
           style={{
-            margin: '0 20px',
-            padding: '14px 18px',
-            borderRadius: 'var(--radius-lg)',
-            background: activeBooking.status === 'Arrived'
-              ? 'linear-gradient(135deg, rgba(212, 163, 89, 0.25) 0%, rgba(31, 27, 22, 0.9) 100%)'
-              : activeBooking.status === 'Service Started'
-              ? 'linear-gradient(135deg, rgba(62, 123, 76, 0.22) 0%, rgba(31, 27, 22, 0.9) 100%)'
-              : 'linear-gradient(135deg, rgba(40, 30, 20, 0.95) 0%, rgba(20, 18, 15, 0.98) 100%)',
-            border: activeBooking.status === 'Arrived' 
-              ? '2px solid var(--accent-gold)' 
-              : activeBooking.status === 'Service Started'
-              ? '2px solid var(--status-success)'
-              : '1px solid var(--accent-gold)',
-            boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
-            cursor: 'pointer',
+            margin: '14px 16px 0 16px',
+            padding: '14px 16px',
+            borderRadius: '16px',
+            backgroundColor: '#1F1B16',
+            boxShadow: '0 8px 24px rgba(31, 27, 22, 0.25)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '12px'
+            gap: '12px',
+            cursor: 'pointer'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
             <div style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: activeBooking.status === 'Arrived' 
-                ? 'var(--accent-gold)' 
-                : activeBooking.status === 'Service Started' 
-                ? 'var(--status-success)' 
-                : 'var(--accent-gold-light)',
+              width: '38px',
+              height: '38px',
+              borderRadius: '19px',
+              backgroundColor: '#A9812F',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fff',
+              color: '#FFFFFF',
               flexShrink: 0
             }}>
-              {activeBooking.status === 'Arrived' ? <KeyRound size={20} /> :
-               activeBooking.status === 'Service Started' ? <Sparkles size={20} /> :
-               <Clock size={20} color="var(--accent-gold-hover)" />}
+              <KeyRound size={18} />
             </div>
 
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '3px' }}>
                 <span style={{
                   fontSize: '10px',
                   fontWeight: 800,
                   textTransform: 'uppercase',
-                  padding: '2px 6px',
-                  borderRadius: 'var(--radius-pill)',
-                  backgroundColor: activeBooking.status === 'Arrived' ? 'var(--accent-gold)' : 'rgba(255,255,255,0.15)',
-                  color: '#fff'
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  backgroundColor: 'rgba(255,255,255,0.15)',
+                  color: '#FFFFFF',
+                  letterSpacing: '0.5px'
                 }}>
-                  {activeBooking.status === 'Arrived' ? '⚡ ARRIVED' : activeBooking.status.toUpperCase()}
+                  {activeBooking.status.toUpperCase()}
                 </span>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>
+                <span style={{ fontSize: '11px', color: '#E4DDD2', fontWeight: 600 }}>
                   #{activeBooking.id}
                 </span>
               </div>
 
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#fff', marginTop: '2px' }}>
-                {activeBooking.status === 'Arrived' ? `Start OTP: ${activeBooking.startOtp || '4821'}` :
-                 activeBooking.status === 'Service Started' ? (activeBooking.endOtp ? `Completion OTP: ${activeBooking.endOtp}` : 'Session In Progress • Tap to Rate') :
-                 `${activeBooking.service.name} • ${activeBooking.status}`}
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#FAF8F5' }}>
+                {activeBooking.service?.name} • {activeBooking.status}
               </div>
             </div>
           </div>
 
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.15)',
-            color: '#fff',
+            backgroundColor: 'rgba(255,255,255,0.18)',
+            color: '#FFFFFF',
             padding: '6px 12px',
-            borderRadius: 'var(--radius-pill)',
-            fontSize: '11px',
+            borderRadius: '8px',
+            fontSize: '12px',
             fontWeight: 700,
             whiteSpace: 'nowrap',
             display: 'flex',
             alignItems: 'center',
-            gap: '4px'
+            gap: '2px'
           }}>
             View <ChevronRight size={13} />
           </div>
@@ -239,22 +239,22 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
       )}
 
       {/* ========================================================================= */}
-      {/* TAB 1: SPA & MASSAGE INTERFACE (SANCTUARY DELIVERED)                      */}
+      {/* TAB 1: SPA & MASSAGE INTERFACE (SANCTUARY DELIVERED - Screenshot 1)        */}
       {/* ========================================================================= */}
       {clientHomeMode === 'spa' && (
         <>
-          {/* Editorial Luxury Hero Banner */}
+          {/* Editorial Luxury Hero Banner (Screenshot 1) */}
           <div style={{
             position: 'relative',
-            margin: '0 20px',
-            borderRadius: 'var(--radius-xl)',
+            margin: '14px 16px 0 16px',
+            borderRadius: '20px',
             overflow: 'hidden',
-            boxShadow: 'var(--shadow-elevated)',
-            minHeight: '260px',
+            boxShadow: '0 8px 24px rgba(31, 27, 22, 0.08)',
+            height: '240px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'flex-end',
-            padding: '28px 24px',
+            padding: '18px',
             color: '#FFFFFF'
           }}>
             <img
@@ -280,228 +280,308 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
               zIndex: 2
             }} />
 
-            <div style={{ position: 'relative', zIndex: 3 }}>
-              <span className="eyebrow" style={{ color: 'var(--accent-gold-light)', display: 'inline-block', marginBottom: '6px' }}>
+            <div style={{ position: 'relative', zIndex: 3, display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <span style={{
+                color: '#E2B755',
+                fontSize: '10px',
+                fontWeight: 800,
+                letterSpacing: '1.5px',
+                textTransform: 'uppercase'
+              }}>
                 SANCTUARY DELIVERED
               </span>
-              <h1 style={{
+              <h2 style={{
                 color: '#FFFFFF',
-                fontSize: '28px',
-                lineHeight: 1.25,
-                marginBottom: '8px',
-                fontFamily: 'var(--font-serif)'
+                fontSize: '20px',
+                fontWeight: 800,
+                lineHeight: '26px',
+                margin: 0,
+                fontFamily: 'var(--font-sans)'
               }}>
                 Restorative Touch, in Your Sacred Space.
-              </h1>
-              <p style={{ fontSize: '13px', color: 'rgba(250, 248, 245, 0.9)', marginBottom: '18px', lineHeight: 1.45, maxWidth: '640px' }}>
-                Certified master therapists bringing organic cold-pressed oils, heated volcanic basalt stones, and sanitized luxury linens straight to your private residence.
+              </h2>
+              <p style={{
+                fontSize: '12px',
+                color: 'rgba(255, 255, 255, 0.85)',
+                margin: 0,
+                lineHeight: '16px'
+              }}>
+                Certified master therapists bringing organic cold-pressed oils, heated basalt stones, and luxury linens straight to your door.
               </p>
 
-              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '6px' }}>
                 <button
                   onClick={onOpenBookingFlow}
-                  className="btn-gold"
                   style={{
-                    padding: '12px 20px',
-                    fontSize: '13.5px',
-                    boxShadow: '0 4px 16px rgba(169, 129, 47, 0.4)'
+                    backgroundColor: '#A9812F',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: '12px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 4px 14px rgba(169, 129, 47, 0.35)'
                   }}
                 >
-                  Book Massage Now <ChevronRight size={15} />
+                  Book Massage Now <ChevronRight size={14} />
                 </button>
                 <button
                   onClick={() => setClientSubRoute('membership')}
                   style={{
-                    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
                     backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    border: '1px solid rgba(255, 255, 255, 0.35)',
                     color: '#FFFFFF',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '12px 18px',
-                    fontSize: '13px',
-                    fontWeight: 600,
+                    borderRadius: '12px',
+                    padding: '10px 14px',
+                    fontSize: '12px',
+                    fontWeight: 700,
                     cursor: 'pointer'
                   }}
                 >
-                  Privilege Memberships →
+                  Privilege Memberships
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Privilege Memberships Promotional Banner */}
+          {/* Privilege Memberships Promotional Banner (Screenshot 1) */}
           <div 
             onClick={() => setClientSubRoute('membership')}
             style={{
-              margin: '0 20px',
-              padding: '18px 22px',
-              borderRadius: 'var(--radius-lg)',
-              background: 'linear-gradient(135deg, #2A2013 0%, #1C160D 100%)',
-              border: '1px solid rgba(212, 163, 89, 0.3)',
+              margin: '14px 16px 0 16px',
+              padding: '16px',
+              borderRadius: '16px',
+              backgroundColor: '#1F1B16',
+              border: '1px solid #3D2F1E',
+              boxShadow: '0 4px 16px rgba(31, 27, 22, 0.05)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(0,0,0,0.35)'
+              cursor: 'pointer'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div>
               <div style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '50%',
-                backgroundColor: 'rgba(169, 129, 47, 0.25)',
+                fontSize: '9px',
+                fontWeight: 800,
+                color: '#E2B755',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                border: '1px solid var(--accent-gold)'
+                gap: '5px'
               }}>
-                <Sparkles size={20} color="var(--accent-gold)" />
+                💎 PAMWILL PRIVILEGE TIERS
               </div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#FFFFFF', marginTop: '2px' }}>
+                Silver, Gold & Platinum Sanctuary
+              </div>
+              <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)', marginTop: '2px', lineHeight: '15px' }}>
+                Save up to 30% on all 47 therapies + get up to 4 Complimentary Free Sittings!
+              </div>
+            </div>
+
+            <button
+              style={{
+                backgroundColor: '#A9812F',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '7px 14px',
+                borderRadius: '8px',
+                fontSize: '11px',
+                fontWeight: 800,
+                whiteSpace: 'nowrap',
+                cursor: 'pointer',
+                marginLeft: '12px'
+              }}
+            >
+              Explore →
+            </button>
+          </div>
+
+          {/* Categories Carousel (Screenshot 1) */}
+          <div style={{ marginTop: '24px' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              padding: '0 18px',
+              marginBottom: '12px'
+            }}>
               <div>
-                <div style={{ fontSize: '11px', color: 'var(--accent-gold-light)', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                  PAMWILL PRIVILEGE TIERS
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#A9812F', letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+                  CATALOGUE & WELLNESS
                 </div>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#FAF8F5' }}>
-                  Silver, Gold & Platinum Sanctuary
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16', marginTop: '2px' }}>
+                  Therapy Categories
                 </div>
-                <div style={{ fontSize: '12px', color: '#BAAE9E' }}>
-                  Save up to 30% on all 47 therapies + get up to 4 Complimentary Free Sittings!
-                </div>
+              </div>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#9A8F82' }}>
+                60 Standard Treatments
               </div>
             </div>
 
             <div style={{
-              backgroundColor: 'var(--accent-gold)',
-              color: '#FFFFFF',
-              padding: '8px 14px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '12px',
-              fontWeight: 700,
-              whiteSpace: 'nowrap'
+              display: 'flex',
+              gap: '12px',
+              overflowX: 'auto',
+              padding: '0 18px',
+              scrollbarWidth: 'none'
             }}>
-              Explore →
-            </div>
-          </div>
-
-          {/* Horizontal Category Rail */}
-          <div style={{ paddingLeft: '20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingRight: '20px', marginBottom: '12px' }}>
-              <div>
-                <span className="eyebrow">Curated Disciplines</span>
-                <h2 style={{ fontSize: '20px', margin: 0 }}>Therapy Categories</h2>
-              </div>
-              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>47 Treatments</span>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingRight: '20px', paddingBottom: '8px' }}>
-              {SERVICE_CATEGORIES.map(category => {
-                const isActive = activeCategory === category;
-                return (
-                  <div
-                    key={category}
-                    onClick={() => setActiveCategory(category)}
-                    style={{
-                      minWidth: '150px',
-                      width: '150px',
-                      borderRadius: 'var(--radius-lg)',
-                      overflow: 'hidden',
-                      position: 'relative',
-                      height: '115px',
-                      cursor: 'pointer',
-                      border: isActive ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
-                      boxShadow: isActive ? 'var(--shadow-elevated)' : 'var(--shadow-sm)',
-                      flexShrink: 0
-                    }}
-                  >
-                    <img
-                      src={categoryImages[category]}
-                      alt={category}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                    />
-                    <div style={{
-                      position: 'absolute',
-                      inset: 0,
-                      background: isActive 
-                        ? 'linear-gradient(180deg, rgba(31, 27, 22, 0.2) 0%, rgba(31, 27, 22, 0.85) 100%)' 
-                        : 'linear-gradient(180deg, rgba(31, 27, 22, 0.1) 0%, rgba(31, 27, 22, 0.75) 100%)',
-                      display: 'flex',
-                      alignItems: 'flex-end',
-                      padding: '10px'
-                    }}>
-                      <span style={{
-                        color: '#FFFFFF',
-                        fontSize: '12.5px',
-                        fontWeight: 600,
-                        lineHeight: 1.2,
-                        fontFamily: 'var(--font-serif)'
-                      }}>
-                        {category}
-                      </span>
-                    </div>
+              {[
+                { name: 'Relaxation & Wellness', img: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80' },
+                { name: 'Therapeutic', img: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?auto=format&fit=crop&w=800&q=80' },
+                { name: 'Luxury & Spa', img: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&w=800&q=80' },
+                { name: 'Beauty & Wellness', img: 'https://images.unsplash.com/photo-1507652313519-d4e9174996dd?auto=format&fit=crop&w=800&q=80' },
+                { name: 'Specialized', img: 'https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80' }
+              ].map(cat => (
+                <div
+                  key={cat.name}
+                  onClick={() => setActiveCategory(cat.name)}
+                  style={{
+                    width: '140px',
+                    height: '95px',
+                    borderRadius: '16px',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(31, 27, 22, 0.08)',
+                    border: activeCategory === cat.name ? '2px solid #A9812F' : 'none'
+                  }}
+                >
+                  <img
+                    src={cat.img}
+                    alt={cat.name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(180deg, rgba(31, 27, 22, 0.1) 0%, rgba(31, 27, 22, 0.8) 100%)'
+                  }} />
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '10px',
+                    left: '10px',
+                    right: '10px',
+                    fontSize: '12px',
+                    fontWeight: 800,
+                    color: '#FFFFFF',
+                    letterSpacing: '0.3px',
+                    lineHeight: '15px'
+                  }}>
+                    {cat.name}
                   </div>
-                );
-              })}
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Featured Spa Sessions List */}
-          <div style={{ padding: '0 20px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+          {/* Featured Sessions (Screenshot 1) */}
+          <div style={{ marginTop: '24px', padding: '0 18px', paddingBottom: '30px' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'flex-end',
+              marginBottom: '14px'
+            }}>
               <div>
-                <span className="eyebrow" style={{ color: 'var(--accent-gold)' }}>{activeCategory}</span>
-                <h2 style={{ fontSize: '18px', margin: 0 }}>Featured Sessions</h2>
+                <div style={{ fontSize: '10px', fontWeight: 800, color: '#A9812F', letterSpacing: '1.2px', textTransform: 'uppercase' }}>
+                  RELAXATION & WELLNESS
+                </div>
+                <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16', marginTop: '2px' }}>
+                  Featured Sessions
+                </div>
               </div>
-              <button 
+              <div 
                 onClick={onOpenBookingFlow}
-                style={{ background: 'none', border: 'none', color: 'var(--accent-gold)', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+                style={{ fontSize: '12px', fontWeight: 700, color: '#A9812F', cursor: 'pointer' }}
               >
                 View All ({filteredSpaServices.length}) →
-              </button>
+              </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '14px' }}>
-              {filteredSpaServices.slice(0, 6).map(service => {
-                const minPrice = Math.min(...Object.values(service.basePricePerDuration));
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {filteredSpaServices.slice(0, 6).map(svc => {
+                const minPrice = Math.min(...Object.values(svc.basePricePerDuration));
                 return (
                   <div
-                    key={service.id}
-                    onClick={() => onSelectService(service)}
-                    className="card-luxury"
+                    key={svc.id}
+                    onClick={() => onSelectService(svc)}
                     style={{
                       display: 'flex',
-                      overflow: 'hidden',
-                      cursor: 'pointer'
+                      backgroundColor: '#FFFFFF',
+                      borderRadius: '16px',
+                      padding: '12px',
+                      border: '1px solid #E4DDD2',
+                      boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)',
+                      cursor: 'pointer',
+                      gap: '12px'
                     }}
                   >
                     <img
-                      src={service.imageUrl}
-                      alt={service.name}
-                      style={{ width: '110px', height: '125px', objectFit: 'cover' }}
+                      src={svc.imageUrl}
+                      alt={svc.name}
+                      style={{
+                        width: '90px',
+                        height: '90px',
+                        borderRadius: '12px',
+                        objectFit: 'cover',
+                        backgroundColor: '#EBE5DC',
+                        flexShrink: 0
+                      }}
                     />
-                    <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                      <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                          <h3 style={{ fontSize: '15px', fontWeight: 600, margin: 0 }}>{service.name}</h3>
-                          <span style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                            ₹{minPrice}
-                          </span>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 800, color: '#1F1B16', marginRight: '8px' }}>
+                          {svc.name}
                         </div>
-                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 8px 0', lineHeight: 1.3 }}>
-                          {service.description.slice(0, 75)}...
-                        </p>
+                        <div style={{ fontSize: '15px', fontWeight: 800, color: '#A9812F', whiteSpace: 'nowrap' }}>
+                          ₹{minPrice}
+                        </div>
                       </div>
 
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{
+                        fontSize: '11px',
+                        color: '#6B6259',
+                        marginTop: '2px',
+                        lineHeight: '15px',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}>
+                        {svc.description}
+                      </div>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                         <div style={{ display: 'flex', gap: '4px' }}>
-                          {service.durationOptionsMin.map(d => (
-                            <span key={d} style={{ fontSize: '10px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)', padding: '2px 5px', borderRadius: '4px' }}>
+                          {svc.durationOptionsMin.map(d => (
+                            <span
+                              key={d}
+                              style={{
+                                backgroundColor: '#F7EEDD',
+                                border: '1px solid #E4DDD2',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '10px',
+                                fontWeight: 700,
+                                color: '#A9812F'
+                              }}
+                            >
                               {d}m
                             </span>
                           ))}
                         </div>
-                        <span style={{ fontSize: '11px', color: 'var(--accent-gold)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '2px' }}>
-                          Reserve <ChevronRight size={12} />
+
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: '#A9812F', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                          Reserve <ChevronRight size={13} />
                         </span>
                       </div>
                     </div>

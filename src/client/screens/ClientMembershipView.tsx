@@ -62,6 +62,23 @@ export const ClientMembershipView: React.FC = () => {
         <p style={{ fontSize: '15px', color: 'var(--text-secondary)', lineHeight: 1.6, margin: 0 }}>
           Unlock complimentary monthly treatments, priority practitioner allocation, complimentary aromatherapy upgrades, and up to 30% flat discounts on all boutique therapies.
         </p>
+
+        <div style={{
+          marginTop: '16px',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          backgroundColor: 'rgba(212, 163, 89, 0.12)',
+          border: '1px solid rgba(212, 163, 89, 0.35)',
+          padding: '8px 18px',
+          borderRadius: 'var(--radius-pill)',
+          fontSize: '12px',
+          color: 'var(--accent-gold)',
+          lineHeight: 1.4
+        }}>
+          <Sparkles size={14} style={{ flexShrink: 0 }} />
+          <span><strong>Spa & Massage Exclusivity:</strong> Luxe Club benefits and credits apply exclusively to luxury Spa & Massage rituals (separate from clinical doctor physiotherapy care).</span>
+        </div>
       </div>
 
       {/* Success Banner */}
@@ -218,9 +235,14 @@ export const ClientMembershipView: React.FC = () => {
                 gap: '10px'
               }}>
                 <Zap size={18} color="var(--accent-gold)" />
-                <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                  {plan.sessionsIncluded} Free Sanctuary Session{plan.sessionsIncluded > 1 ? 's' : ''} / month
-                </span>
+                <div>
+                  <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                    {plan.sessionsIncluded} Free Spa Session{plan.sessionsIncluded > 1 ? 's' : ''} / month
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--accent-gold)' }}>
+                    Exclusive to Spa & Massage rituals
+                  </div>
+                </div>
               </div>
 
               {/* Features List */}

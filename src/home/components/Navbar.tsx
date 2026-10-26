@@ -227,31 +227,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* Swiggy / Instamart style portal links for Normal Users and Therapists */}
             <button
               onClick={() => {
-                setClientHomeMode('spa');
-                onNavigateRole('client');
-              }}
-              style={{
-                backgroundColor: 'var(--cta)',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: 'var(--radius-pill)',
-                padding: '9px 16px',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 4px 14px rgba(198, 165, 103, 0.3)',
-                transition: 'all 160ms ease'
-              }}
-              title="Open Spa & Luxury Massage Sanctuary Portal"
-            >
-              <Sparkles size={14} /> Spa & Massage
-            </button>
-
-            <button
-              onClick={() => {
                 setClientHomeMode('physio');
                 onNavigateRole('client');
               }}
@@ -283,6 +258,31 @@ export const Navbar: React.FC<NavbarProps> = ({
               }}>
                 DR.
               </span>
+            </button>
+
+            <button
+              onClick={() => {
+                setClientHomeMode('spa');
+                onNavigateRole('client');
+              }}
+              style={{
+                backgroundColor: 'var(--cta)',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: 'var(--radius-pill)',
+                padding: '9px 16px',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 14px rgba(198, 165, 103, 0.3)',
+                transition: 'all 160ms ease'
+              }}
+              title="Open Spa & Luxury Massage Sanctuary Portal"
+            >
+              <Sparkles size={14} /> Spa & Massage
             </button>
 
             <button
@@ -432,30 +432,6 @@ export const Navbar: React.FC<NavbarProps> = ({
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  setClientHomeMode('spa');
-                  onNavigateRole('client');
-                }}
-                style={{
-                  padding: '12px',
-                  borderRadius: 'var(--radius-pill)',
-                  border: 'none',
-                  backgroundColor: 'var(--cta)',
-                  color: '#FFFFFF',
-                  fontSize: '13px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Sparkles size={14} /> Spa Portal
-              </button>
-
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
                   setClientHomeMode('physio');
                   onNavigateRole('client');
                 }}
@@ -475,6 +451,30 @@ export const Navbar: React.FC<NavbarProps> = ({
                 }}
               >
                 <Activity size={14} /> Physio (Dr.)
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setClientHomeMode('spa');
+                  onNavigateRole('client');
+                }}
+                style={{
+                  padding: '12px',
+                  borderRadius: 'var(--radius-pill)',
+                  border: 'none',
+                  backgroundColor: 'var(--cta)',
+                  color: '#FFFFFF',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Sparkles size={14} /> Spa Portal
               </button>
             </div>
 

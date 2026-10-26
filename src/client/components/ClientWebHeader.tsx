@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  ShoppingBag, Calendar, Sparkles, User, Coins, Tag, 
-  MapPin, Menu, X, ArrowLeft, ChevronDown, Package, Activity 
+  ShoppingBag, MapPin, ChevronDown, User, Sparkles, Coins
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 import { INDIAN_CITIES } from '../../data/indianCities';
@@ -14,33 +13,14 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
   const { 
     clientSubRoute, 
     setClientSubRoute, 
-    setCurrentRole, 
     cartTotalCount, 
-    pamCoins, 
     selectedCity, 
     setSelectedCity,
     clientHomeMode,
-    setClientHomeMode,
     user 
   } = usePamwill();
 
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
-
-  const navItems = [
-    { id: 'home', label: 'Treatments & Home', icon: <Sparkles size={14} /> },
-    { id: 'store', label: 'Sanctuary Store', icon: <ShoppingBag size={14} /> },
-    { id: 'bookings', label: 'My Bookings', icon: <Calendar size={14} /> },
-    { id: 'orders', label: 'Store Orders', icon: <Package size={14} /> },
-    { id: 'membership', label: 'Luxe Club', icon: <Sparkles size={14} /> },
-    { id: 'pamcoin', label: 'PamCoins', icon: <Coins size={14} /> },
-    { id: 'vouchers', label: 'Vouchers', icon: <Tag size={14} /> },
-  ];
-
-  const handleNavClick = (id: string) => {
-    setClientSubRoute(id);
-    setMobileMenuOpen(false);
-  };
 
   return (
     <header style={{
@@ -49,99 +29,111 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
       left: 0,
       right: 0,
       zIndex: 1000,
-      backgroundColor: 'rgba(20, 18, 15, 0.95)',
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(169, 129, 47, 0.2)',
-      transition: 'all 200ms ease'
+      backgroundColor: '#FFFFFF',
+      borderBottom: '1px solid #EBE5DC',
+      boxShadow: '0 2px 10px rgba(31, 27, 22, 0.03)'
     }}>
       <div style={{
-        maxWidth: '1320px',
+        maxWidth: '1200px',
         margin: '0 auto',
-        padding: '0 20px',
-        height: '70px',
+        padding: '10px 18px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between'
+        justifyContent: 'space-between',
+        height: '62px'
       }}>
         
-        {/* Left: Brand Emblem & Portal Label */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <div 
-            onClick={() => handleNavClick('home')}
-            style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
-          >
-            <img
-              src="/assets/pamwill-icon.png"
-              alt="PamWill"
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '50%',
-                border: '1px solid rgba(169, 129, 47, 0.4)',
-                boxShadow: '0 0 16px rgba(169, 129, 47, 0.3)'
-              }}
-            />
-            <div>
-              <div style={{
-                fontFamily: 'var(--font-serif)',
-                fontSize: '20px',
-                fontWeight: 700,
-                color: '#FAF8F5',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
+        {/* Left: Brand Emblem, Name, Tag & Subtitle */}
+        <div 
+          onClick={() => setClientSubRoute('home')}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+        >
+          <img
+            src="/assets/pamwill-icon.png"
+            alt="Pamwill"
+            style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              border: '1px solid #E4DDD2',
+              objectFit: 'cover'
+            }}
+          />
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{
+                fontFamily: 'var(--font-sans)',
+                fontSize: '18px',
+                fontWeight: 800,
+                color: '#1F1B16',
+                letterSpacing: '-0.3px'
               }}>
-                PamWill
-                <span style={{
-                  fontSize: '9px',
-                  fontWeight: 800,
-                  color: 'var(--accent-gold-light)',
-                  backgroundColor: 'rgba(169, 129, 47, 0.2)',
-                  padding: '2px 8px',
-                  borderRadius: 'var(--radius-pill)',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase'
-                }}>
-                  Patient Portal
-                </span>
-              </div>
+                Pamwill
+              </span>
+              <span style={{
+                fontSize: '9px',
+                fontWeight: 800,
+                letterSpacing: '0.6px',
+                textTransform: 'uppercase',
+                padding: '2px 7px',
+                borderRadius: '10px',
+                backgroundColor: clientHomeMode === 'physio' ? '#CCFBF1' : '#FDF8EE',
+                color: clientHomeMode === 'physio' ? '#0F766E' : '#A9812F',
+                border: clientHomeMode === 'physio' ? '1px solid rgba(15, 118, 110, 0.25)' : '1px solid rgba(169, 129, 47, 0.3)'
+              }}>
+                {clientHomeMode === 'physio' ? 'CLINICAL' : 'BOUTIQUE'}
+              </span>
+            </div>
+            <div style={{
+              fontSize: '10px',
+              fontWeight: 600,
+              color: '#9A8F82',
+              letterSpacing: '0.4px',
+              marginTop: '1px'
+            }}>
+              {clientHomeMode === 'physio' ? 'DOCTOR-LED PHYSIOTHERAPY' : 'WELLNESS COMES HOME'}
             </div>
           </div>
+        </div>
 
-          {/* City Selector Dropdown */}
+        {/* Right: Location Chip, Cart & Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          
+          {/* City Selector Pill */}
           <div style={{ position: 'relative' }}>
             <button
               onClick={() => setCityDropdownOpen(!cityDropdownOpen)}
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '4px',
                 padding: '6px 12px',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(169, 129, 47, 0.3)',
-                color: '#FAF8F5',
+                borderRadius: '20px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E4DDD2',
+                color: '#1F1B16',
                 fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer'
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 1px 4px rgba(31, 27, 22, 0.04)'
               }}
             >
-              <MapPin size={13} color="var(--accent-gold)" />
-              <span>{selectedCity}</span>
-              <ChevronDown size={13} color="var(--text-muted)" />
+              <MapPin size={13} color={clientHomeMode === 'physio' ? '#0D9488' : '#A9812F'} />
+              <span>{selectedCity ? selectedCity.split(' ')[0] : 'Delhi'}</span>
+              <ChevronDown size={12} color="#9A8F82" />
             </button>
 
             {cityDropdownOpen && (
               <div style={{
                 position: 'absolute',
-                top: 'calc(100% + 8px)',
-                left: 0,
-                width: '200px',
-                backgroundColor: '#1E1A16',
-                border: '1px solid #3E362E',
+                top: 'calc(100% + 6px)',
+                right: 0,
+                width: '180px',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #E4DDD2',
                 borderRadius: '16px',
                 padding: '6px',
-                boxShadow: '0 12px 30px rgba(0,0,0,0.8)',
+                boxShadow: '0 8px 24px rgba(31, 27, 22, 0.12)',
                 zIndex: 200,
                 maxHeight: '260px',
                 overflowY: 'auto'
@@ -159,9 +151,9 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
                       background: 'none',
                       border: 'none',
                       textAlign: 'left',
-                      color: selectedCity === c.name ? 'var(--accent-gold)' : '#FAF8F5',
+                      color: selectedCity === c.name ? '#A9812F' : '#1F1B16',
                       fontSize: '13px',
-                      fontWeight: selectedCity === c.name ? 700 : 500,
+                      fontWeight: selectedCity === c.name ? 800 : 500,
                       cursor: 'pointer',
                       borderRadius: '8px'
                     }}
@@ -173,218 +165,76 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
             )}
           </div>
 
-
-        </div>
-
-
-
-        {/* Right: Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          
-          {/* PamCoins Pill */}
+          {/* Cart Basket */}
           <button
-            onClick={() => handleNavClick('pamcoin')}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'rgba(229, 169, 60, 0.15)',
-              border: '1px solid rgba(229, 169, 60, 0.35)',
-              color: '#FAF8F5',
-              fontSize: '12px',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-            title="View PamCoin Rewards Wallet"
-          >
-            <Coins size={14} color="#E5A93C" />
-            <span>{pamCoins}</span>
-          </button>
-
-          {/* Shopping Basket Button with Badge */}
-          <button
-            onClick={() => handleNavClick('cart')}
+            onClick={() => setClientSubRoute('cart')}
             style={{
               position: 'relative',
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(169, 129, 47, 0.3)',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E4DDD2',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#FAF8F5'
+              color: '#1F1B16'
             }}
-            title="Shopping Basket"
+            title="Shopping Cart"
           >
-            <ShoppingBag size={17} color="var(--accent-gold)" />
+            <ShoppingBag size={16} color="#A9812F" />
             {cartTotalCount > 0 && (
               <span style={{
                 position: 'absolute',
                 top: '-4px',
                 right: '-4px',
-                backgroundColor: 'var(--accent-gold)',
+                backgroundColor: '#A9812F',
                 color: '#FFFFFF',
                 fontSize: '10px',
                 fontWeight: 800,
-                width: '18px',
-                height: '18px',
+                width: '16px',
+                height: '16px',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.5)'
+                justifyContent: 'center'
               }}>
                 {cartTotalCount}
               </span>
             )}
           </button>
 
-          {/* User Profile */}
+          {/* User Profile Avatar */}
           <button
-            onClick={() => handleNavClick('profile')}
+            onClick={() => setClientSubRoute('profile')}
             style={{
-              width: '38px',
-              height: '38px',
+              width: '36px',
+              height: '36px',
               borderRadius: '50%',
-              backgroundColor: 'rgba(255,255,255,0.06)',
-              border: '1px solid rgba(169, 129, 47, 0.3)',
+              backgroundColor: '#F7EEDD',
+              border: `1.5px solid ${clientHomeMode === 'physio' ? '#0D9488' : '#A9812F'}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              color: '#FAF8F5'
+              color: '#A9812F',
+              overflow: 'hidden',
+              padding: 0
             }}
             title="My Profile"
           >
-            <User size={17} color="#FAF8F5" />
-          </button>
-
-          {/* Book Treatment CTA */}
-          <button
-            onClick={onOpenBookingFlow}
-            style={{
-              display: 'none',
-              alignItems: 'center',
-              gap: '6px',
-              padding: '9px 18px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--accent-gold)',
-              color: '#FFFFFF',
-              fontSize: '13px',
-              fontWeight: 700,
-              border: 'none',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(169, 129, 47, 0.35)'
-            }}
-            className="desktop-book-btn"
-          >
-            <Sparkles size={14} /> Book Treatment
-          </button>
-
-          {/* Mobile Menu Hamburger */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              background: 'none',
-              border: 'none',
-              color: '#FAF8F5',
-              padding: '6px',
-              cursor: 'pointer'
-            }}
-            className="mobile-client-toggle"
-            aria-label="Toggle navigation"
-          >
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {user?.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#A9812F' }}>
+                {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
+              </span>
+            )}
           </button>
         </div>
+
       </div>
-
-      {/* Mobile Drawer */}
-      {mobileMenuOpen && (
-        <div style={{
-          backgroundColor: '#181410',
-          borderTop: '1px solid #2C2620',
-          padding: '16px 20px 24px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px'
-        }}>
-
-
-          {navItems.map(item => (
-            <button
-              key={item.id}
-              onClick={() => handleNavClick(item.id)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                padding: '10px 12px',
-                borderRadius: '12px',
-                backgroundColor: clientSubRoute === item.id ? 'rgba(169, 129, 47, 0.15)' : 'transparent',
-                border: 'none',
-                color: clientSubRoute === item.id ? 'var(--accent-gold)' : '#FAF8F5',
-                fontSize: '14px',
-                fontWeight: clientSubRoute === item.id ? 700 : 500,
-                textAlign: 'left',
-                cursor: 'pointer'
-              }}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          ))}
-
-          <hr style={{ borderColor: '#2E2720', margin: '4px 0' }} />
-
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              onOpenBookingFlow();
-            }}
-            className="btn-gold"
-            style={{ width: '100%', padding: '12px', fontSize: '14px' }}
-          >
-            <Sparkles size={15} style={{ marginRight: '6px' }} /> Book Sanctuary Sitting
-          </button>
-
-          <button
-            onClick={() => {
-              setMobileMenuOpen(false);
-              setCurrentRole('home');
-            }}
-            style={{
-              background: 'none',
-              border: '1px solid #3E362E',
-              color: '#B5ABA0',
-              padding: '10px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '12px',
-              fontWeight: 600,
-              cursor: 'pointer',
-              marginTop: '4px'
-            }}
-          >
-            &larr; Back to PamWill Official Website
-          </button>
-        </div>
-      )}
-
-      <style>{`
-        @media (min-width: 990px) {
-          .desktop-client-nav { display: flex !important; }
-          .desktop-book-btn { display: flex !important; }
-          .mobile-client-toggle { display: none !important; }
-        }
-      `}</style>
     </header>
   );
 };

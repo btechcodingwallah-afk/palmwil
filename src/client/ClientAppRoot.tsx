@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Home, Calendar, MessageSquare, User, ShoppingBag, 
-  X, Clock, ChevronRight, ShieldCheck, AlertCircle, Sparkles 
+  X, Clock, ChevronRight, ChevronLeft, ShieldCheck, AlertCircle, Sparkles 
 } from 'lucide-react';
 import { usePamwill } from '../state/store';
 import { ClientWebHeader } from './components/ClientWebHeader';
@@ -70,6 +70,35 @@ export const ClientAppRoot: React.FC = () => {
       {/* Main Content Area with padding for bottom navigation */}
       <main style={{ flex: 1, position: 'relative', paddingBottom: '76px' }}>
         
+        {/* Back navigation for profile subroutes */}
+        {['membership', 'pamcoin', 'vouchers', 'orders', 'addresses', 'support', 'feedback', 'about', 'privacy'].includes(clientSubRoute) && (
+          <div style={{
+            maxWidth: '680px',
+            margin: '0 auto',
+            padding: '14px 18px 0 18px',
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            <button
+              onClick={() => setClientSubRoute('profile')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'none',
+                border: 'none',
+                color: '#A9812F',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                padding: '4px 0'
+              }}
+            >
+              <ChevronLeft size={16} /> Back to Patron Profile
+            </button>
+          </div>
+        )}
+
         {/* Live Session Tracking */}
         {clientSubRoute === 'tracking' && activeTrackingBooking ? (
           <LiveBookingStatusView

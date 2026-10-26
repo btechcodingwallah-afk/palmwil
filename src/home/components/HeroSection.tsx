@@ -197,7 +197,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
                   <button
                     onClick={() => {
-                      setClientHomeMode('spa');
+                      setClientHomeMode('physio');
                       onNavigateRole('client');
                     }}
                     style={{
@@ -216,31 +216,31 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                       boxShadow: '0 8px 24px rgba(169, 129, 47, 0.4)'
                     }}
                   >
-                    <Sparkles size={16} /> Spa & Luxury Massage <ArrowRight size={15} />
+                    <Activity size={16} /> Clinical Physiotherapy (Dr.) <ArrowRight size={15} />
                   </button>
 
                   <button
                     onClick={() => {
-                      setClientHomeMode('physio');
+                      setClientHomeMode('spa');
                       onNavigateRole('client');
                     }}
                     style={{
                       padding: '14px 20px',
                       borderRadius: 'var(--radius-pill)',
-                      backgroundColor: 'rgba(13, 148, 136, 0.95)',
-                      color: '#FFFFFF',
+                      backgroundColor: 'rgba(28, 24, 20, 0.95)',
+                      color: 'var(--accent-gold-light)',
                       fontSize: '13.5px',
-                      fontWeight: 800,
-                      border: '1px solid rgba(94, 234, 212, 0.4)',
+                      fontWeight: 700,
+                      border: '1px solid rgba(169, 129, 47, 0.4)',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '8px',
-                      boxShadow: '0 8px 24px rgba(13, 148, 136, 0.35)'
+                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.35)'
                     }}
                   >
-                    <Activity size={16} /> Clinical Physiotherapy (Dr.) <ArrowRight size={15} />
+                    <Sparkles size={16} /> Spa & Luxury Massage <ArrowRight size={15} />
                   </button>
                 </div>
 

@@ -263,11 +263,11 @@ function parseRouteFromUrl() {
   else if (p.includes('privacy') || h.includes('privacy')) clientSub = 'privacy';
   else if (p.includes('chat') || h.includes('chat')) clientSub = 'chat';
 
-  let clientHomeMode: 'spa' | 'physio' = 'spa';
-  if (p.includes('physio') || s.includes('physio') || h.includes('physio')) {
-    clientHomeMode = 'physio';
-  } else if (p.includes('spa') || s.includes('spa') || h.includes('spa')) {
+  let clientHomeMode: 'spa' | 'physio' = 'physio';
+  if (p.includes('spa') || s.includes('spa') || h.includes('spa')) {
     clientHomeMode = 'spa';
+  } else if (p.includes('physio') || s.includes('physio') || h.includes('physio')) {
+    clientHomeMode = 'physio';
   }
 
   let therapistSub = 'dashboard';
@@ -284,7 +284,7 @@ function parseRouteFromUrl() {
     role, 
     clientSub, 
     therapistSub, 
-    clientHomeMode: (clientHomeMode || 'spa') as 'spa' | 'physio' 
+    clientHomeMode: (clientHomeMode || 'physio') as 'spa' | 'physio' 
   };
 }
 
@@ -293,7 +293,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [currentRole, setCurrentRoleState] = useState<PlatformRole>(initialRoutes.role);
   const [clientSubRoute, setClientSubRouteState] = useState<string>(initialRoutes.clientSub);
   const [therapistSubRoute, setTherapistSubRouteState] = useState<string>(initialRoutes.therapistSub);
-  const [clientHomeMode, setClientHomeModeState] = useState<'spa' | 'physio'>(initialRoutes.clientHomeMode || 'spa');
+  const [clientHomeMode, setClientHomeModeState] = useState<'spa' | 'physio'>(initialRoutes.clientHomeMode || 'physio');
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   const [viewMode, setViewModeState] = useState<'responsive' | 'simulator'>('responsive');
@@ -325,7 +325,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setCurrentRoleState(role);
     setClientSubRouteState(clientSub);
     setTherapistSubRouteState(therapistSub);
-    setClientHomeModeState(newMode || 'spa');
+    setClientHomeModeState(newMode || 'physio');
   };
 
   const setClientSubRoute = (route: string, param?: string) => {
@@ -360,7 +360,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setCurrentRoleState(role);
       setClientSubRouteState(clientSub);
       setTherapistSubRouteState(therapistSub);
-      setClientHomeModeState(newMode || 'spa');
+      setClientHomeModeState(newMode || 'physio');
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);

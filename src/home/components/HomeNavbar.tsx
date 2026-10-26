@@ -107,19 +107,6 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
         }} className="desktop-nav">
           <button
             onClick={() => {
-              setClientHomeMode('spa');
-              onNavigateRole('client');
-            }}
-            style={{
-              ...navLinkStyle,
-              color: 'var(--accent-gold-light)',
-              fontWeight: 700
-            }}
-          >
-            Spa & Massage
-          </button>
-          <button
-            onClick={() => {
               setClientHomeMode('physio');
               onNavigateRole('client');
             }}
@@ -130,6 +117,19 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
             }}
           >
             Physiotherapy (Dr.)
+          </button>
+          <button
+            onClick={() => {
+              setClientHomeMode('spa');
+              onNavigateRole('client');
+            }}
+            style={{
+              ...navLinkStyle,
+              color: 'var(--accent-gold-light)',
+              fontWeight: 700
+            }}
+          >
+            Spa & Massage
           </button>
           <button
             onClick={() => onNavigateRole('therapist')}

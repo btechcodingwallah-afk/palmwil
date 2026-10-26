@@ -1,18 +1,19 @@
 import React from 'react';
-import { Sparkles, ShoppingBag, Calendar, Package, Coins, Tag, Crown } from 'lucide-react';
+import { Home, ShoppingBag, Calendar, User } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
 export const ClientBottomNav: React.FC = () => {
-  const { clientSubRoute, setClientSubRoute } = usePamwill();
+  const { clientSubRoute, setClientSubRoute, bookings, cartTotalCount } = usePamwill();
+
+  const activeBookingsCount = bookings.filter(b =>
+    ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
+  ).length;
 
   const navItems = [
-    { id: 'home', label: 'Treatments & Home', icon: <Sparkles size={16} /> },
-    { id: 'store', label: 'Sanctuary Store', icon: <ShoppingBag size={16} /> },
-    { id: 'bookings', label: 'My Bookings', icon: <Calendar size={16} /> },
-    { id: 'orders', label: 'Store Orders', icon: <Package size={16} /> },
-    { id: 'membership', label: 'Luxe Club', icon: <Crown size={16} /> },
-    { id: 'pamcoin', label: 'PamCoins', icon: <Coins size={16} /> },
-    { id: 'vouchers', label: 'Vouchers', icon: <Tag size={16} /> },
+    { id: 'home', label: 'Home', icon: Home },
+    { id: 'store', label: 'Store', icon: ShoppingBag, badge: cartTotalCount > 0 ? cartTotalCount : undefined },
+    { id: 'bookings', label: 'Bookings', icon: Calendar, badge: activeBookingsCount > 0 ? activeBookingsCount : undefined },
+    { id: 'profile', label: 'Profile', icon: User },
   ];
 
   return (
@@ -22,22 +23,30 @@ export const ClientBottomNav: React.FC = () => {
       left: 0,
       right: 0,
       zIndex: 990,
-      backgroundColor: 'rgba(18, 15, 12, 0.96)',
-      backdropFilter: 'blur(20px)',
-      borderTop: '1px solid rgba(212, 163, 89, 0.25)',
-      boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.6)'
+      backgroundColor: '#FFFFFF',
+      borderTop: '1px solid #E4DDD2',
+      boxShadow: '0 -4px 16px rgba(31, 27, 22, 0.05)',
+      height: '66px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     }}>
       <div style={{
-        maxWidth: '960px',
+        maxWidth: '560px',
+        width: '100%',
         margin: '0 auto',
-        padding: '6px 8px',
+        padding: '0 16px',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: '4px'
+        justifyContent: 'space-around'
       }}>
         {navItems.map(item => {
-          const isActive = clientSubRoute === item.id;
+          const isActive = 
+            item.id === 'home' 
+              ? (clientSubRoute === 'home' || !['store', 'bookings', 'profile'].includes(clientSubRoute))
+              : clientSubRoute === item.id;
+          const Icon = item.icon;
+
           return (
             <button
               key={item.id}
@@ -46,30 +55,47 @@ export const ClientBottomNav: React.FC = () => {
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
               style={{
-                flex: 1,
+                background: 'none',
+                border: 'none',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '3px',
-                padding: '7px 2px',
-                borderRadius: '12px',
-                border: 'none',
-                backgroundColor: isActive ? 'rgba(212, 163, 89, 0.16)' : 'transparent',
-                color: isActive ? 'var(--accent-gold)' : '#A89F91',
+                gap: '4px',
                 cursor: 'pointer',
-                transition: 'all 150ms ease'
+                padding: '6px 12px',
+                position: 'relative',
+                color: isActive ? '#A9812F' : '#9A8F82',
+                transition: 'all 160ms ease'
               }}
-              title={item.label}
             >
-              <div style={{ transform: isActive ? 'scale(1.12)' : 'scale(1)', transition: 'transform 150ms ease' }}>
-                {item.icon}
+              <div style={{ position: 'relative' }}>
+                <Icon size={21} strokeWidth={isActive ? 2.3 : 1.8} />
+                {item.badge !== undefined && (
+                  <span style={{
+                    position: 'absolute',
+                    top: '-4px',
+                    right: '-9px',
+                    backgroundColor: '#A9812F',
+                    color: '#FFFFFF',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1.5px solid #FFFFFF'
+                  }}>
+                    {item.badge}
+                  </span>
+                )}
               </div>
               <span style={{
                 fontSize: '11px',
                 fontWeight: isActive ? 700 : 500,
-                whiteSpace: 'nowrap',
-                letterSpacing: '-0.01em'
+                letterSpacing: '0.2px'
               }}>
                 {item.label}
               </span>
