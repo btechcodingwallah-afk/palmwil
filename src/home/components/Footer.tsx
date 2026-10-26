@@ -156,6 +156,50 @@ export const Footer: React.FC<FooterProps> = ({
               ))}
               <li>
                 <button
+                  onClick={() => onNavigateRole('client')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '13.5px',
+                    color: 'var(--cta)',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: 600,
+                    transition: 'opacity 150ms ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.75')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  <Sparkles size={14} color="var(--cta)" /> Patient Portal & Online Store (/client)
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigateRole('therapist')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    fontSize: '13.5px',
+                    color: '#5BB377',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontWeight: 600,
+                    transition: 'opacity 150ms ease'
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.opacity = '0.75')}
+                  onMouseLeave={(e) => (e.currentTarget.style.opacity = '1')}
+                >
+                  <Smartphone size={14} color="#5BB377" /> Therapist Partner Portal (/therapist)
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => setTrainingModalOpen(true)}
                   style={{
                     background: 'none',
@@ -404,7 +448,7 @@ export const Footer: React.FC<FooterProps> = ({
               gap: '6px'
             }}
           >
-            <Sparkles size={12} color="var(--cta)" /> Client App Simulator
+            <Sparkles size={12} color="var(--cta)" /> Continue with Browser
           </button>
           <button
             onClick={() => onNavigateRole('therapist')}

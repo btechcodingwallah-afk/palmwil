@@ -10,9 +10,12 @@ import {
   ArrowRight, 
   QrCode,
   Heart,
-  TrendingUp
+  TrendingUp,
+  Briefcase,
+  Activity
 } from 'lucide-react';
 import { triggerAppDownload, APP_DOWNLOADS } from '../../config/env';
+import { usePamwill } from '../../state/store';
 
 interface HeroSectionProps {
   onNavigateRole: (role: 'client' | 'therapist' | 'admin') => void;
@@ -25,6 +28,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenQr,
   onShowToast,
 }) => {
+  const { setClientHomeMode } = usePamwill();
   const [activeAudience, setActiveAudience] = useState<'patient' | 'therapist'>('patient');
 
   return (
@@ -189,39 +193,90 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <span>Verified 5-star therapists • Real-time GPS tracking • Direct cashless checkout</span>
                 </div>
 
-                {/* 2 Download Options: Play Store & App Store (both trigger demo download for client apk) */}
+                {/* Swiggy / Instamart Style Dual Portal CTAs for Normal Users */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
+                  <button
+                    onClick={() => {
+                      setClientHomeMode('spa');
+                      onNavigateRole('client');
+                    }}
+                    style={{
+                      padding: '14px 20px',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'var(--accent-gold)',
+                      color: '#FFFFFF',
+                      fontSize: '13.5px',
+                      fontWeight: 800,
+                      border: 'none',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 8px 24px rgba(169, 129, 47, 0.4)'
+                    }}
+                  >
+                    <Sparkles size={16} /> Spa & Luxury Massage <ArrowRight size={15} />
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setClientHomeMode('physio');
+                      onNavigateRole('client');
+                    }}
+                    style={{
+                      padding: '14px 20px',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'rgba(13, 148, 136, 0.95)',
+                      color: '#FFFFFF',
+                      fontSize: '13.5px',
+                      fontWeight: 800,
+                      border: '1px solid rgba(94, 234, 212, 0.4)',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 8px 24px rgba(13, 148, 136, 0.35)'
+                    }}
+                  >
+                    <Activity size={16} /> Clinical Physiotherapy (Dr.) <ArrowRight size={15} />
+                  </button>
+                </div>
+
+                {/* 2 Download Options: Play Store & App Store */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                   
-                  {/* Google Play Store Demo Download */}
+                  {/* Google Play Store Download */}
                   <button
                     onClick={() => triggerAppDownload('patient', 'playstore', onShowToast)}
                     style={storeButtonStyle}
-                    title="Download PamWill Patient App demo APK (Google Play option)"
+                    title="Download PamWill Patient App (Android option)"
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3.609 1.814L13.793 12 3.61 22.186c-.365-.366-.61-.926-.61-1.686V3.5c0-.76.245-1.32.609-1.686zM15.207 13.414l2.793 2.793-12.87 7.429 10.077-10.222zM15.207 10.586L5.13 .364 18 7.793l-2.793 2.793zM16.621 12l3.447-3.447c.54-.54.932-.303.932.447v6c0 .75-.392.987-.932.447L16.621 12z"/>
                       </svg>
                       <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
-                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>Demo Download</div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>Google Play</div>
+                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>Android App</div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>Download APK</div>
                       </div>
                     </div>
                     <Download size={14} color="var(--accent-gold)" />
                   </button>
 
-                  {/* Apple App Store Demo Download */}
+                  {/* Apple App Store Download */}
                   <button
                     onClick={() => triggerAppDownload('patient', 'appstore', onShowToast)}
                     style={storeButtonStyle}
-                    title="Download PamWill Patient App demo package (Apple App Store option)"
+                    title="Download PamWill Patient App (Apple App Store option)"
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.78 1.06-1.85.94-2.94-1 .04-2.19.67-2.87 1.46-.57.65-1.07 1.74-.94 2.8 1.11.09 2.24-.54 2.87-1.32z"/>
                       </svg>
                       <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
-                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>Demo Download</div>
+                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>iOS Package</div>
                         <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>App Store</div>
                       </div>
                     </div>
@@ -249,74 +304,76 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     <QrCode size={16} color="var(--accent-gold)" /> QR Scan
                   </button>
                 </div>
-
-                {/* Direct Simulator Switcher Link */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px' }}>
-                  <button
-                    onClick={() => onNavigateRole('client')}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--accent-gold-light)',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      cursor: 'pointer',
-                      padding: 0,
-                      textDecoration: 'underline',
-                      textUnderlineOffset: '3px'
-                    }}
-                  >
-                    Want to test right now? Launch Interactive Patient Web App <ArrowRight size={14} />
-                  </button>
-                </div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div style={{ fontSize: '13px', color: '#BDB3A6', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <CheckCircle2 size={15} color="#4C6B4F" />
-                  <span>Keep up to 85% revenue • Instant weekly payouts • Emergency SOS & verified guests</span>
+                  <CheckCircle2 size={15} color="#6EE7B7" />
+                  <span>Keep up to 85% revenue • Daily ₹1,000 jackpot • Instant UPI payouts • Verified guests</span>
                 </div>
 
-                {/* 2 Download Options: Play Store & App Store (both trigger demo download for therapist apk) */}
+                {/* Primary Therapist Portal CTA */}
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                  <button
+                    onClick={() => onNavigateRole('therapist')}
+                    style={{
+                      flex: '1 1 240px',
+                      padding: '14px 24px',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'rgba(20, 28, 22, 0.95)',
+                      border: '1px solid rgba(110, 231, 183, 0.45)',
+                      color: '#6EE7B7',
+                      fontSize: '14px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)'
+                    }}
+                  >
+                    <Briefcase size={16} /> Open Therapist Partner Portal & Daily Goal <ArrowRight size={15} />
+                  </button>
+                </div>
+
+                {/* 2 Download Options: Play Store & App Store */}
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                   
-                  {/* Google Play Store Demo Download */}
+                  {/* Google Play Store Download */}
                   <button
                     onClick={() => triggerAppDownload('therapist', 'playstore', onShowToast)}
                     style={storeButtonStyle}
-                    title="Download PamWill Therapist Partner App demo APK (Google Play option)"
+                    title="Download PamWill Therapist Partner App (Android option)"
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3.609 1.814L13.793 12 3.61 22.186c-.365-.366-.61-.926-.61-1.686V3.5c0-.76.245-1.32.609-1.686zM15.207 13.414l2.793 2.793-12.87 7.429 10.077-10.222zM15.207 10.586L5.13 .364 18 7.793l-2.793 2.793zM16.621 12l3.447-3.447c.54-.54.932-.303.932.447v6c0 .75-.392.987-.932.447L16.621 12z"/>
                       </svg>
                       <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
-                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>Partner App Demo</div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>Google Play</div>
+                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>Partner App</div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>Google Play APK</div>
                       </div>
                     </div>
-                    <Download size={14} color="#4C6B4F" />
+                    <Download size={14} color="#6EE7B7" />
                   </button>
 
-                  {/* Apple App Store Demo Download */}
+                  {/* Apple App Store Download */}
                   <button
                     onClick={() => triggerAppDownload('therapist', 'appstore', onShowToast)}
                     style={storeButtonStyle}
-                    title="Download PamWill Therapist Partner App demo package (Apple App Store option)"
+                    title="Download PamWill Therapist Partner App (Apple App Store option)"
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.63-.78 1.06-1.85.94-2.94-1 .04-2.19.67-2.87 1.46-.57.65-1.07 1.74-.94 2.8 1.11.09 2.24-.54 2.87-1.32z"/>
                       </svg>
                       <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
-                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>Partner App Demo</div>
+                        <div style={{ fontSize: '10px', color: '#9E9284', textTransform: 'uppercase' }}>iOS Partner</div>
                         <div style={{ fontSize: '13px', fontWeight: 700, color: '#FAF8F5' }}>App Store</div>
                       </div>
                     </div>
-                    <Download size={14} color="#4C6B4F" />
+                    <Download size={14} color="#6EE7B7" />
                   </button>
 
                   {/* QR Scan Button */}
@@ -338,29 +395,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     title="Scan QR Code to install therapist partner app on phone"
                   >
                     <QrCode size={16} color="var(--accent-gold)" /> QR Scan
-                  </button>
-                </div>
-
-                {/* Direct Simulator Switcher Link */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px' }}>
-                  <button
-                    onClick={() => onNavigateRole('therapist')}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--accent-gold-light)',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      cursor: 'pointer',
-                      padding: 0,
-                      textDecoration: 'underline',
-                      textUnderlineOffset: '3px'
-                    }}
-                  >
-                    Explore Therapist Console & Earnings Simulator <ArrowRight size={14} />
                   </button>
                 </div>
               </div>
@@ -491,7 +525,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <span style={{ fontSize: '11px', color: '#C5BCB1' }}>18 min</span>
                 </div>
                 <div style={{ fontSize: '13px', fontWeight: 600 }}>
-                  Aarav Sharma (Certified Master)
+                  Licensed Master Practitioner
                 </div>
                 <div style={{ fontSize: '11px', color: '#9E9284', marginTop: '2px' }}>
                   ⭐️ 4.98 (340 sessions) • Sterilized Kit Ready

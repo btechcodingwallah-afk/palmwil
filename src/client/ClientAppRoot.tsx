@@ -1,34 +1,46 @@
 import React, { useState } from 'react';
 import { 
-  Home, Calendar, MessageSquare, User, 
-  X, Clock, ChevronRight, ShieldCheck, AlertCircle 
+  Home, Calendar, MessageSquare, User, ShoppingBag, 
+  X, Clock, ChevronRight, ShieldCheck, AlertCircle, Sparkles 
 } from 'lucide-react';
 import { usePamwill } from '../state/store';
-import { ClientHeader } from './components/ClientHeader';
+import { ClientWebHeader } from './components/ClientWebHeader';
 import { ClientHomeView } from './screens/ClientHomeView';
 import { ClientBookingsView } from './screens/ClientBookingsView';
 import { ClientChatView } from './screens/ClientChatView';
 import { ClientProfileView } from './screens/ClientProfileView';
+import { ClientStoreView } from './screens/ClientStoreView';
+import { ClientCartView } from './screens/ClientCartView';
+import { ClientCheckoutView } from './screens/ClientCheckoutView';
+import { ClientOrdersView } from './screens/ClientOrdersView';
+import { ClientMembershipView } from './screens/ClientMembershipView';
+import { ClientPamCoinView } from './screens/ClientPamCoinView';
+import { ClientVouchersView } from './screens/ClientVouchersView';
+import { ClientAddressesView } from './screens/ClientAddressesView';
+import { ClientSupportView } from './screens/ClientSupportView';
+import { ClientFeedbackView } from './screens/ClientFeedbackView';
+import { ClientAboutView } from './screens/ClientAboutView';
+import { ClientPrivacyView } from './screens/ClientPrivacyView';
+import { ProductDetailModal } from './components/ProductDetailModal';
 import { BookingFlowModal } from './components/BookingFlowModal';
 import { LiveBookingStatusView } from './components/LiveBookingStatusView';
-import { MassageService, Booking } from '../types';
+import { ClientBottomNav } from './components/ClientBottomNav';
+import { MassageService, Booking, Product } from '../types';
 
 export const ClientAppRoot: React.FC = () => {
   const { 
-    activeClientTab, 
-    setActiveClientTab, 
+    clientSubRoute,
+    setClientSubRoute,
     setCurrentRole,
     bookings,
     activeTrackingBookingId,
     setActiveTrackingBookingId,
-    authModalOpen,
-    setAuthModalOpen,
-    authMode
+    deviceFrame
   } = usePamwill();
 
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedDetailService, setSelectedDetailService] = useState<MassageService | null>(null);
-  const [showLiveTracking, setShowLiveTracking] = useState(false);
+  const [selectedDetailProduct, setSelectedDetailProduct] = useState<Product | null>(null);
 
   // Dynamically prioritize any active in-progress booking
   const inProgressJob = bookings.find(b => 
@@ -37,123 +49,122 @@ export const ClientAppRoot: React.FC = () => {
   const activeTrackingBooking = (activeTrackingBookingId ? bookings.find(b => b.id === activeTrackingBookingId) : null) || inProgressJob || bookings[0];
 
   const handleStartBookingForService = (service: MassageService) => {
-    setSelectedDetailService(null);
+    setSelectedDetailService(service);
     setBookingModalOpen(true);
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', position: 'relative', overflow: 'hidden' }}>
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: 'var(--bg-primary)',
+      color: 'var(--text-primary)',
+      position: 'relative'
+    }}>
       
-      {/* If Live Tracking is active, show the Live Booking Status view */}
-      {showLiveTracking && activeTrackingBooking ? (
-        <LiveBookingStatusView
-          booking={activeTrackingBooking}
-          onBack={() => setShowLiveTracking(false)}
-          onOpenChat={() => {
-            setShowLiveTracking(false);
-            setActiveClientTab('chat');
-          }}
-        />
-      ) : (
-        <>
-          {/* Header */}
-          <ClientHeader />
+      {/* Responsive Client Header with Navigation, City Selector, and Cart Icon */}
+      <ClientWebHeader onOpenBookingFlow={() => setBookingModalOpen(true)} />
 
-          {/* Tab Screen Content */}
-          <main style={{ flex: 1, overflowY: 'auto', WebkitOverflowScrolling: 'touch', position: 'relative' }}>
-            {activeClientTab === 'home' && (
-              <ClientHomeView
-                onSelectService={s => setSelectedDetailService(s)}
-                onOpenBookingFlow={() => setBookingModalOpen(true)}
-                onSwitchToTherapist={() => setCurrentRole('therapist')}
-                onOpenLiveTracking={bookingId => {
-                  setActiveTrackingBookingId(bookingId);
-                  setShowLiveTracking(true);
-                }}
-              />
-            )}
-
-            {activeClientTab === 'bookings' && (
-              <ClientBookingsView
-                onTrackBooking={bookingId => {
-                  setActiveTrackingBookingId(bookingId);
-                  setShowLiveTracking(true);
-                }}
-                onRebook={b => {
-                  setBookingModalOpen(true);
-                }}
-              />
-            )}
-
-            {activeClientTab === 'chat' && <ClientChatView />}
-            {activeClientTab === 'profile' && <ClientProfileView />}
-          </main>
-
-          {/* Bottom 5-Tab Bar */}
-          <nav className="phone-bottom-tabs">
-            <button
-              className={`tab-item ${activeClientTab === 'home' ? 'active' : ''}`}
-              onClick={() => setActiveClientTab('home')}
-            >
-              <Home size={18} />
-              <span>Home</span>
-            </button>
-            <button
-              className={`tab-item ${activeClientTab === 'bookings' ? 'active' : ''}`}
-              onClick={() => setActiveClientTab('bookings')}
-            >
-              <Calendar size={18} />
-              <span>Bookings</span>
-            </button>
-            <button
-              className={`tab-item ${activeClientTab === 'chat' ? 'active' : ''}`}
-              onClick={() => setActiveClientTab('chat')}
-            >
-              <MessageSquare size={18} />
-              <span>Chat</span>
-            </button>
-            <button
-              className={`tab-item ${activeClientTab === 'profile' ? 'active' : ''}`}
-              onClick={() => setActiveClientTab('profile')}
-            >
-              <User size={18} />
-              <span>Profile</span>
-            </button>
-          </nav>
-        </>
-      )}
+      {/* Main Content Area with padding for bottom navigation */}
+      <main style={{ flex: 1, position: 'relative', paddingBottom: '76px' }}>
+        
+        {/* Live Session Tracking */}
+        {clientSubRoute === 'tracking' && activeTrackingBooking ? (
+          <LiveBookingStatusView
+            booking={activeTrackingBooking}
+            onBack={() => setClientSubRoute('bookings')}
+            onOpenChat={() => setClientSubRoute('chat')}
+          />
+        ) : clientSubRoute === 'store' ? (
+          <ClientStoreView onOpenProductDetail={p => setSelectedDetailProduct(p)} />
+        ) : clientSubRoute === 'cart' ? (
+          <ClientCartView />
+        ) : clientSubRoute === 'checkout' ? (
+          <ClientCheckoutView />
+        ) : clientSubRoute === 'orders' ? (
+          <ClientOrdersView />
+        ) : clientSubRoute === 'membership' ? (
+          <ClientMembershipView />
+        ) : clientSubRoute === 'pamcoin' ? (
+          <ClientPamCoinView />
+        ) : clientSubRoute === 'vouchers' ? (
+          <ClientVouchersView />
+        ) : clientSubRoute === 'addresses' ? (
+          <ClientAddressesView />
+        ) : clientSubRoute === 'support' ? (
+          <ClientSupportView />
+        ) : clientSubRoute === 'feedback' ? (
+          <ClientFeedbackView />
+        ) : clientSubRoute === 'about' ? (
+          <ClientAboutView />
+        ) : clientSubRoute === 'privacy' ? (
+          <ClientPrivacyView />
+        ) : clientSubRoute === 'bookings' ? (
+          <ClientBookingsView
+            onTrackBooking={bookingId => {
+              setActiveTrackingBookingId(bookingId);
+              setClientSubRoute('tracking');
+            }}
+            onRebook={b => {
+              setSelectedDetailService(b.service);
+              setBookingModalOpen(true);
+            }}
+          />
+        ) : clientSubRoute === 'chat' ? (
+          <div style={{ maxWidth: '800px', margin: '20px auto', height: 'calc(100vh - 120px)' }}>
+            <ClientChatView />
+          </div>
+        ) : clientSubRoute === 'profile' ? (
+          <ClientProfileView />
+        ) : (
+          /* Default: Treatment Catalog & Home */
+          <ClientHomeView
+            onSelectService={s => setSelectedDetailService(s)}
+            onOpenBookingFlow={() => setBookingModalOpen(true)}
+            onSwitchToTherapist={() => setCurrentRole('therapist')}
+            onOpenLiveTracking={bookingId => {
+              setActiveTrackingBookingId(bookingId);
+              setClientSubRoute('tracking');
+            }}
+          />
+        )}
+      </main>
 
       {/* Service Detail Drawer / Modal */}
-      {selectedDetailService && (
+      {selectedDetailService && !bookingModalOpen && clientSubRoute !== 'tracking' && (
         <div style={{
           position: 'fixed',
           top: 0,
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: 'rgba(18, 16, 14, 0.65)',
-          zIndex: 1050,
+          backgroundColor: 'rgba(18, 16, 14, 0.75)',
+          backdropFilter: 'blur(10px)',
+          zIndex: 2050,
           display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center'
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
         }}
         onClick={() => setSelectedDetailService(null)}
         >
           <div
             onClick={e => e.stopPropagation()}
             style={{
-              backgroundColor: 'var(--bg-primary)',
+              backgroundColor: 'var(--bg-surface)',
               width: '100%',
-              maxWidth: '430px',
+              maxWidth: '540px',
               maxHeight: '90vh',
-              borderRadius: '28px 28px 0 0',
+              borderRadius: '24px',
               overflowY: 'auto',
               boxShadow: 'var(--shadow-elevated)',
               position: 'relative'
             }}
           >
             {/* Full-bleed Service Image */}
-            <div style={{ position: 'relative', height: '220px', width: '100%' }}>
+            <div style={{ position: 'relative', height: '240px', width: '100%' }}>
               <img
                 src={selectedDetailService.imageUrl}
                 alt={selectedDetailService.name}
@@ -168,7 +179,7 @@ export const ClientAppRoot: React.FC = () => {
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  backgroundColor: 'rgba(0,0,0,0.6)',
                   color: '#fff',
                   border: 'none',
                   display: 'flex',
@@ -196,28 +207,30 @@ export const ClientAppRoot: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ padding: '20px' }}>
+            <div style={{ padding: '24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                <h2 style={{ fontSize: '22px', margin: 0 }}>{selectedDetailService.name}</h2>
+                <h2 style={{ fontSize: '22px', margin: 0, color: 'var(--text-primary)' }}>{selectedDetailService.name}</h2>
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  <span style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent-gold)' }}>
                     ₹{Math.min(...Object.values(selectedDetailService.basePricePerDuration))}
                   </span>
                   <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>starting price</div>
                 </div>
               </div>
 
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '16px' }}>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '16px' }}>
                 {selectedDetailService.description}
               </p>
 
               {/* Benefits Section */}
               <div style={{ marginBottom: '16px' }}>
-                <span className="eyebrow" style={{ display: 'block', marginBottom: '6px' }}>Therapeutic Benefits</span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span className="eyebrow" style={{ display: 'block', marginBottom: '8px', color: 'var(--text-muted)', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase' }}>
+                  Therapeutic Benefits
+                </span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   {selectedDetailService.benefits.map((b, i) => (
-                    <div key={i} style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ color: 'var(--status-success)', fontWeight: 700 }}>✓</span> {b}
+                    <div key={i} style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ color: 'var(--status-success)', fontWeight: 800 }}>✓</span> {b}
                     </div>
                   ))}
                 </div>
@@ -226,11 +239,11 @@ export const ClientAppRoot: React.FC = () => {
               {/* Contraindications Warning */}
               {selectedDetailService.contraindications.length > 0 && (
                 <div style={{
-                  padding: '12px',
-                  backgroundColor: 'var(--status-error-bg)',
-                  borderRadius: 'var(--radius-md)',
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                  borderRadius: '14px',
                   marginBottom: '20px',
-                  border: '1px solid rgba(140, 58, 43, 0.2)'
+                  border: '1px solid rgba(239, 68, 68, 0.25)'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--status-error)', marginBottom: '4px' }}>
                     <AlertCircle size={14} />
@@ -238,7 +251,7 @@ export const ClientAppRoot: React.FC = () => {
                       Medical Contraindications
                     </span>
                   </div>
-                  <ul style={{ fontSize: '11px', color: 'var(--status-error)', paddingLeft: '18px', margin: 0, lineHeight: 1.3 }}>
+                  <ul style={{ fontSize: '12px', color: 'var(--status-error)', paddingLeft: '18px', margin: 0, lineHeight: 1.4 }}>
                     {selectedDetailService.contraindications.map((c, i) => (
                       <li key={i}>{c}</li>
                     ))}
@@ -252,11 +265,22 @@ export const ClientAppRoot: React.FC = () => {
                 className="btn-gold"
                 style={{ width: '100%', padding: '14px', fontSize: '15px' }}
               >
-                Book This Service Now
+                Proceed to Book This Service
               </button>
             </div>
           </div>
         </div>
+      )}
+
+      {/* Luxury Bottom Navigation Bar */}
+      <ClientBottomNav />
+
+      {/* Product Detail Modal */}
+      {selectedDetailProduct && (
+        <ProductDetailModal
+          product={selectedDetailProduct}
+          onClose={() => setSelectedDetailProduct(null)}
+        />
       )}
 
       {/* 6-Step Booking Stepper Modal */}
@@ -266,8 +290,9 @@ export const ClientAppRoot: React.FC = () => {
           onClose={() => setBookingModalOpen(false)}
           onSuccess={newBooking => {
             setBookingModalOpen(false);
+            setSelectedDetailService(null);
             setActiveTrackingBookingId(newBooking.id);
-            setShowLiveTracking(true);
+            setClientSubRoute('tracking');
           }}
         />
       )}

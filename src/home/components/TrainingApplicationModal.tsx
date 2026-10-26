@@ -298,7 +298,7 @@ export const TrainingApplicationModal: React.FC<TrainingApplicationModalProps> =
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Radhika Sharma"
+                    placeholder="Full name as per official government ID"
                     value={fullName}
                     onChange={e => setFullName(e.target.value)}
                     style={inputStyle}

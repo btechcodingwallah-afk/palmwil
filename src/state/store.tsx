@@ -10,7 +10,11 @@ import {
   TrainingApplication,
   ApplicationStatus,
   ConnectInquiry,
-  InquiryStatus
+  InquiryStatus,
+  Product,
+  StoreOrder,
+  Voucher,
+  DeliveryAddress
 } from '../types';
 import { MASSAGE_SERVICES } from '../data/services';
 import { 
@@ -18,8 +22,11 @@ import {
   INITIAL_USER, 
   INITIAL_BOOKINGS, 
   INITIAL_TRAINING_APPLICATIONS,
-  INITIAL_CONNECT_INQUIRIES 
+  INITIAL_CONNECT_INQUIRIES,
+  INITIAL_VOUCHERS,
+  INITIAL_SAVED_ADDRESSES
 } from '../data/mockData';
+import { INITIAL_STORE_PRODUCTS } from '../data/storeProducts';
 import { 
   dbFetchServices, 
   dbUpsertService, 
@@ -143,28 +150,215 @@ interface PamwillContextType {
   pendingGoogleUser: { email: string; name: string; photoUrl: string } | null;
   setPendingGoogleUser: (user: { email: string; name: string; photoUrl: string } | null) => void;
   refreshData: () => Promise<void>;
+
+  // Client Navigation & Sub-Pages
+  clientSubRoute: string;
+  setClientSubRoute: (route: string, param?: string) => void;
+  selectedProductId: string | null;
+  setSelectedProductId: (id: string | null) => void;
+  clientHomeMode: 'spa' | 'physio';
+  setClientHomeMode: (mode: 'spa' | 'physio') => void;
+
+  // Therapist Navigation & Sub-Pages
+  therapistSubRoute: string;
+  setTherapistSubRoute: (route: string) => void;
+
+  // Wellness Store & Cart (Patient / Client)
+  storeProducts: Product[];
+  cart: { product: Product; quantity: number }[];
+  cartTotalCount: number;
+  cartTotalPrice: number;
+  addToCart: (product: Product, quantity?: number) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  clearCart: () => void;
+  storeOrders: StoreOrder[];
+  placeStoreOrder: (orderData: {
+    items: { productId: string; productName: string; productImage: string; price: number; quantity: number; volumeOrWeight?: string }[];
+    deliveryAddress: DeliveryAddress;
+    paymentMethod: 'COD' | 'Razorpay';
+    voucherCode?: string;
+    subtotal: number;
+    deliveryFee: number;
+    discount: number;
+    totalAmount: number;
+  }) => StoreOrder;
+
+  // PamCoins & Loyalty
+  pamCoins: number;
+  addPamCoins: (amount: number, reason: string) => void;
+  redeemPamCoins: (amount: number) => boolean;
+
+  // Vouchers
+  vouchers: Voucher[];
+  appliedVoucher: Voucher | null;
+  applyVoucher: (code: string, subtotal?: number) => { success: boolean; discount: number; message: string };
+  removeVoucher: () => void;
+
+  // Saved Addresses
+  savedAddresses: DeliveryAddress[];
+  addSavedAddress: (address: DeliveryAddress) => void;
+  updateSavedAddress: (address: DeliveryAddress) => void;
+  deleteSavedAddress: (id: string) => void;
+
+  // Therapist Daily Goal & Supplies Store
+  dailyGoalCount: number;
+  incrementDailyGoal: () => void;
+  resetDailyGoal: () => void;
+  therapistCart: { product: Product; quantity: number }[];
+  addTherapistToCart: (product: Product, quantity?: number) => void;
+  clearTherapistCart: () => void;
+
+  // View Mode
+  viewMode: 'responsive' | 'simulator';
+  setViewMode: (mode: 'responsive' | 'simulator') => void;
+  toggleViewMode: () => void;
+
+  // Global URL dispatcher
+  navigateTo: (path: string) => void;
 }
 
 const PamwillContext = createContext<PamwillContextType | undefined>(undefined);
 
+function parseRouteFromUrl() {
+  if (typeof window === 'undefined') {
+    return { role: 'home' as PlatformRole, clientSub: 'home', therapistSub: 'dashboard' };
+  }
+  const p = window.location.pathname.toLowerCase();
+  const s = window.location.search.toLowerCase();
+  const h = window.location.hash.toLowerCase();
+
+  let role: PlatformRole = 'home';
+  if (p.includes('admin') || s.includes('admin') || h.includes('admin')) {
+    role = 'admin';
+  } else if (p.includes('therapist') || s.includes('therapist') || h.includes('therapist')) {
+    role = 'therapist';
+  } else if (p.includes('client') || p.includes('patient') || p.includes('app') || s.includes('client') || h.includes('client')) {
+    role = 'client';
+  }
+
+  let clientSub = 'home';
+  if (p.includes('store') || h.includes('store')) clientSub = 'store';
+  else if (p.includes('cart') || h.includes('cart')) clientSub = 'cart';
+  else if (p.includes('checkout') || h.includes('checkout')) clientSub = 'checkout';
+  else if (p.includes('orders') || h.includes('orders')) clientSub = 'orders';
+  else if (p.includes('membership') || h.includes('membership')) clientSub = 'membership';
+  else if (p.includes('pamcoin') || p.includes('coin') || h.includes('pamcoin')) clientSub = 'pamcoin';
+  else if (p.includes('vouchers') || p.includes('coupon') || h.includes('vouchers')) clientSub = 'vouchers';
+  else if (p.includes('addresses') || p.includes('address') || h.includes('addresses')) clientSub = 'addresses';
+  else if (p.includes('support') || p.includes('help') || h.includes('support')) clientSub = 'support';
+  else if (p.includes('feedback') || h.includes('feedback')) clientSub = 'feedback';
+  else if (p.includes('profile') || h.includes('profile')) clientSub = 'profile';
+  else if (p.includes('bookings') || h.includes('bookings')) clientSub = 'bookings';
+  else if (p.includes('tracking') || h.includes('tracking')) clientSub = 'tracking';
+  else if (p.includes('services') || h.includes('services')) clientSub = 'services';
+  else if (p.includes('booking') || h.includes('booking')) clientSub = 'booking';
+  else if (p.includes('about') || h.includes('about')) clientSub = 'about';
+  else if (p.includes('privacy') || h.includes('privacy')) clientSub = 'privacy';
+  else if (p.includes('chat') || h.includes('chat')) clientSub = 'chat';
+
+  let clientHomeMode: 'spa' | 'physio' = 'spa';
+  if (p.includes('physio') || s.includes('physio') || h.includes('physio')) {
+    clientHomeMode = 'physio';
+  } else if (p.includes('spa') || s.includes('spa') || h.includes('spa')) {
+    clientHomeMode = 'spa';
+  }
+
+  let therapistSub = 'dashboard';
+  if (p.includes('earnings') || h.includes('earnings')) therapistSub = 'earnings';
+  else if (p.includes('bookings') || p.includes('jobs') || h.includes('bookings')) therapistSub = 'bookings';
+  else if (p.includes('daily-goal') || p.includes('game') || h.includes('daily-goal')) therapistSub = 'daily-goal';
+  else if (p.includes('store') || h.includes('store')) therapistSub = 'store';
+  else if (p.includes('profile') || h.includes('profile')) therapistSub = 'profile';
+  else if (p.includes('onboarding') || h.includes('onboarding')) therapistSub = 'onboarding';
+  else if (p.includes('login') || h.includes('login')) therapistSub = 'login';
+  else if (p.includes('chat') || h.includes('chat')) therapistSub = 'chat';
+
+  return { 
+    role, 
+    clientSub, 
+    therapistSub, 
+    clientHomeMode: (clientHomeMode || 'spa') as 'spa' | 'physio' 
+  };
+}
+
 export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentRole, setCurrentRoleState] = useState<PlatformRole>(() => {
-    if (typeof window !== 'undefined') {
-      const p = window.location.pathname.toLowerCase();
-      const s = window.location.search.toLowerCase();
-      const h = window.location.hash.toLowerCase();
-      if (p.includes('admin') || s.includes('admin') || h.includes('admin')) {
-        return 'admin';
-      }
-      if (p.includes('therapist') || s.includes('therapist') || h.includes('therapist')) {
-        return 'therapist';
-      }
-      if (p.includes('client') || p.includes('app') || s.includes('client') || h.includes('client')) {
-        return 'client';
-      }
+  const initialRoutes = parseRouteFromUrl();
+  const [currentRole, setCurrentRoleState] = useState<PlatformRole>(initialRoutes.role);
+  const [clientSubRoute, setClientSubRouteState] = useState<string>(initialRoutes.clientSub);
+  const [therapistSubRoute, setTherapistSubRouteState] = useState<string>(initialRoutes.therapistSub);
+  const [clientHomeMode, setClientHomeModeState] = useState<'spa' | 'physio'>(initialRoutes.clientHomeMode || 'spa');
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+
+  const [viewMode, setViewModeState] = useState<'responsive' | 'simulator'>('responsive');
+  const [deviceFrame, setDeviceFrame] = useState<'phone' | 'full'>('full');
+
+  const setViewMode = (mode: 'responsive' | 'simulator') => {
+    setViewModeState(mode);
+    setDeviceFrame(mode === 'simulator' ? 'phone' : 'full');
+  };
+
+  const toggleViewMode = () => {
+    setViewMode(viewMode === 'responsive' ? 'simulator' : 'responsive');
+  };
+
+  const setClientHomeMode = (mode: 'spa' | 'physio') => {
+    setClientHomeModeState(mode);
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      const url = new URL(window.location.href);
+      url.searchParams.set('mode', mode);
+      window.history.pushState({ role: 'client', mode }, '', url.toString());
     }
-    return 'home';
-  });
+  };
+
+  const navigateTo = (path: string) => {
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      window.history.pushState({}, '', path);
+    }
+    const { role, clientSub, therapistSub, clientHomeMode: newMode } = parseRouteFromUrl();
+    setCurrentRoleState(role);
+    setClientSubRouteState(clientSub);
+    setTherapistSubRouteState(therapistSub);
+    setClientHomeModeState(newMode || 'spa');
+  };
+
+  const setClientSubRoute = (route: string, param?: string) => {
+    setClientSubRouteState(route);
+    if (param) setSelectedProductId(param);
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      const path = route === 'home' ? '/client' : param ? `/client/${route}/${param}` : `/client/${route}`;
+      window.history.pushState({ role: 'client', sub: route }, '', path);
+    }
+  };
+
+  const setTherapistSubRoute = (route: string) => {
+    setTherapistSubRouteState(route);
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      const path = route === 'dashboard' ? '/therapist' : `/therapist/${route}`;
+      window.history.pushState({ role: 'therapist', sub: route }, '', path);
+    }
+  };
+
+  const setCurrentRole = (role: PlatformRole) => {
+    setCurrentRoleState(role);
+    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
+      const newPath = role === 'admin' ? '/admin' : role === 'therapist' ? '/therapist' : role === 'client' ? '/client' : '/';
+      window.history.pushState({ role }, '', newPath);
+    }
+  };
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePopState = () => {
+      const { role, clientSub, therapistSub, clientHomeMode: newMode } = parseRouteFromUrl();
+      setCurrentRoleState(role);
+      setClientSubRouteState(clientSub);
+      setTherapistSubRouteState(therapistSub);
+      setClientHomeModeState(newMode || 'spa');
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const [websiteTheme, setWebsiteThemeState] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
@@ -197,38 +391,6 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
       );
     }
   }, [websiteTheme]);
-
-  const setCurrentRole = (role: PlatformRole) => {
-    setCurrentRoleState(role);
-    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
-      const newPath = role === 'admin' ? '/admin' : role === 'therapist' ? '/therapist' : role === 'client' ? '/app' : '/';
-      window.history.pushState({ role }, '', newPath);
-    }
-  };
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const handlePopState = () => {
-      const p = window.location.pathname.toLowerCase();
-      if (p.includes('admin')) setCurrentRoleState('admin');
-      else if (p.includes('therapist')) setCurrentRoleState('therapist');
-      else if (p.includes('client') || p.includes('app')) setCurrentRoleState('client');
-      else setCurrentRoleState('home');
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-  const [deviceFrame, setDeviceFrame] = useState<'phone' | 'full'>(() => {
-    if (typeof window !== 'undefined') {
-      const p = window.location.pathname.toLowerCase();
-      const s = window.location.search.toLowerCase();
-      const h = window.location.hash.toLowerCase();
-      if (p.includes('admin') || s.includes('admin') || h.includes('admin')) {
-        return 'full';
-      }
-    }
-    return 'phone';
-  });
   const [selectedCity, setSelectedCity] = useState<string>('delhi-ncr');
   const [isSupabaseConnected, setIsSupabaseConnected] = useState<boolean>(false);
 
@@ -237,7 +399,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.id === 'user-souvik' || parsed.name === 'Dr. Souvik Sen' || !parsed.isAuthenticated) {
+        if (parsed.id === 'user-souvik' || parsed.name === 'Dr. Souvik Sen' || parsed.name === 'Aarav Mehra' || parsed.email === 'aarav.mehra@pamwill.com' || !parsed.isAuthenticated) {
           localStorage.removeItem('pamwill_user');
           return INITIAL_USER;
         }
@@ -257,14 +419,23 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const cleaned = parsed.filter((t: Therapist) => t.id !== 'ther-1' && t.id !== 'ther-2' && t.id !== 'ther-pending-1');
+        const cleaned = parsed.filter((t: Therapist) => 
+          !t.id.startsWith('ther-doc') && 
+          !t.id.startsWith('ther-spa') && 
+          !t.id.startsWith('ther-int') &&
+          t.id !== 'ther-1788953840879' &&
+          t.id !== 'ther-1789309555782' &&
+          t.id !== 'ther-1790413299202' &&
+          t.id !== 'ther-1791440556858' &&
+          t.id !== 'ther-1791551131740'
+        );
         if (cleaned.length > 0) return cleaned;
       } catch {}
     }
-    return [];
+    return INITIAL_THERAPISTS;
   });
 
-  const [currentTherapistId, setCurrentTherapistId] = useState<string>('ther-1788953840879');
+  const [currentTherapistId, setCurrentTherapistId] = useState<string>('ther-1793003027409');
 
   const [bookings, setBookings] = useState<Booking[]>(() => {
     const saved = localStorage.getItem('pamwill_bookings');
@@ -326,6 +497,260 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     localStorage.setItem('pamwill_commission_rate', JSON.stringify(platformCommissionRate));
   }, [platformCommissionRate]);
+
+  // Wellness Store & Cart
+  const [storeProducts] = useState<Product[]>(INITIAL_STORE_PRODUCTS);
+  const [cart, setCart] = useState<{ product: Product; quantity: number }[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_cart');
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pamwill_cart', JSON.stringify(cart));
+    }
+  }, [cart]);
+
+  const cartTotalCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const cartTotalPrice = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+
+  const addToCart = (product: Product, quantity = 1) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) {
+        return prev.map(item =>
+          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
+        );
+      }
+      return [...prev, { product, quantity }];
+    });
+  };
+
+  const updateCartQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCart(prev =>
+      prev.map(item => (item.product.id === productId ? { ...item, quantity } : item))
+    );
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(item => item.product.id !== productId));
+  };
+
+  const clearCart = () => setCart([]);
+
+  // Store Orders
+  const [storeOrders, setStoreOrders] = useState<StoreOrder[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_store_orders');
+      if (saved) {
+        try { return JSON.parse(saved); } catch {}
+      }
+    }
+    return [];
+  });
+
+  const placeStoreOrder = (orderData: {
+    items: { productId: string; productName: string; productImage: string; price: number; quantity: number; volumeOrWeight?: string }[];
+    deliveryAddress: DeliveryAddress;
+    paymentMethod: 'COD' | 'Razorpay';
+    voucherCode?: string;
+    subtotal: number;
+    deliveryFee: number;
+    discount: number;
+    totalAmount: number;
+  }): StoreOrder => {
+    const newOrder: StoreOrder = {
+      id: `ORD-${Date.now().toString().slice(-6)}`,
+      customerId: user.id || 'client-guest',
+      customerName: user.name || orderData.deliveryAddress.recipientName || 'Valued Patron',
+      customerPhone: user.phone || orderData.deliveryAddress.phone || '+91 98100 00000',
+      items: orderData.items,
+      subtotal: orderData.subtotal,
+      deliveryFee: orderData.deliveryFee,
+      discount: orderData.discount,
+      voucherCode: orderData.voucherCode,
+      totalAmount: orderData.totalAmount,
+      deliveryAddress: orderData.deliveryAddress,
+      paymentMethod: orderData.paymentMethod,
+      paymentStatus: orderData.paymentMethod === 'Razorpay' ? 'Paid' : 'Pending',
+      orderStatus: 'Order Placed',
+      trackingPartner: 'PamWill Express Concierge',
+      trackingNumber: `PWX-${Math.floor(100000 + Math.random() * 900000)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      timeline: [
+        {
+          status: 'Order Placed',
+          timestamp: new Date().toISOString(),
+          note: 'Order confirmed and sent to luxury apothecary warehouse.'
+        }
+      ]
+    };
+
+    setStoreOrders(prev => {
+      const updated = [newOrder, ...prev];
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pamwill_store_orders', JSON.stringify(updated));
+      }
+      return updated;
+    });
+
+    clearCart();
+    return newOrder;
+  };
+
+  // PamCoins Loyalty
+  const [pamCoins, setPamCoins] = useState<number>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_coins');
+      if (saved) {
+        const val = parseInt(saved, 10);
+        if (!isNaN(val)) return val;
+      }
+    }
+    return 0;
+  });
+
+  const addPamCoins = (amount: number, reason: string) => {
+    setPamCoins(prev => {
+      const next = prev + amount;
+      if (typeof window !== 'undefined') localStorage.setItem('pamwill_coins', next.toString());
+      return next;
+    });
+  };
+
+  const redeemPamCoins = (amount: number) => {
+    if (pamCoins < amount) return false;
+    setPamCoins(prev => {
+      const next = prev - amount;
+      if (typeof window !== 'undefined') localStorage.setItem('pamwill_coins', next.toString());
+      return next;
+    });
+    return true;
+  };
+
+  // Vouchers
+  const [vouchers] = useState<Voucher[]>(INITIAL_VOUCHERS);
+  const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null);
+
+  const applyVoucher = (code: string, subtotal = 0) => {
+    const match = vouchers.find(v => v.code.toUpperCase() === code.trim().toUpperCase() && v.isActive);
+    if (!match) {
+      return { success: false, discount: 0, message: 'Invalid or expired voucher code.' };
+    }
+    if (subtotal > 0 && subtotal < match.minSpend) {
+      return { success: false, discount: 0, message: `Minimum spend of ₹${match.minSpend} required for this code.` };
+    }
+    const discount = match.discountType === 'percentage'
+      ? Math.round((subtotal * match.discountValue) / 100)
+      : match.discountValue;
+    setAppliedVoucher(match);
+    return { success: true, discount, message: `${match.code} applied successfully!` };
+  };
+
+  const removeVoucher = () => setAppliedVoucher(null);
+
+  // Saved Addresses
+  const [savedAddresses, setSavedAddresses] = useState<DeliveryAddress[]>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_addresses');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            const cleaned = parsed.filter(a => a.recipientName !== 'Aarav Mehra' && a.id !== 'addr_1' && a.id !== 'addr_2');
+            return cleaned;
+          }
+        } catch {}
+      }
+    }
+    return INITIAL_SAVED_ADDRESSES;
+  });
+
+  const addSavedAddress = (address: DeliveryAddress) => {
+    setSavedAddresses(prev => {
+      const updated = [address, ...prev];
+      if (typeof window !== 'undefined') localStorage.setItem('pamwill_addresses', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const updateSavedAddress = (address: DeliveryAddress) => {
+    setSavedAddresses(prev => {
+      const updated = prev.map(a => a.id === address.id ? address : a);
+      if (typeof window !== 'undefined') localStorage.setItem('pamwill_addresses', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const deleteSavedAddress = (id: string) => {
+    setSavedAddresses(prev => {
+      const updated = prev.filter(a => a.id !== id);
+      if (typeof window !== 'undefined') localStorage.setItem('pamwill_addresses', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  // Therapist Daily Goal & Equipment Cart (Scoped per therapist, defaults to 0 for new accounts)
+  const getTherapistGoal = (therapistId: string) => {
+    if (typeof window !== 'undefined') {
+      // Clear legacy global default (which was 3)
+      localStorage.removeItem('pamwill_daily_goal');
+      const saved = localStorage.getItem(`pamwill_daily_goal_${therapistId}`);
+      if (saved) {
+        const val = parseInt(saved, 10);
+        if (!isNaN(val)) return val;
+      }
+    }
+    return 0;
+  };
+
+  const [dailyGoalCount, setDailyGoalCount] = useState<number>(() => {
+    return getTherapistGoal(currentTherapistId);
+  });
+
+  useEffect(() => {
+    setDailyGoalCount(getTherapistGoal(currentTherapistId));
+  }, [currentTherapistId]);
+
+  const incrementDailyGoal = () => {
+    setDailyGoalCount(prev => {
+      const next = Math.min(10, prev + 1);
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`pamwill_daily_goal_${currentTherapistId}`, next.toString());
+      }
+      return next;
+    });
+  };
+
+  const resetDailyGoal = () => {
+    setDailyGoalCount(0);
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(`pamwill_daily_goal_${currentTherapistId}`);
+      localStorage.removeItem('pamwill_daily_goal');
+    }
+  };
+
+  const [therapistCart, setTherapistCart] = useState<{ product: Product; quantity: number }[]>([]);
+  const addTherapistToCart = (product: Product, quantity = 1) => {
+    setTherapistCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) {
+        return prev.map(item => item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item);
+      }
+      return [...prev, { product, quantity }];
+    });
+  };
+  const clearTherapistCart = () => setTherapistCart([]);
 
   // Doctor / Therapist Payout Requests State
   const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>(() => {
@@ -1144,7 +1569,64 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         },
         connectModalOpen,
         setConnectModalOpen,
-        refreshData: loadFromSupabase
+        refreshData: loadFromSupabase,
+
+        // Client Navigation & Sub-Pages
+        clientSubRoute,
+        setClientSubRoute,
+        selectedProductId,
+        setSelectedProductId,
+        clientHomeMode,
+        setClientHomeMode,
+
+        // Therapist Navigation & Sub-Pages
+        therapistSubRoute,
+        setTherapistSubRoute,
+
+        // Wellness Store & Cart
+        storeProducts,
+        cart,
+        cartTotalCount,
+        cartTotalPrice,
+        addToCart,
+        updateCartQuantity,
+        removeFromCart,
+        clearCart,
+        storeOrders,
+        placeStoreOrder,
+
+        // PamCoins & Loyalty
+        pamCoins,
+        addPamCoins,
+        redeemPamCoins,
+
+        // Vouchers
+        vouchers,
+        appliedVoucher,
+        applyVoucher,
+        removeVoucher,
+
+        // Saved Addresses
+        savedAddresses,
+        addSavedAddress,
+        updateSavedAddress,
+        deleteSavedAddress,
+
+        // Therapist Daily Goal & Supplies Store
+        dailyGoalCount,
+        incrementDailyGoal,
+        resetDailyGoal,
+        therapistCart,
+        addTherapistToCart,
+        clearTherapistCart,
+
+        // View Mode
+        viewMode,
+        setViewMode,
+        toggleViewMode,
+
+        // Global URL Dispatcher
+        navigateTo
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { WebsitePage } from '../types';
 import { usePamwill } from '../../state/store';
-import { Menu, X, Sparkles, Smartphone, ChevronRight, Sun, Moon, MessageSquare } from 'lucide-react';
+import { Menu, X, Sparkles, Smartphone, ChevronRight, Sun, Moon, MessageSquare, Activity, Briefcase } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: WebsitePage;
@@ -17,7 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAppDownload
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { websiteTheme, toggleWebsiteTheme } = usePamwill();
+  const { websiteTheme, toggleWebsiteTheme, setClientHomeMode } = usePamwill();
 
   const navLinks: { label: string; page: WebsitePage }[] = [
     { label: 'Home', page: 'home' },
@@ -224,35 +224,86 @@ export const Navbar: React.FC<NavbarProps> = ({
               )}
             </button>
 
-            {/* Primary Action: Get The App (Since massages are booked on App) */}
+            {/* Swiggy / Instamart style portal links for Normal Users and Therapists */}
             <button
-              onClick={() => handleAppAction('patient')}
+              onClick={() => {
+                setClientHomeMode('spa');
+                onNavigateRole('client');
+              }}
               style={{
                 backgroundColor: 'var(--cta)',
                 color: '#FFFFFF',
                 border: 'none',
                 borderRadius: 'var(--radius-pill)',
-                padding: '10px 22px',
-                fontSize: '13px',
+                padding: '9px 16px',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 14px rgba(198, 165, 103, 0.3)',
+                transition: 'all 160ms ease'
+              }}
+              title="Open Spa & Luxury Massage Sanctuary Portal"
+            >
+              <Sparkles size={14} /> Spa & Massage
+            </button>
+
+            <button
+              onClick={() => {
+                setClientHomeMode('physio');
+                onNavigateRole('client');
+              }}
+              style={{
+                backgroundColor: 'rgba(13, 148, 136, 0.95)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(94, 234, 212, 0.4)',
+                borderRadius: 'var(--radius-pill)',
+                padding: '9px 16px',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 14px rgba(13, 148, 136, 0.25)',
+                transition: 'all 160ms ease'
+              }}
+              title="Open Clinical Physiotherapy (Senior Doctors & Interns)"
+            >
+              <Activity size={14} /> Physio
+              <span style={{
+                fontSize: '9px',
+                fontWeight: 800,
+                padding: '1px 5px',
+                borderRadius: 'var(--radius-pill)',
+                backgroundColor: 'rgba(255,255,255,0.25)',
+                color: '#FFFFFF'
+              }}>
+                DR.
+              </span>
+            </button>
+
+            <button
+              onClick={() => onNavigateRole('therapist')}
+              style={{
+                backgroundColor: 'transparent',
+                color: 'var(--text)',
+                border: '1px solid var(--border-hairline)',
+                borderRadius: 'var(--radius-pill)',
+                padding: '9px 14px',
+                fontSize: '12.5px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 16px rgba(198, 165, 103, 0.3)',
+                gap: '6px',
                 transition: 'all 160ms ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--cta-hover)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = 'var(--cta)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-              title="Book On-Demand Massages Exclusively via PamWill Mobile App"
+              title="Open Therapist Practitioner Partner Portal"
             >
-              <Smartphone size={15} /> Get The App
+              <Briefcase size={14} color="var(--cta)" /> Partner Portal
             </button>
           </div>
 
@@ -376,7 +427,81 @@ export const Navbar: React.FC<NavbarProps> = ({
             paddingTop: '20px',
             borderTop: '1px solid var(--border-hairline)'
           }}>
-            {/* Get App To Book */}
+            {/* Direct Responsive Web Portals (Swiggy / Instamart style dual buttons) */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setClientHomeMode('spa');
+                  onNavigateRole('client');
+                }}
+                style={{
+                  padding: '12px',
+                  borderRadius: 'var(--radius-pill)',
+                  border: 'none',
+                  backgroundColor: 'var(--cta)',
+                  color: '#FFFFFF',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Sparkles size={14} /> Spa Portal
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setClientHomeMode('physio');
+                  onNavigateRole('client');
+                }}
+                style={{
+                  padding: '12px',
+                  borderRadius: 'var(--radius-pill)',
+                  border: 'none',
+                  backgroundColor: 'var(--accent-gold)',
+                  color: '#100E0C',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '6px'
+                }}
+              >
+                <Activity size={14} /> Physio (Dr.)
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onNavigateRole('therapist');
+              }}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: 'var(--radius-pill)',
+                border: '1px solid var(--border-hairline)',
+                backgroundColor: 'var(--surface-card)',
+                color: 'var(--text)',
+                fontSize: '13px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}
+            >
+              <Briefcase size={15} color="var(--cta)" /> Therapist Partner Portal
+            </button>
+
             {/* Separate App Download Buttons for Mobile */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', width: '100%' }}>
               <button
@@ -467,7 +592,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 gap: '6px'
               }}
             >
-              <Sparkles size={12} color="var(--cta)" /> Launch Client Booking App Simulator
+              <Sparkles size={12} color="var(--cta)" /> Continue with Browser
             </button>
           </div>
         </div>

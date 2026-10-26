@@ -9,7 +9,16 @@ import { AuthModal } from './auth/AuthModal';
 import { ArrowLeft, Home } from 'lucide-react';
 
 const AppContent: React.FC = () => {
-  const { currentRole, setCurrentRole, deviceFrame, authModalOpen, setAuthModalOpen, authMode } = usePamwill();
+  const { 
+    currentRole, 
+    setCurrentRole, 
+    deviceFrame, 
+    setDeviceFrame, 
+    navigateTo, 
+    authModalOpen, 
+    setAuthModalOpen, 
+    authMode 
+  } = usePamwill();
 
   return (
     <div style={{
@@ -56,17 +65,14 @@ const AppContent: React.FC = () => {
               </div>
             </div>
           ) : (
-            /* Responsive Full Screen Mobile Container */
+            /* Responsive Full Screen Web Portal Container */
             <div style={{
               width: '100%',
-              maxWidth: '440px',
               minHeight: '100vh',
               backgroundColor: 'var(--bg-primary)',
-              boxShadow: '0 0 40px rgba(0,0,0,0.5)',
               position: 'relative',
               display: 'flex',
-              flexDirection: 'column',
-              paddingBottom: '70px'
+              flexDirection: 'column'
             }}>
               {currentRole === 'client' && <ClientAppRoot />}
               {currentRole === 'therapist' && <TherapistAppRoot />}
@@ -75,34 +81,7 @@ const AppContent: React.FC = () => {
         </div>
       )}
 
-      {/* Floating Return to Website Button when viewing app simulator */}
-      {currentRole !== 'home' && (
-        <button
-          onClick={() => setCurrentRole('home')}
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            left: '24px',
-            zIndex: 9999,
-            backgroundColor: '#1E1A16',
-            color: '#FAF8F5',
-            border: '1px solid rgba(169, 129, 47, 0.5)',
-            borderRadius: 'var(--radius-pill)',
-            padding: '10px 18px',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            boxShadow: '0 8px 30px rgba(0,0,0,0.8), 0 0 20px rgba(169, 129, 47, 0.2)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 150ms ease'
-          }}
-          title="Return to PamWill Official Website"
-        >
-          <ArrowLeft size={16} color="var(--accent-gold)" /> Back to PamWill Home
-        </button>
-      )}
+
 
       {/* Global Authentication & Multi-Role Onboarding Modal */}
       <AuthModal

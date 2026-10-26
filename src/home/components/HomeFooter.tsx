@@ -193,11 +193,11 @@ export const HomeFooter: React.FC<HomeFooterProps> = ({ onNavigateRole }) => {
             </ul>
           </div>
 
-          {/* Column 3: Live Interactive Simulators */}
+          {/* Column 3: Portals & Applications */}
           <div>
-            <h4 style={columnTitleStyle}>Interactive Web Demos</h4>
+            <h4 style={columnTitleStyle}>Web Applications & Portals</h4>
             <p style={{ fontSize: '12px', color: '#887B6D', marginBottom: '12px' }}>
-              Explore the full PamWill ecosystem right in your web browser:
+              Access the complete PamWill platform in your web browser:
             </p>
             <ul style={footerListStyle}>
               <li>

@@ -207,22 +207,22 @@ export const DualAudienceSection: React.FC<DualAudienceSectionProps> = ({
                 </p>
               </div>
 
-              {/* Patient Download CTA Buttons (Playstore & Appstore demo downloads) */}
+              {/* Patient Download CTA Buttons (Play Store & App Store) */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
                 <button
                   onClick={() => triggerAppDownload('patient', 'playstore', onShowToast)}
                   style={bannerDownloadBtnStyle}
-                  title="Download Google Play demo APK for patients"
+                  title="Download from Google Play Store"
                 >
-                  <Download size={16} color="var(--accent-gold)" /> Play Store Demo (APK)
+                  <Download size={16} color="var(--accent-gold)" /> Google Play Store
                 </button>
 
                 <button
                   onClick={() => triggerAppDownload('patient', 'appstore', onShowToast)}
                   style={bannerDownloadBtnStyle}
-                  title="Download App Store demo APK for patients"
+                  title="Download from Apple App Store"
                 >
-                  <Download size={16} color="var(--accent-gold)" /> App Store Demo (APK)
+                  <Download size={16} color="var(--accent-gold)" /> Apple App Store
                 </button>
 
                 <button
@@ -347,22 +347,22 @@ export const DualAudienceSection: React.FC<DualAudienceSectionProps> = ({
                 </p>
               </div>
 
-              {/* Therapist Download CTA Buttons (Playstore & Appstore demo downloads) */}
+              {/* Therapist Download CTA Buttons (Play Store & App Store) */}
               <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '12px' }}>
                 <button
                   onClick={() => triggerAppDownload('therapist', 'playstore', onShowToast)}
                   style={bannerDownloadBtnStyle}
-                  title="Download Google Play partner demo APK for therapists"
+                  title="Download from Google Play Store"
                 >
-                  <Download size={16} color="var(--status-success)" /> Play Store Demo (APK)
+                  <Download size={16} color="var(--status-success)" /> Google Play Store
                 </button>
 
                 <button
                   onClick={() => triggerAppDownload('therapist', 'appstore', onShowToast)}
                   style={bannerDownloadBtnStyle}
-                  title="Download App Store partner demo APK for therapists"
+                  title="Download from Apple App Store"
                 >
-                  <Download size={16} color="var(--status-success)" /> App Store Demo (APK)
+                  <Download size={16} color="var(--status-success)" /> Apple App Store
                 </button>
 
                 <button

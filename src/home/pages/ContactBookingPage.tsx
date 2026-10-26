@@ -295,7 +295,7 @@ export const ContactBookingPage: React.FC<ContactBookingPageProps> = ({
                     required
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
-                    placeholder="e.g. Radhika Sen"
+                    placeholder="Enter your full name"
                     style={{
                       width: '100%',
                       padding: '12px 14px',
@@ -343,7 +343,7 @@ export const ContactBookingPage: React.FC<ContactBookingPageProps> = ({
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="e.g. radhika@example.com"
+                      placeholder="name@domain.com"
                       style={{
                         width: '100%',
                         padding: '12px 14px',

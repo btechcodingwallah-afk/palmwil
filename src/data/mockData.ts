@@ -48,19 +48,47 @@ export const MEMBERSHIP_PLANS: MembershipPlan[] = [
   }
 ];
 
-export const INITIAL_THERAPISTS: Therapist[] = [];
+import { Voucher, DeliveryAddress, StoreOrder, TrainingApplication, ConnectInquiry } from '../types';
+
+export const INITIAL_THERAPISTS: Therapist[] = [
+  {
+    id: "ther-1793003027409",
+    fullName: "EduNiketan Pvt. Ltd.",
+    photoUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 98765 43210",
+    email: "eduniketanpvtltd@gmail.com",
+    status: "Approved",
+    role: "spa_therapist",
+    gender: "Female",
+    rating: 5.0,
+    reviewCount: 0,
+    completedJobs: 0,
+    experienceYears: 5,
+    languages: ["English", "Hindi"],
+    availableCities: ["Delhi NCR", "Gurugram", "Bengaluru"],
+    workingHours: "08:00 AM - 08:30 PM",
+    isOnline: true,
+    walletBalance: 0,
+    bankAccount: "Direct Deposit",
+    upiId: "eduniketan@okhdfcbank",
+    certifications: [
+      "Certified Master Practitioner"
+    ],
+    documents: []
+  }
+];
 
 export const INITIAL_USER: UserProfile = {
   id: "guest",
-  name: "",
+  name: "Guest Client",
   phone: "",
   email: "",
-  avatarUrl: undefined,
+  avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
   isAuthenticated: false,
   gender: "Other",
   age: 0,
   address: "",
-  city: "Delhi NCR",
+  city: "Bengaluru",
   medicalConditions: [],
   preferredTherapistGender: "No Preference",
   emergencyContact: {
@@ -68,103 +96,74 @@ export const INITIAL_USER: UserProfile = {
     phone: "",
     relationship: ""
   },
-  membershipTier: undefined,
   membershipCredits: 0,
   savedAddresses: []
 };
 
+export const INITIAL_SAVED_ADDRESSES: DeliveryAddress[] = [];
+
+export const INITIAL_VOUCHERS: Voucher[] = [
+  {
+    id: "vouch_1",
+    code: "WELCOME500",
+    title: "Flat ₹500 Off First Sanctuary Ritual",
+    description: "Applicable on any 60-min, 90-min, or 120-min signature spa or physiotherapy therapy.",
+    discountType: "fixed",
+    discountValue: 500,
+    minSpend: 1800,
+    expiryDate: "2026-12-31",
+    category: "All",
+    tag: "Welcome Gift",
+    accentColor: "#A9812F",
+    isActive: true
+  },
+  {
+    id: "vouch_2",
+    code: "PAMWILL20",
+    title: "20% Off Wellness Store Products",
+    description: "Enjoy 20% discount on cold-pressed Ayurvedic oils, luxury robes, and essential aroma diffusers.",
+    discountType: "percentage",
+    discountValue: 20,
+    minSpend: 999,
+    expiryDate: "2026-11-30",
+    category: "Wellness",
+    tag: "Store Special",
+    accentColor: "#0D9488",
+    isActive: true
+  },
+  {
+    id: "vouch_3",
+    code: "HEALPHYSIO",
+    title: "Flat ₹350 Off Clinical Doctor Session",
+    description: "Valid on all home visits conducted by licensed MPT / BPT Doctor Physiotherapists.",
+    discountType: "fixed",
+    discountValue: 350,
+    minSpend: 1500,
+    expiryDate: "2026-12-31",
+    category: "Therapy",
+    tag: "Doctor Care",
+    accentColor: "#4F46E5",
+    isActive: true
+  },
+  {
+    id: "vouch_4",
+    code: "AYURVEDA15",
+    title: "15% Off Authentic Kerala Panchakarma",
+    description: "Valid for Abhyanga, Shirodhara, and Herbal Potli Kizhi rejuvenation therapies.",
+    discountType: "percentage",
+    discountValue: 15,
+    minSpend: 2200,
+    expiryDate: "2026-11-15",
+    category: "Ayurveda",
+    tag: "Herbal Revival",
+    accentColor: "#9333EA",
+    isActive: true
+  }
+];
+
 export const INITIAL_BOOKINGS: Booking[] = [];
 
-export const INITIAL_TRAINING_APPLICATIONS = [
-  {
-    id: "app-tr-101",
-    fullName: "Priya Sharma",
-    email: "priya.sharma22@gmail.com",
-    phone: "+91 98450 12389",
-    city: "Bengaluru",
-    programType: "Therapist Certification Training" as const,
-    experienceLevel: "Fresher / No Prior Experience" as const,
-    availability: "Full-Time (3-Month Intensive)" as const,
-    qualification: "Bachelor of Arts / Diploma in Cosmetology",
-    statement: "I have always been deeply passionate about holistic wellness and neuromuscular relaxation. I want to build a certified career with PamWill's luxury standard.",
-    status: "Pending" as const,
-    appliedAt: new Date(Date.now() - 3600000 * 5).toISOString(),
-    adminNotes: "Contacted for preliminary phone screening scheduled for tomorrow."
-  },
-  {
-    id: "app-tr-102",
-    fullName: "Rohan Verma",
-    email: "rohan.v.wellness@outlook.com",
-    phone: "+91 98201 44521",
-    city: "Mumbai",
-    programType: "Spa Operations & Wellness Internship" as const,
-    experienceLevel: "6 Months – 1 Year" as const,
-    availability: "6-Month Apprenticeship" as const,
-    qualification: "BBA in Hospitality & Luxury Management",
-    statement: "Seeking hands-on operational leadership experience in marketplace logistics, mobile spa consignment, and client concierge standards.",
-    status: "Under Review" as const,
-    appliedAt: new Date(Date.now() - 3600000 * 24).toISOString(),
-    adminNotes: "Hospitality background verified. Good fit for Mumbai operations coordinator intern."
-  },
-  {
-    id: "app-tr-103",
-    fullName: "Ananya Sen",
-    email: "ananya.sen.ayur@gmail.com",
-    phone: "+91 98110 99876",
-    city: "Delhi NCR",
-    programType: "Ayurvedic & Holistic Apprenticeship" as const,
-    experienceLevel: "1 – 3 Years" as const,
-    availability: "Part-Time Weekend Program" as const,
-    qualification: "Diploma in Ayurvedic Panchakarma & Naturopathy",
-    statement: "Looking to advance my Abhyanga, Kizhi, and marma therapy skills under PamWill's senior Ayurvedic master practitioners.",
-    status: "Shortlisted" as const,
-    appliedAt: new Date(Date.now() - 3600000 * 48).toISOString(),
-    adminNotes: "Panchakarma diploma verified. Approved for in-person masterclass audition."
-  }
-];
+export const INITIAL_TRAINING_APPLICATIONS: TrainingApplication[] = [];
 
-export const INITIAL_CONNECT_INQUIRIES = [
-  {
-    id: "inq-2026-081",
-    fullName: "Vikramaditya Oberoi",
-    email: "concierge@grandpalacegoa.com",
-    phone: "+91 98221 55678",
-    city: "Goa",
-    inquiryType: "Hotel & Resort Concierge Partnership" as const,
-    organization: "The Grand Palace Resort & Villas, Goa",
-    message: "We manage 45 private luxury villas in Candolim and are interested in integrating PamWill on-demand therapist services as our exclusive guest spa amenity.",
-    preferredContactMethod: "Phone Call" as const,
-    status: "New" as const,
-    createdAt: new Date(Date.now() - 3600000 * 3).toISOString(),
-    adminNotes: "High value resort lead. Schedule call with partnerships director."
-  },
-  {
-    id: "inq-2026-082",
-    fullName: "Sneha Kapoor",
-    email: "sneha.k@techworks.io",
-    phone: "+91 98452 33410",
-    city: "Bengaluru",
-    inquiryType: "Corporate Wellness & Retreats" as const,
-    organization: "TechWorks Solutions Pvt Ltd",
-    message: "Planning our annual executive wellness week for 200 leadership members in Indiranagar. Requesting quote for chair massage and express de-stress sessions.",
-    preferredContactMethod: "WhatsApp" as const,
-    status: "In Progress" as const,
-    createdAt: new Date(Date.now() - 3600000 * 18).toISOString(),
-    adminNotes: "Sent corporate rate card via WhatsApp. Awaiting date confirmation."
-  },
-  {
-    id: "inq-2026-083",
-    fullName: "Deepak Nambiar",
-    email: "deepak.ayurveda@gmail.com",
-    phone: "+91 98200 87654",
-    city: "Mumbai",
-    inquiryType: "Therapist Partner Onboarding" as const,
-    organization: "",
-    message: "Certified Ayurvedic therapist with 6 years experience in Kerala panchakarma. Inquiring about joining the Mumbai south cluster therapist network.",
-    preferredContactMethod: "Phone Call" as const,
-    status: "Contacted" as const,
-    createdAt: new Date(Date.now() - 3600000 * 36).toISOString(),
-    adminNotes: "Certificates verified. Sent link to complete onboarding document upload."
-  }
-];
+export const INITIAL_CONNECT_INQUIRIES: ConnectInquiry[] = [];
 

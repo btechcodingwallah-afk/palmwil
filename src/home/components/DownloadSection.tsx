@@ -246,7 +246,7 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({
                   padding: 0
                 }}
               >
-                Try Web Simulator <ArrowRight size={14} />
+                Continue with Browser <ArrowRight size={14} />
               </button>
             </div>
           </div>
@@ -427,7 +427,7 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({
                   padding: 0
                 }}
               >
-                Try Partner Portal <ArrowRight size={14} />
+                Continue with Browser <ArrowRight size={14} />
               </button>
             </div>
           </div>

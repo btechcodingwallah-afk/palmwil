@@ -18,7 +18,7 @@ interface HomeNavbarProps {
 }
 
 export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
-  const { setConnectModalOpen } = usePamwill();
+  const { setConnectModalOpen, setClientHomeMode } = usePamwill();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoDropdownOpen, setDemoDropdownOpen] = useState(false);
 
@@ -103,19 +103,43 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
         <nav style={{
           display: 'none',
           alignItems: 'center',
-          gap: '28px'
+          gap: '24px'
         }} className="desktop-nav">
           <button
-            onClick={() => scrollToSection('patients')}
-            style={navLinkStyle}
+            onClick={() => {
+              setClientHomeMode('spa');
+              onNavigateRole('client');
+            }}
+            style={{
+              ...navLinkStyle,
+              color: 'var(--accent-gold-light)',
+              fontWeight: 700
+            }}
           >
-            For Patients
+            Spa & Massage
           </button>
           <button
-            onClick={() => scrollToSection('therapists')}
-            style={navLinkStyle}
+            onClick={() => {
+              setClientHomeMode('physio');
+              onNavigateRole('client');
+            }}
+            style={{
+              ...navLinkStyle,
+              color: '#2DD4BF',
+              fontWeight: 700
+            }}
           >
-            For Therapists
+            Physiotherapy (Dr.)
+          </button>
+          <button
+            onClick={() => onNavigateRole('therapist')}
+            style={{
+              ...navLinkStyle,
+              color: '#6EE7B7',
+              fontWeight: 700
+            }}
+          >
+            Therapist Portal
           </button>
           <button
             onClick={() => scrollToSection('treatments')}
@@ -143,82 +167,50 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
           </button>
         </nav>
 
-        {/* Action Buttons: Connect With Us & Live Demo */}
-        <div style={{ display: 'none', alignItems: 'center', gap: '12px' }} className="desktop-actions">
+        {/* Action Buttons: Portals & Connect */}
+        <div style={{ display: 'none', alignItems: 'center', gap: '10px' }} className="desktop-actions">
           
-          {/* Interactive Web Demo Dropdown */}
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={() => setDemoDropdownOpen(!demoDropdownOpen)}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '9px 16px',
-                borderRadius: 'var(--radius-pill)',
-                border: '1px solid rgba(169, 129, 47, 0.4)',
-                backgroundColor: 'rgba(25, 22, 19, 0.9)',
-                color: '#FAF8F5',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 150ms ease'
-              }}
-            >
-              <Sparkles size={14} color="var(--accent-gold)" /> Try Live Apps <ChevronDown size={14} />
-            </button>
+          {/* Patient Portal CTA */}
+          <button
+            onClick={() => onNavigateRole('client')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '9px 16px',
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid rgba(169, 129, 47, 0.45)',
+              backgroundColor: 'rgba(25, 22, 19, 0.95)',
+              color: 'var(--accent-gold-light)',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 150ms ease'
+            }}
+          >
+            <Smartphone size={14} color="var(--accent-gold)" /> Patient App & Store
+          </button>
 
-            {demoDropdownOpen && (
-              <div 
-                style={{
-                  position: 'absolute',
-                  top: 'calc(100% + 8px)',
-                  right: 0,
-                  width: '240px',
-                  backgroundColor: '#1E1A16',
-                  border: '1px solid #3E362E',
-                  borderRadius: 'var(--radius-lg)',
-                  padding: '8px',
-                  boxShadow: '0 12px 30px rgba(0,0,0,0.6)',
-                  zIndex: 200,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px'
-                }}
-              >
-                <div style={{ fontSize: '11px', color: '#8F8274', padding: '6px 10px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                  Interactive Web Simulators
-                </div>
-                <button
-                  onClick={() => {
-                    setDemoDropdownOpen(false);
-                    onNavigateRole('client');
-                  }}
-                  style={dropdownItemStyle}
-                >
-                  <Smartphone size={15} color="var(--accent-gold)" />
-                  <div>
-                    <div style={{ fontWeight: 600, color: '#FAF8F5' }}>Patient / Client App</div>
-                    <div style={{ fontSize: '11px', color: '#9E9284' }}>Book treatments & live tracking</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => {
-                    setDemoDropdownOpen(false);
-                    onNavigateRole('therapist');
-                  }}
-                  style={dropdownItemStyle}
-                >
-                  <Briefcase size={15} color="#4C6B4F" />
-                  <div>
-                    <div style={{ fontWeight: 600, color: '#FAF8F5' }}>Therapist Partner App</div>
-                    <div style={{ fontSize: '11px', color: '#9E9284' }}>Accept jobs & check earnings</div>
-                  </div>
-                </button>
-              </div>
-            )}
-          </div>
+          {/* Therapist Partner Portal CTA */}
+          <button
+            onClick={() => onNavigateRole('therapist')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              padding: '9px 16px',
+              borderRadius: 'var(--radius-pill)',
+              border: '1px solid rgba(110, 231, 183, 0.35)',
+              backgroundColor: 'rgba(20, 28, 22, 0.85)',
+              color: '#6EE7B7',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 150ms ease'
+            }}
+          >
+            <Briefcase size={14} color="#6EE7B7" /> Therapist Partner Portal
+          </button>
 
           {/* Connect With Us Button -> Opens In-Built Concierge Form */}
           <button
@@ -227,12 +219,12 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              padding: '10px 20px',
+              padding: '9px 18px',
               borderRadius: 'var(--radius-pill)',
               backgroundColor: 'var(--accent-gold)',
               color: '#FFFFFF',
               fontSize: '13px',
-              fontWeight: 600,
+              fontWeight: 700,
               border: 'none',
               cursor: 'pointer',
               boxShadow: '0 4px 16px rgba(169, 129, 47, 0.35)',
@@ -304,7 +296,7 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
                 cursor: 'pointer'
               }}
             >
-              <Smartphone size={16} color="var(--accent-gold)" /> Try Client App Simulator
+              <Smartphone size={16} color="var(--accent-gold)" /> Open Patient Web Portal & Store
             </button>
 
             <button
@@ -319,15 +311,15 @@ export const HomeNavbar: React.FC<HomeNavbarProps> = ({ onNavigateRole }) => {
                 gap: '8px',
                 padding: '12px',
                 borderRadius: 'var(--radius-md)',
-                backgroundColor: '#26211C',
-                border: '1px solid #3E362E',
-                color: '#FAF8F5',
+                backgroundColor: 'rgba(20, 28, 22, 0.85)',
+                border: '1px solid rgba(110, 231, 183, 0.35)',
+                color: '#6EE7B7',
                 fontSize: '14px',
-                fontWeight: 600,
+                fontWeight: 700,
                 cursor: 'pointer'
               }}
             >
-              <Briefcase size={16} color="#4C6B4F" /> Try Therapist App Simulator
+              <Briefcase size={16} color="#6EE7B7" /> Open Therapist Partner Portal
             </button>
 
             <button

@@ -39,6 +39,79 @@ export interface TherapistDocument {
   verificationStatus: "verified" | "pending" | "rejected";
 }
 
+export type TherapistRole =
+  | "spa_therapist"
+  | "physiotherapist"
+  | "intern"
+  | "therapist"
+  | "doctor";
+
+export function formatTherapistDisplayName(fullName: string, role?: string): string {
+  if (!fullName) return '';
+  const clean = fullName.replace(/^Dr\.\s*/i, '').replace(/\s*\(intern\)$/i, '').trim();
+  if (role === 'physiotherapist' || role === 'doctor') {
+    return `Dr. ${clean}`;
+  }
+  if (role === 'intern') {
+    return `${clean} (intern)`;
+  }
+  return clean;
+}
+
+export function getTherapistRoleBadge(role?: string): {
+  label: string;
+  short: string;
+  color: string;
+  bg: string;
+  icon: string;
+  desc: string;
+} {
+  if (role === 'physiotherapist' || role === 'doctor') {
+    return {
+      label: 'Dr. Physiotherapist',
+      short: 'Dr. (Physio)',
+      color: '#0D9488',
+      bg: '#E6FFFA',
+      icon: 'medkit',
+      desc: 'Licensed Doctor of Physiotherapy (BPT / MPT)'
+    };
+  }
+  if (role === 'intern') {
+    return {
+      label: 'Physiotherapy Intern',
+      short: 'Intern',
+      color: '#4F46E5',
+      bg: '#EEF2FF',
+      icon: 'school',
+      desc: 'BPT Intern under Senior Doctor Supervision'
+    };
+  }
+  return {
+    label: 'Spa Therapist',
+    short: 'Therapist',
+    color: '#A9812F',
+    bg: '#FAF3E0',
+    icon: 'sparkles',
+    desc: 'Certified Luxury Spa & Wellness Practitioner'
+  };
+}
+
+export interface PhysioCondition {
+  id: string;
+  category: string;
+  condition: string;
+  commonSymptoms: string;
+  icon?: string;
+}
+
+export interface PhysioCategory {
+  id: string;
+  title: string;
+  description: string;
+  conditionsCount: number;
+  icon: string;
+}
+
 export interface Therapist {
   id: string;
   fullName: string;
@@ -46,6 +119,7 @@ export interface Therapist {
   phone: string;
   email: string;
   status: TherapistStatus;
+  role?: TherapistRole;
   gender: "Female" | "Male";
   rating: number;
   reviewCount: number;
@@ -116,7 +190,7 @@ export interface Booking {
   totalPaid: number;
   platformCommission: number;
   therapistPayout: number;
-  paymentMethod: "UPI" | "Card" | "Net Banking" | "Wallet" | "Membership Credits";
+  paymentMethod: "UPI" | "Card" | "Net Banking" | "Wallet" | "Membership Credits" | "Pay on Arrival" | "Cash After Session";
   status: BookingStatus;
   createdAt: string;
   etaMinutes?: number;
