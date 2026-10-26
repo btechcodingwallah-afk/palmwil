@@ -170,16 +170,16 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
         </div>
       </div>
 
-      {/* Main Responsive Sanctuary Container (1200px Max Width Centered) */}
+      {/* Main Responsive Sanctuary Container (Full Width Edge-to-Edge Desktop View) */}
       <div className="client-home-container" style={{
         width: '100%',
-        maxWidth: '1200px',
+        maxWidth: '100%',
         margin: '0 auto',
-        padding: '18px 16px 40px 16px',
+        padding: '20px 32px 40px 32px',
         boxSizing: 'border-box',
         display: 'flex',
         flexDirection: 'column',
-        gap: '20px'
+        gap: '24px'
       }}>
 
         {/* Real-time Active Session Notification Banner (Screenshot 1) */}

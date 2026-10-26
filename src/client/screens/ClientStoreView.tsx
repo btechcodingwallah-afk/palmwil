@@ -40,7 +40,7 @@ export const ClientStoreView: React.FC<ClientStoreViewProps> = ({ onOpenProductD
   };
 
   return (
-    <div style={{ maxWidth: '1240px', margin: '0 auto', padding: '24px 20px 80px' }}>
+    <div className="client-store-container" style={{ width: '100%', maxWidth: '100%', margin: '0 auto', padding: '24px 32px 80px', boxSizing: 'border-box' }}>
       
       {/* Hero Store Banner */}
       <div style={{

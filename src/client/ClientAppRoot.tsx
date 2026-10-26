@@ -73,9 +73,11 @@ export const ClientAppRoot: React.FC = () => {
         {/* Back navigation for profile subroutes */}
         {['membership', 'pamcoin', 'vouchers', 'orders', 'addresses', 'support', 'feedback', 'about', 'privacy'].includes(clientSubRoute) && (
           <div style={{
-            maxWidth: '680px',
+            width: '100%',
+            maxWidth: '100%',
             margin: '0 auto',
-            padding: '14px 18px 0 18px',
+            padding: '14px 32px 0 32px',
+            boxSizing: 'border-box',
             display: 'flex',
             alignItems: 'center'
           }}>

@@ -39,9 +39,10 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
       boxShadow: '0 2px 10px rgba(31, 27, 22, 0.03)'
     }}>
       <div style={{
-        maxWidth: '1200px',
-        margin: '0 auto',
-        padding: '10px 18px',
+        width: '100%',
+        maxWidth: '100%',
+        boxSizing: 'border-box',
+        padding: '10px 32px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',

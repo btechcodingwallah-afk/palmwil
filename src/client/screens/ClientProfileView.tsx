@@ -30,19 +30,21 @@ export const ClientProfileView: React.FC = () => {
   };
 
   return (
-    <div style={{
-      maxWidth: '680px',
+    <div className="client-profile-container" style={{
+      width: '100%',
+      maxWidth: '100%',
       margin: '0 auto',
-      padding: '20px 18px 40px',
+      padding: '24px 32px 40px',
       backgroundColor: '#FAF8F5',
-      minHeight: '100%'
+      minHeight: '100%',
+      boxSizing: 'border-box'
     }}>
       {/* Top Header */}
       <div style={{
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'space-between',
-        marginBottom: '20px'
+        marginBottom: '24px'
       }}>
         <div>
           <div style={{
@@ -88,431 +90,444 @@ export const ClientProfileView: React.FC = () => {
         </button>
       </div>
 
-      {/* Hero Patron Card (Screenshots 2 & 4) */}
+      {/* Responsive 2-Column Grid for Desktop */}
       <div style={{
-        backgroundColor: '#FFFFFF',
-        borderRadius: '20px',
-        border: '1px solid #E4DDD2',
-        boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)',
-        overflow: 'hidden',
-        marginBottom: '24px'
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 460px), 1fr))',
+        gap: '24px',
+        alignItems: 'start'
       }}>
-        {/* Gold top bar */}
-        <div style={{ height: '4px', backgroundColor: '#A9812F' }} />
-
-        <div style={{ padding: '20px' }}>
-          {/* Top row: Avatar + Info */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '18px' }}>
-            <div style={{ position: 'relative' }}>
-              <div style={{
-                width: '64px',
-                height: '64px',
-                borderRadius: '50%',
-                backgroundColor: '#F7EEDD',
-                border: '2px solid #A9812F',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden'
-              }}>
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                ) : (
-                  <span style={{ fontSize: '20px', fontWeight: 800, color: '#A9812F' }}>
-                    {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
-                  </span>
-                )}
-              </div>
-              <div style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                width: '20px',
-                height: '20px',
-                borderRadius: '50%',
-                backgroundColor: '#A9812F',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                border: '1.5px solid #FFFFFF'
-              }}>
-                <Camera size={11} color="#FFFFFF" />
-              </div>
-            </div>
-
-            <div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>
-                {user?.name || 'Valued Patron'}
-              </div>
-              <div style={{ fontSize: '12px', color: '#6B6259', marginTop: '2px' }}>
-                {user?.email || 'patron@pamwill.com'}
-              </div>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                backgroundColor: '#F7EEDD',
-                color: '#A9812F',
-                fontSize: '10px',
-                fontWeight: 800,
-                padding: '2px 8px',
-                borderRadius: '10px',
-                marginTop: '6px'
-              }}>
-                <span>🪪 PAMWILL PATRON</span>
-              </div>
-            </div>
-          </div>
-
-          {/* 4 Stat columns */}
+        {/* Left Column: Hero Patron Card, Membership, Account Actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          {/* Hero Patron Card (Screenshots 2 & 4) */}
           <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            borderTop: '1px solid #F1ECE4',
-            paddingTop: '14px',
-            textAlign: 'center'
-          }}>
-            <div style={{ borderRight: '1px solid #F1ECE4' }}>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>0</div>
-              <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SESSIONS</div>
-            </div>
-            <div style={{ borderRight: '1px solid #F1ECE4' }}>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>🪙 0</div>
-              <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>PAMCOINS</div>
-            </div>
-            <div style={{ borderRight: '1px solid #F1ECE4' }}>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>Standard</div>
-              <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>TIER</div>
-            </div>
-            <div>
-              <div style={{ fontSize: '18px', fontWeight: 800, color: '#4C6B4F' }}>Active</div>
-              <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SOS SAFETY</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Section: SANCTUARY MEMBERSHIP (Screenshot 4) */}
-      <div style={{ marginBottom: '22px' }}>
-        <div style={{
-          fontSize: '11px',
-          fontWeight: 800,
-          color: '#6B6259',
-          letterSpacing: '0.8px',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-          paddingLeft: '4px'
-        }}>
-          SANCTUARY MEMBERSHIP
-        </div>
-
-        <div
-          onClick={() => setClientSubRoute('membership')}
-          style={{
             backgroundColor: '#FFFFFF',
-            borderRadius: '16px',
-            border: '1.5px solid #A9812F',
-            padding: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(169, 129, 47, 0.08)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '50%',
-              backgroundColor: '#F7EEDD',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#A9812F',
-              flexShrink: 0
-            }}>
-              <Crown size={20} />
-            </div>
+            borderRadius: '20px',
+            border: '1px solid #E4DDD2',
+            boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)',
+            overflow: 'hidden'
+          }}>
+            {/* Gold top bar */}
+            <div style={{ height: '4px', backgroundColor: '#A9812F' }} />
 
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: '#1F1B16' }}>
-                  Sanctuary Membership
-                </span>
-                <span style={{
-                  backgroundColor: '#F7EEDD',
-                  color: '#A9812F',
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  padding: '2px 8px',
-                  borderRadius: '10px'
-                }}>
-                  {credits} Credits
-                </span>
-              </div>
-              <div style={{ fontSize: '11px', color: '#6B6259', marginTop: '2px' }}>
-                Subscribe to Silver, Gold, or Platinum plans for complimentary Spa & Massage sessions
-              </div>
-            </div>
-          </div>
-
-          <ChevronRight size={18} color="#9A8F82" />
-        </div>
-      </div>
-
-      {/* Section: RESERVATIONS & STORE (Screenshot 4) */}
-      <div style={{ marginBottom: '22px' }}>
-        <div style={{
-          fontSize: '11px',
-          fontWeight: 800,
-          color: '#6B6259',
-          letterSpacing: '0.8px',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-          paddingLeft: '4px'
-        }}>
-          RESERVATIONS & STORE
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {/* PamCoin */}
-          <div
-            onClick={() => setClientSubRoute('pamcoin')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><Coins size={18} color="#A9812F" /></div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={menuTitleStyle}>PamCoin</span>
-                  <span style={{ backgroundColor: '#A9812F', color: '#FFFFFF', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '4px' }}>
-                    1 COIN = ₹1
-                  </span>
+            <div style={{ padding: '20px' }}>
+              {/* Top row: Avatar + Info */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '18px' }}>
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    backgroundColor: '#F7EEDD',
+                    border: '2px solid #A9812F',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: '20px', fontWeight: 800, color: '#A9812F' }}>
+                        {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
+                      </span>
+                    )}
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    width: '20px',
+                    height: '20px',
+                    borderRadius: '50%',
+                    backgroundColor: '#A9812F',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1.5px solid #FFFFFF'
+                  }}>
+                    <Camera size={11} color="#FFFFFF" />
+                  </div>
                 </div>
-                <div style={menuSubStyle}>Wallet balance & 1–10% cashback reward transaction details</div>
+
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>
+                    {user?.name || 'Valued Patron'}
+                  </div>
+                  <div style={{ fontSize: '12px', color: '#6B6259', marginTop: '2px' }}>
+                    {user?.email || 'patron@pamwill.com'}
+                  </div>
+                  <div style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    backgroundColor: '#F7EEDD',
+                    color: '#A9812F',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    marginTop: '6px'
+                  }}>
+                    <span>🪪 PAMWILL PATRON</span>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ backgroundColor: '#F7EEDD', color: '#A9812F', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
-                🪙 0
-              </span>
-              <ChevronRight size={16} color="#9A8F82" />
+
+              {/* 4 Stat columns */}
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                borderTop: '1px solid #F1ECE4',
+                paddingTop: '14px',
+                textAlign: 'center'
+              }}>
+                <div style={{ borderRight: '1px solid #F1ECE4' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>0</div>
+                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SESSIONS</div>
+                </div>
+                <div style={{ borderRight: '1px solid #F1ECE4' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>🪙 0</div>
+                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>PAMCOINS</div>
+                </div>
+                <div style={{ borderRight: '1px solid #F1ECE4' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>Standard</div>
+                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>TIER</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#4C6B4F' }}>Active</div>
+                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SOS SAFETY</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Saved Delivery Addresses */}
-          <div
-            onClick={() => setClientSubRoute('addresses')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><MapPin size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>Saved Delivery Addresses</div>
-                <div style={menuSubStyle}>Manage delivery destinations for sanctuary orders</div>
-              </div>
+          {/* Section: SANCTUARY MEMBERSHIP (Screenshot 4) */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6B6259',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '4px'
+            }}>
+              SANCTUARY MEMBERSHIP
             </div>
-            <ChevronRight size={16} color="#9A8F82" />
+
+            <div
+              onClick={() => setClientSubRoute('membership')}
+              style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1.5px solid #A9812F',
+                padding: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                cursor: 'pointer',
+                boxShadow: '0 4px 16px rgba(169, 129, 47, 0.08)'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '50%',
+                  backgroundColor: '#F7EEDD',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#A9812F',
+                  flexShrink: 0
+                }}>
+                  <Crown size={20} />
+                </div>
+
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '15px', fontWeight: 800, color: '#1F1B16' }}>
+                      Sanctuary Membership
+                    </span>
+                    <span style={{
+                      backgroundColor: '#F7EEDD',
+                      color: '#A9812F',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: '10px'
+                    }}>
+                      {credits} Credits
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#6B6259', marginTop: '2px' }}>
+                    Subscribe to Silver, Gold, or Platinum plans for complimentary Spa & Massage sessions
+                  </div>
+                </div>
+              </div>
+
+              <ChevronRight size={18} color="#9A8F82" />
+            </div>
           </div>
 
-          {/* Booking History */}
-          <div
-            onClick={() => setClientSubRoute('bookings')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><Calendar size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>Booking History</div>
-                <div style={menuSubStyle}>Active sessions, past rituals, and rebooking</div>
-              </div>
+          {/* Section: ACCOUNT ACTIONS (Screenshot 2) */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6B6259',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '4px'
+            }}>
+              ACCOUNT ACTIONS
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              {activeBookingsCount > 0 && (
-                <span style={{ backgroundColor: '#EFF6FF', color: '#2563EB', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
-                  {activeBookingsCount} Active
-                </span>
-              )}
-              <ChevronRight size={16} color="#9A8F82" />
-            </div>
-          </div>
 
-          {/* Order & Invoice History */}
-          <div
-            onClick={() => setClientSubRoute('orders')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><FileText size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>Order & Invoice History</div>
-                <div style={menuSubStyle}>Tax invoices, GST receipts, and transaction records</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div
+                onClick={() => window.location.href = '/therapist'}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><RefreshCw size={18} color="#A9812F" /></div>
+                  <div style={menuTitleStyle}>Switch / Relink Account</div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
               </div>
-            </div>
-            <ChevronRight size={16} color="#9A8F82" />
-          </div>
 
-          {/* Vouchers & Promos */}
-          <div
-            onClick={() => setClientSubRoute('vouchers')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><Tag size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>Vouchers & Promos</div>
-                <div style={menuSubStyle}>5 privileges available for instant discount</div>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ backgroundColor: '#F7EEDD', color: '#A9812F', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
-                5 Available
-              </span>
-              <ChevronRight size={16} color="#9A8F82" />
+              <button
+                onClick={handleSignOut}
+                style={{
+                  backgroundColor: '#F9EFEF',
+                  border: '1px solid rgba(140, 58, 43, 0.15)',
+                  borderRadius: '16px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  color: '#8C3A2B',
+                  fontSize: '14px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  width: '100%',
+                  marginTop: '4px'
+                }}
+              >
+                <LogOut size={16} color="#8C3A2B" />
+                <span>Sign Out of Pamwill</span>
+              </button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Section: PATRON CARE & VOICE (Screenshot 2) */}
-      <div style={{ marginBottom: '22px' }}>
-        <div style={{
-          fontSize: '11px',
-          fontWeight: 800,
-          color: '#6B6259',
-          letterSpacing: '0.8px',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-          paddingLeft: '4px'
-        }}>
-          PATRON CARE & VOICE
-        </div>
+        {/* Right Column: Reservations & Store, Patron Care & Voice, Governance & Platform */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          {/* Section: RESERVATIONS & STORE (Screenshot 4) */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6B6259',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '4px'
+            }}>
+              RESERVATIONS & STORE
+            </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div
-            onClick={() => setClientSubRoute('support')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><Headphones size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>24/7 Concierge & Support</div>
-                <div style={menuSubStyle}>WhatsApp desk, telephone helpline, and SOS</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {/* PamCoin */}
+              <div
+                onClick={() => setClientSubRoute('pamcoin')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><Coins size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={menuTitleStyle}>PamCoin</span>
+                      <span style={{ backgroundColor: '#A9812F', color: '#FFFFFF', fontSize: '9px', fontWeight: 800, padding: '1px 5px', borderRadius: '4px' }}>
+                        1 COIN = ₹1
+                      </span>
+                    </div>
+                    <div style={menuSubStyle}>Wallet balance & 1–10% cashback reward transaction details</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ backgroundColor: '#F7EEDD', color: '#A9812F', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
+                    🪙 0
+                  </span>
+                  <ChevronRight size={16} color="#9A8F82" />
+                </div>
+              </div>
+
+              {/* Saved Delivery Addresses */}
+              <div
+                onClick={() => setClientSubRoute('addresses')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><MapPin size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>Saved Delivery Addresses</div>
+                    <div style={menuSubStyle}>Manage delivery destinations for sanctuary orders</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
+              </div>
+
+              {/* Booking History */}
+              <div
+                onClick={() => setClientSubRoute('bookings')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><Calendar size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>Booking History</div>
+                    <div style={menuSubStyle}>Active sessions, past rituals, and rebooking</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  {activeBookingsCount > 0 && (
+                    <span style={{ backgroundColor: '#EFF6FF', color: '#2563EB', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
+                      {activeBookingsCount} Active
+                    </span>
+                  )}
+                  <ChevronRight size={16} color="#9A8F82" />
+                </div>
+              </div>
+
+              {/* Order & Invoice History */}
+              <div
+                onClick={() => setClientSubRoute('orders')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><FileText size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>Order & Invoice History</div>
+                    <div style={menuSubStyle}>Tax invoices, GST receipts, and transaction records</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
+              </div>
+
+              {/* Vouchers & Promos */}
+              <div
+                onClick={() => setClientSubRoute('vouchers')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><Tag size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>Vouchers & Promos</div>
+                    <div style={menuSubStyle}>5 privileges available for instant discount</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span style={{ backgroundColor: '#F7EEDD', color: '#A9812F', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
+                    5 Available
+                  </span>
+                  <ChevronRight size={16} color="#9A8F82" />
+                </div>
               </div>
             </div>
-            <ChevronRight size={16} color="#9A8F82" />
           </div>
 
-          <div
-            onClick={() => setClientSubRoute('feedback')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><MessageSquare size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>Patron Experience Feedback</div>
-                <div style={menuSubStyle}>Rate therapist expertise and app suggestions</div>
+          {/* Section: PATRON CARE & VOICE (Screenshot 2) */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6B6259',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '4px'
+            }}>
+              PATRON CARE & VOICE
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div
+                onClick={() => setClientSubRoute('support')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><Headphones size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>24/7 Concierge & Support</div>
+                    <div style={menuSubStyle}>WhatsApp desk, telephone helpline, and SOS</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
+              </div>
+
+              <div
+                onClick={() => setClientSubRoute('feedback')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><MessageSquare size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>Patron Experience Feedback</div>
+                    <div style={menuSubStyle}>Rate therapist expertise and app suggestions</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
               </div>
             </div>
-            <ChevronRight size={16} color="#9A8F82" />
           </div>
-        </div>
-      </div>
 
-      {/* Section: GOVERNANCE & PLATFORM (Screenshot 2) */}
-      <div style={{ marginBottom: '22px' }}>
-        <div style={{
-          fontSize: '11px',
-          fontWeight: 800,
-          color: '#6B6259',
-          letterSpacing: '0.8px',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-          paddingLeft: '4px'
-        }}>
-          GOVERNANCE & PLATFORM
-        </div>
+          {/* Section: GOVERNANCE & PLATFORM (Screenshot 2) */}
+          <div>
+            <div style={{
+              fontSize: '11px',
+              fontWeight: 800,
+              color: '#6B6259',
+              letterSpacing: '0.8px',
+              textTransform: 'uppercase',
+              marginBottom: '8px',
+              paddingLeft: '4px'
+            }}>
+              GOVERNANCE & PLATFORM
+            </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div
-            onClick={() => setClientSubRoute('about')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><Info size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>About PamWill</div>
-                <div style={menuSubStyle}>CIDESCO accreditation and hygiene standards</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div
+                onClick={() => setClientSubRoute('about')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><Info size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>About PamWill</div>
+                    <div style={menuSubStyle}>CIDESCO accreditation and hygiene standards</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
+              </div>
+
+              <div
+                onClick={() => setClientSubRoute('privacy')}
+                style={menuCardStyle}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={iconWrapStyle}><Shield size={18} color="#A9812F" /></div>
+                  <div>
+                    <div style={menuTitleStyle}>Privacy & Security Policy</div>
+                    <div style={menuSubStyle}>ISO 27001 data protection and medical confidentiality</div>
+                  </div>
+                </div>
+                <ChevronRight size={16} color="#9A8F82" />
               </div>
             </div>
-            <ChevronRight size={16} color="#9A8F82" />
           </div>
-
-          <div
-            onClick={() => setClientSubRoute('privacy')}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><Shield size={18} color="#A9812F" /></div>
-              <div>
-                <div style={menuTitleStyle}>Privacy & Security Policy</div>
-                <div style={menuSubStyle}>ISO 27001 data protection and medical confidentiality</div>
-              </div>
-            </div>
-            <ChevronRight size={16} color="#9A8F82" />
-          </div>
-        </div>
-      </div>
-
-      {/* Section: ACCOUNT ACTIONS (Screenshot 2) */}
-      <div style={{ marginBottom: '22px' }}>
-        <div style={{
-          fontSize: '11px',
-          fontWeight: 800,
-          color: '#6B6259',
-          letterSpacing: '0.8px',
-          textTransform: 'uppercase',
-          marginBottom: '8px',
-          paddingLeft: '4px'
-        }}>
-          ACCOUNT ACTIONS
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <div
-            onClick={() => window.location.href = '/therapist'}
-            style={menuCardStyle}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={iconWrapStyle}><RefreshCw size={18} color="#A9812F" /></div>
-              <div style={menuTitleStyle}>Switch / Relink Account</div>
-            </div>
-            <ChevronRight size={16} color="#9A8F82" />
-          </div>
-
-          <button
-            onClick={handleSignOut}
-            style={{
-              backgroundColor: '#F9EFEF',
-              border: '1px solid rgba(140, 58, 43, 0.15)',
-              borderRadius: '16px',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              color: '#8C3A2B',
-              fontSize: '14px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              width: '100%',
-              marginTop: '4px'
-            }}
-          >
-            <LogOut size={16} color="#8C3A2B" />
-            <span>Sign Out of Pamwill</span>
-          </button>
         </div>
       </div>
 

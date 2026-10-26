@@ -41,12 +41,14 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
   );
 
   return (
-    <div style={{
-      maxWidth: '680px',
+    <div className="client-bookings-container" style={{
+      width: '100%',
+      maxWidth: '100%',
       margin: '0 auto',
-      padding: '20px 18px 40px',
+      padding: '24px 32px 40px',
       backgroundColor: '#FAF8F5',
-      minHeight: '100%'
+      minHeight: '100%',
+      boxSizing: 'border-box'
     }}>
       {/* Header */}
       <div style={{
@@ -123,7 +125,12 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
           </button>
         </div>
       ) : (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(460px, 1fr))',
+          gap: '16px',
+          width: '100%'
+        }}>
           {myBookings.map(booking => {
             const isActive = ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(booking.status);
 
