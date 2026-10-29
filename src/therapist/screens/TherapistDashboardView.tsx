@@ -20,7 +20,8 @@ export const TherapistDashboardView: React.FC<TherapistDashboardViewProps> = ({
     toggleTherapistOnline, 
     bookings,
     payoutRequests,
-    requestPayout
+    requestPayout,
+    setTherapistSubRoute
   } = usePamwill();
 
   const [withdrawModalOpen, setWithdrawModalOpen] = useState(false);
@@ -245,7 +246,61 @@ export const TherapistDashboardView: React.FC<TherapistDashboardViewProps> = ({
         </button>
       </div>
 
-      {/* Active In-Progress Job Card (If Any) */}
+      {/* Operational Service Base & 10 km Perimeter Quick Pill */}
+      <div 
+        onClick={() => setTherapistSubRoute('profile')}
+        style={{
+          padding: '12px 16px',
+          borderRadius: 'var(--radius-md)',
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #E4DDD2',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          cursor: 'pointer',
+          boxShadow: '0 2px 8px rgba(31, 27, 22, 0.03)'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{
+            width: '34px',
+            height: '34px',
+            borderRadius: '50%',
+            backgroundColor: '#F7EEDD',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#A9812F',
+            flexShrink: 0
+          }}>
+            <MapPin size={17} />
+          </div>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#1F1B16' }}>
+                Service Base: {currentTherapist.currentLocation?.area || 'DLF Cyber City, Gurugram'}
+              </span>
+              <span style={{
+                backgroundColor: '#EDF7ED',
+                color: '#4C6B4F',
+                fontSize: '9px',
+                fontWeight: 800,
+                padding: '1px 6px',
+                borderRadius: '4px'
+              }}>
+                {currentTherapist.serviceRadiusKm || 10} KM RADIUS
+              </span>
+            </div>
+            <div style={{ fontSize: '11px', color: '#6B6259' }}>
+              GPS Base active • Only clients within {currentTherapist.serviceRadiusKm || 10} km can book
+            </div>
+          </div>
+        </div>
+        <div style={{ fontSize: '11px', fontWeight: 700, color: '#A9812F', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span>Adjust Base</span>
+          <ChevronRight size={14} />
+        </div>
+      </div>
       {activeJob && (
         <div style={{
           padding: '18px',

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  LayoutDashboard, Calendar, DollarSign, Trophy, ShoppingBag, 
+  LayoutDashboard, Calendar, DollarSign, Trophy, 
   User, MessageSquare, Power, Bell, Menu, X, ArrowLeft, Shield 
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
@@ -19,13 +19,10 @@ export const TherapistWebHeader: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems = [
-    { id: 'dashboard', label: 'Sanctuary Dashboard', icon: <LayoutDashboard size={14} /> },
+    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={14} /> },
     { id: 'bookings', label: 'Active Jobs', icon: <Calendar size={14} /> },
-    { id: 'earnings', label: 'Earnings & Payouts', icon: <DollarSign size={14} /> },
-    { id: 'daily-goal', label: 'Daily 10-Goal', icon: <Trophy size={14} /> },
-    { id: 'store', label: 'Supplies Store', icon: <ShoppingBag size={14} /> },
-    { id: 'profile', label: 'Credentials & KYC', icon: <User size={14} /> },
-    { id: 'chat', label: 'Patient Chat', icon: <MessageSquare size={14} /> }
+    { id: 'chat', label: 'Patient Chat', icon: <MessageSquare size={14} /> },
+    { id: 'profile', label: 'Profile', icon: <User size={14} /> }
   ];
 
   const handleNavClick = (id: string) => {

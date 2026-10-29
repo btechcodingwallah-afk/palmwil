@@ -133,6 +133,7 @@ interface PamwillContextType {
   therapistRegisterModalOpen: boolean;
   setTherapistRegisterModalOpen: (open: boolean) => void;
   registerTherapist: (therapist: Therapist) => void;
+  updateTherapistProfile: (therapistId: string, updates: Partial<Therapist>) => void;
   // Training & Internship Applications
   trainingApplications: TrainingApplication[];
   submitTrainingApplication: (appData: Omit<TrainingApplication, 'id' | 'appliedAt' | 'status'>) => Promise<{ success: boolean; id: string }>;
@@ -1542,6 +1543,16 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setIsTherapistLoggedIn(true);
   };
 
+  const updateTherapistProfile = (therapistId: string, updates: Partial<Therapist>) => {
+    setTherapists(prev => prev.map(t => {
+      if (t.id === therapistId) {
+        return { ...t, ...updates };
+      }
+      return t;
+    }));
+    dbUpdateTherapist(therapistId, updates);
+  };
+
   const logoutTherapist = () => {
     setTherapists(prev => prev.map(t => t.id === currentTherapistId ? { ...t, isOnline: false } : t));
     setIsTherapistLoggedIn(false);
@@ -1622,6 +1633,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         therapistRegisterModalOpen,
         setTherapistRegisterModalOpen,
         registerTherapist,
+        updateTherapistProfile,
         logout,
         pendingGoogleUser,
         setPendingGoogleUser,

@@ -63,6 +63,9 @@ export const SOCIAL_LINKS = {
   twitter: import.meta.env.VITE_SOCIAL_TWITTER || "https://twitter.com/pamwillwellness",
 };
 
+export const GOOGLE_MAPS_API_KEY =
+  import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "";
+
 /**
  * Resolves the download link and determines whether it's an APK demo download or official store URL.
  */

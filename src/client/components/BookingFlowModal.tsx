@@ -6,9 +6,11 @@ import {
 } from 'lucide-react';
 import { MassageService, AddOn, Booking } from '../../types';
 import { ADD_ONS, SERVICE_CATEGORIES } from '../../data/services';
+import { PHYSIO_ADD_ONS } from '../../data/physioData';
 import { usePamwill } from '../../state/store';
 import { INDIAN_CITIES } from '../../data/indianCities';
 import { PamwillMap } from '../../components/map/PamwillMap';
+import { calculateDistanceKm } from '../../services/googleMaps';
 
 interface BookingFlowModalProps {
   initialService?: MassageService;
@@ -126,10 +128,34 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card' | 'Net Banking' | 'Wallet' | 'Membership Credits' | 'Pay on Arrival'>('Pay on Arrival');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  // Financial calculations
-  const isSpaService = !selectedService.id.startsWith('physio-') && !selectedService.requiresCertification?.includes('Physiotherapy');
+  // Therapy vs Spa distinction: timing selection is only for spa, therapy uses standardized clinical protocol
+  const isTherapyService = selectedService.id.startsWith('physio-') || 
+                           Boolean(selectedService.requiresCertification?.toLowerCase().includes('physio')) ||
+                           selectedService.category === 'Therapeutic' ||
+                           selectedService.category === 'Specialized';
+  const isSpaService = !isTherapyService;
 
-  const basePrice = selectedService.basePricePerDuration[durationMin] || 1699;
+  const basePrice = isSpaService
+    ? (selectedService.basePricePerDuration[durationMin] || 1699)
+    : (selectedService.basePricePerDuration[durationMin] || Object.values(selectedService.basePricePerDuration)[0] || 999);
+
+  const handleContinue = () => {
+    if (step === 2 && isTherapyService) {
+      // For therapy, skip duration/timing selection - that is only for spa!
+      setStep(4);
+    } else {
+      setStep(step + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (step === 4 && isTherapyService) {
+      // Step back skips Step 3 for therapy
+      setStep(2);
+    } else {
+      setStep(step - 1);
+    }
+  };
   const addOnsTotal = selectedAddOns.reduce((sum, item) => sum + item.priceDelta, 0);
   
   // Coupon Discount
@@ -153,6 +179,78 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
       setSelectedAddOns([...selectedAddOns, addon]);
     }
   };
+
+  // Resolve client sanctuary coordinates based on GPS or selected city center
+  const getClientCoordinates = (): [number, number] => {
+    if (liveLocation?.latitude && liveLocation?.longitude) {
+      return [liveLocation.latitude, liveLocation.longitude];
+    }
+    if (selectedCity === 'bengaluru') return [12.9716, 77.5946];
+    if (selectedCity === 'mumbai') return [19.0760, 72.8777];
+    if (selectedCity === 'goa') return [15.2993, 74.1240];
+    return [28.4595, 77.0266]; // Delhi NCR / Gurugram default
+  };
+
+  const getClientAreaLabel = (): string => {
+    if (liveLocation?.placeName) return liveLocation.placeName;
+    if (selectedCity === 'bengaluru') return 'Bengaluru (Indiranagar / MG Road)';
+    if (selectedCity === 'mumbai') return 'Mumbai (Bandra / BKC)';
+    if (selectedCity === 'goa') return 'Goa (Panaji / Candolim)';
+    return 'Delhi NCR (Gurugram / Golf Course Rd)';
+  };
+
+  const clientCoords = getClientCoordinates();
+  const selectedTherapist = therapists.find(t => t.id === selectedTherapistId);
+  const selectedDistanceKm = (selectedTherapist?.currentLocation?.latitude && selectedTherapist?.currentLocation?.longitude)
+    ? calculateDistanceKm(clientCoords, [selectedTherapist.currentLocation.latitude, selectedTherapist.currentLocation.longitude])
+    : null;
+  const isSelectedWithin10Km = selectedDistanceKm !== null ? selectedDistanceKm <= (selectedTherapist?.serviceRadiusKm || 10) : true;
+
+  // Filter approved therapists and compute live distance to client sanctuary coordinates
+  const therapistsWithDistance = therapists
+    .filter(t => t.status === 'Approved')
+    .map(t => {
+      let distanceKm: number | null = null;
+      if (t.currentLocation?.latitude && t.currentLocation?.longitude) {
+        distanceKm = calculateDistanceKm(clientCoords, [t.currentLocation.latitude, t.currentLocation.longitude]);
+      } else {
+        distanceKm = 4.8; // Default fallback distance within metro
+      }
+      return {
+        ...t,
+        calculatedDistanceKm: distanceKm,
+        isWithinPerimeter: distanceKm !== null && distanceKm <= (t.serviceRadiusKm || 10)
+      };
+    });
+
+  const filteredByPrefs = therapistsWithDistance
+    .filter(t => therapistGenderPref === 'No Preference' || t.gender === therapistGenderPref)
+    .filter(t => {
+      if (practitionerTier === 'All') return true;
+      if (practitionerTier === 'doctor') {
+        return t.role === 'doctor' || t.role === 'physiotherapist' || t.fullName?.toLowerCase().includes('dr.');
+      }
+      if (practitionerTier === 'intern') {
+        return t.role === 'intern' || t.fullName?.toLowerCase().includes('intern');
+      }
+      return true;
+    });
+
+  // Strict 10 km filter: only therapists within 10 km
+  const therapistsWithin10Km = filteredByPrefs.filter(t => t.isWithinPerimeter);
+
+  // If none within 10 km (edge case), provide nearest available specialists in city sorted by proximity
+  const displayedTherapists = therapistsWithin10Km.length > 0
+    ? [...therapistsWithin10Km].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0))
+    : [...filteredByPrefs].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0));
+
+  useEffect(() => {
+    if (step === 4 && displayedTherapists.length > 0) {
+      if (!selectedTherapistId || !displayedTherapists.some(t => t.id === selectedTherapistId)) {
+        setSelectedTherapistId(displayedTherapists[0].id);
+      }
+    }
+  }, [step, selectedCity, liveLocation]);
 
   // Load Razorpay Checkout Script
   const loadRazorpayScript = () => {
@@ -334,21 +432,21 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {step > 1 && (
                 <button 
-                  onClick={() => setStep(step - 1)}
+                  onClick={handleBack}
                   style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}
                 >
                   <ChevronLeft size={20} color="var(--text-primary)" />
                 </button>
               )}
               <div>
-                <span className="eyebrow">Booking Step {step} of 7</span>
+                <span className="eyebrow">Booking Step {isTherapyService ? (step >= 4 ? step - 1 : step) : step} of {isTherapyService ? 6 : 7}</span>
                 <h3 style={{ fontSize: '17px', margin: 0 }}>
-                  {step === 1 && "Choose Massage Therapy"}
+                  {step === 1 && (isTherapyService ? "Choose Clinical Therapy" : "Choose Massage Therapy")}
                   {step === 2 && "Select Date & Time"}
-                  {step === 3 && "Select Duration"}
+                  {step === 3 && (isSpaService ? "Select Duration" : "Clinical Treatment Protocol")}
                   {step === 4 && "Therapist Preference"}
                   {step === 5 && "Sanctuary Location"}
-                  {step === 6 && "Curated Luxury Add-ons"}
+                  {step === 6 && (isTherapyService ? "Clinical Modality Add-ons" : "Curated Luxury Add-ons")}
                   {step === 7 && "Review & Reserve"}
                 </h3>
               </div>
@@ -373,7 +471,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
 
           {/* Progress Indicator Bar */}
           <div style={{ display: 'flex', gap: '4px' }}>
-            {[1, 2, 3, 4, 5, 6, 7].map(num => (
+            {(isTherapyService ? [1, 2, 4, 5, 6, 7] : [1, 2, 3, 4, 5, 6, 7]).map(num => (
               <div
                 key={num}
                 style={{
@@ -488,11 +586,17 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                             {s.description.slice(0, 75)}...
                           </p>
                           <div style={{ display: 'flex', gap: '6px' }}>
-                            {s.durationOptionsMin.map(d => (
-                              <span key={d} style={{ fontSize: '10px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px' }}>
-                                {d}m
+                            {(!s.id.startsWith('physio-') && s.category !== 'Therapeutic' && s.category !== 'Specialized') ? (
+                              s.durationOptionsMin.map(d => (
+                                <span key={d} style={{ fontSize: '10px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)', padding: '2px 6px', borderRadius: '4px' }}>
+                                  {d}m
+                                </span>
+                              ))
+                            ) : (
+                              <span style={{ fontSize: '10px', color: '#4C6B4F', backgroundColor: '#EDF7ED', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                                Clinical Session
                               </span>
-                            ))}
+                            )}
                             {s.popularTag && (
                               <span style={{ fontSize: '10px', color: 'var(--accent-gold-hover)', fontWeight: 600 }}>
                                 • {s.popularTag}
@@ -568,59 +672,107 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
             </div>
           )}
 
-          {/* ================= STEP 3: DURATION ================= */}
+          {/* ================= STEP 3: DURATION (EXCLUSIVE TO SPA RITUALS) ================= */}
           {step === 3 && (
             <div>
-              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                All sessions include fresh linen setup, organic massage oil, and sanitization before treatment begins.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {selectedService.durationOptionsMin.map(dur => {
-                  const price = selectedService.basePricePerDuration[dur];
-                  const isSelected = durationMin === dur;
-                  return (
-                    <div
-                      key={dur}
-                      onClick={() => setDurationMin(dur)}
-                      style={{
-                        padding: '18px 16px',
-                        borderRadius: 'var(--radius-lg)',
-                        border: isSelected ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
-                        backgroundColor: isSelected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                            {dur} Minutes
-                          </span>
-                          {dur === 90 && (
-                            <span style={{ fontSize: '10px', backgroundColor: 'var(--text-primary)', color: '#fff', padding: '2px 8px', borderRadius: 'var(--radius-pill)', fontWeight: 600 }}>
-                              RECOMMENDED
+              {isTherapyService ? (
+                <div style={{
+                  padding: '24px 20px',
+                  borderRadius: 'var(--radius-lg)',
+                  backgroundColor: '#FAF8F5',
+                  border: '1px solid #E4DDD2',
+                  textAlign: 'center'
+                }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '50%',
+                    backgroundColor: '#EDF7ED',
+                    color: '#4C6B4F',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    margin: '0 auto 12px'
+                  }}>
+                    <Stethoscope size={24} />
+                  </div>
+                  <h4 style={{ fontSize: '16px', fontWeight: 700, margin: '0 0 6px 0', color: '#1F1B16' }}>
+                    Doctor-Prescribed Clinical Protocol
+                  </h4>
+                  <p style={{ fontSize: '13px', color: '#6B6259', maxWidth: '380px', margin: '0 auto 18px', lineHeight: 1.5 }}>
+                    Clinical therapy sessions follow a standardized, complete therapeutic protocol decided by your licensed physiotherapist. Timing selection applies exclusively to Spa rituals.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setStep(4)}
+                    style={{
+                      padding: '10px 22px',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'var(--accent-gold)',
+                      border: 'none',
+                      color: '#FFFFFF',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Proceed to Specialist Selection →
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                    All sessions include fresh linen setup, organic massage oil, and sanitization before treatment begins.
+                  </p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {selectedService.durationOptionsMin.map(dur => {
+                      const price = selectedService.basePricePerDuration[dur];
+                      const isSelected = durationMin === dur;
+                      return (
+                        <div
+                          key={dur}
+                          onClick={() => setDurationMin(dur)}
+                          style={{
+                            padding: '18px 16px',
+                            borderRadius: 'var(--radius-lg)',
+                            border: isSelected ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                            backgroundColor: isSelected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontFamily: 'var(--font-serif)', fontSize: '20px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                {dur} Minutes
+                              </span>
+                              {dur === 90 && (
+                                <span style={{ fontSize: '10px', backgroundColor: 'var(--text-primary)', color: '#fff', padding: '2px 8px', borderRadius: 'var(--radius-pill)', fontWeight: 600 }}>
+                                  RECOMMENDED
+                                </span>
+                              )}
+                            </div>
+                            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                              {dur === 30 && "Targeted rapid relief for one specific area"}
+                              {dur === 45 && "Focused therapy for back, neck & shoulders"}
+                              {dur === 60 && "Full-body standard therapeutic relaxation"}
+                              {dur === 90 && "Unrushed deep surrender with extended pressure points"}
+                              {dur === 120 && "The ultimate luxury immersion head to toe"}
+                            </p>
+                          </div>
+                          <div style={{ textAlign: 'right' }}>
+                            <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                              ₹{price}
                             </span>
-                          )}
+                          </div>
                         </div>
-                        <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                          {dur === 30 && "Targeted rapid relief for one specific area"}
-                          {dur === 45 && "Focused therapy for back, neck & shoulders"}
-                          {dur === 60 && "Full-body standard therapeutic relaxation"}
-                          {dur === 90 && "Unrushed deep surrender with extended pressure points"}
-                          {dur === 120 && "The ultimate luxury immersion head to toe"}
-                        </p>
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)' }}>
-                          ₹{price}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
 
               {/* Strict Medical Contraindications Banner */}
               {selectedService.contraindications.length > 0 && (
@@ -701,9 +853,75 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                 ))}
               </div>
 
+              {/* Client Sanctuary Base Coordinates Banner */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '10px 14px',
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: 'var(--radius-md)',
+                marginBottom: '14px',
+                border: '1px solid var(--border-hairline)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <MapPin size={16} color="var(--accent-gold)" />
+                  <div>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                      Sanctuary Base: {getClientAreaLabel()}
+                    </div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                      {therapistsWithin10Km.length > 0
+                        ? `Showing certified practitioners within 10 km Google Maps radius`
+                        : `Showing nearest available practitioners in ${INDIAN_CITIES.find(c => c.id === selectedCity)?.name || 'Metro'}`}
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleShareLiveLocation}
+                  disabled={isLocating}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: 'var(--radius-pill)',
+                    backgroundColor: 'var(--accent-gold-light)',
+                    border: '1px solid var(--accent-gold)',
+                    color: 'var(--accent-gold)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <Navigation size={11} />
+                  <span>{isLocating ? 'Locating...' : 'Use GPS'}</span>
+                </button>
+              </div>
+
+              {/* Zero therapists within 10 km Edge Case Banner */}
+              {therapistsWithin10Km.length === 0 && (
+                <div style={{
+                  padding: '12px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: '#FFFBEB',
+                  border: '1px solid #F59E0B',
+                  marginBottom: '14px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#B45309', fontWeight: 700, fontSize: '12px' }}>
+                    <AlertCircle size={15} />
+                    <span>No Practitioners Stationed Within 10 km</span>
+                  </div>
+                  <div style={{ fontSize: '11px', color: '#78350F', marginTop: '3px', lineHeight: 1.4 }}>
+                    Your sanctuary coordinates are outside the standard 10 km perimeter of active specialists. Showing nearest available practitioners in this region sorted by closest proximity:
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                  CERTIFIED PRACTITIONERS ON CALL
+                  CERTIFIED PRACTITIONERS ({displayedTherapists.length} AVAILABLE)
                 </label>
                 <span style={{ fontSize: '11px', color: 'var(--status-success)', fontWeight: 600 }}>
                   ✓ Police & CIDESCO Verified
@@ -711,89 +929,98 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {therapists
-                  .filter(t => t.status === 'Approved')
-                  .filter(t => therapistGenderPref === 'No Preference' || t.gender === therapistGenderPref)
-                  .filter(t => {
-                    if (practitionerTier === 'All') return true;
-                    if (practitionerTier === 'doctor') {
-                      return t.role === 'doctor' || t.role === 'physiotherapist' || t.fullName?.toLowerCase().includes('dr.');
-                    }
-                    if (practitionerTier === 'intern') {
-                      return t.role === 'intern' || t.fullName?.toLowerCase().includes('intern');
-                    }
-                    return true;
-                  })
-                  .map(therapist => {
-                    const isSelected = selectedTherapistId === therapist.id;
-                    const isDoctor = therapist.role === 'doctor' || therapist.role === 'physiotherapist' || therapist.fullName?.toLowerCase().includes('dr.');
-                    const isIntern = therapist.role === 'intern';
+                {displayedTherapists.map(therapist => {
+                  const isSelected = selectedTherapistId === therapist.id;
+                  const isDoctor = therapist.role === 'doctor' || therapist.role === 'physiotherapist' || therapist.fullName?.toLowerCase().includes('dr.');
+                  const isIntern = therapist.role === 'intern';
 
-                    return (
-                      <div
-                        key={therapist.id}
-                        onClick={() => setSelectedTherapistId(therapist.id)}
-                        style={{
-                          padding: '12px',
-                          borderRadius: 'var(--radius-md)',
-                          border: isSelected ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
-                          backgroundColor: isSelected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '12px'
-                        }}
-                      >
-                        <img 
-                          src={therapist.photoUrl} 
-                          alt={therapist.fullName} 
-                          style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
-                        />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <h4 style={{ fontSize: '14px', fontWeight: 600, margin: 0 }}>{therapist.fullName}</h4>
-                                {isDoctor && (
-                                  <span style={{
-                                    fontSize: '9px',
-                                    fontWeight: 700,
-                                    backgroundColor: 'rgba(212, 163, 89, 0.2)',
-                                    color: 'var(--accent-gold)',
-                                    padding: '1px 5px',
-                                    borderRadius: '3px'
-                                  }}>
-                                    DR. (MPT)
-                                  </span>
-                                )}
-                                {isIntern && (
-                                  <span style={{
-                                    fontSize: '9px',
-                                    fontWeight: 700,
-                                    backgroundColor: 'rgba(198, 165, 103, 0.15)',
-                                    color: '#C6A567',
-                                    padding: '1px 5px',
-                                    borderRadius: '3px'
-                                  }}>
-                                    INTERN
-                                  </span>
-                                )}
-                              </div>
+                  return (
+                    <div
+                      key={therapist.id}
+                      onClick={() => setSelectedTherapistId(therapist.id)}
+                      style={{
+                        padding: '12px',
+                        borderRadius: 'var(--radius-md)',
+                        border: isSelected ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                        backgroundColor: isSelected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        transition: 'all 120ms ease'
+                      }}
+                    >
+                      <img 
+                        src={therapist.photoUrl} 
+                        alt={therapist.fullName} 
+                        style={{ width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <h4 style={{ fontSize: '14px', fontWeight: 600, margin: 0 }}>{therapist.fullName}</h4>
+                              {isDoctor && (
+                                <span style={{
+                                  fontSize: '9px',
+                                  fontWeight: 700,
+                                  backgroundColor: 'rgba(212, 163, 89, 0.2)',
+                                  color: 'var(--accent-gold)',
+                                  padding: '1px 5px',
+                                  borderRadius: '3px'
+                                }}>
+                                  DR. (MPT)
+                                </span>
+                              )}
+                              {isIntern && (
+                                <span style={{
+                                  fontSize: '9px',
+                                  fontWeight: 700,
+                                  backgroundColor: 'rgba(198, 165, 103, 0.15)',
+                                  color: '#C6A567',
+                                  padding: '1px 5px',
+                                  borderRadius: '3px'
+                                }}>
+                                  INTERN
+                                </span>
+                              )}
                             </div>
-                            <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-gold)' }}>
-                              ★ {therapist.rating} ({therapist.completedJobs} jobs)
-                            </span>
                           </div>
-                          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 2px 0' }}>
-                            {therapist.certifications[0]}
-                          </p>
-                          <span style={{ fontSize: '10px', color: 'var(--status-success)', backgroundColor: 'var(--status-success-bg)', padding: '2px 6px', borderRadius: '4px' }}>
-                            Available in your area
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-gold)' }}>
+                            ★ {therapist.rating} ({therapist.completedJobs} jobs)
                           </span>
                         </div>
+                        <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: '4px 0 4px 0' }}>
+                          {therapist.certifications[0]}
+                        </p>
+                        
+                        {/* Live Distance and Locality Badges */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{
+                            fontSize: '10px',
+                            fontWeight: 700,
+                            color: therapist.isWithinPerimeter ? '#4C6B4F' : '#B45309',
+                            backgroundColor: therapist.isWithinPerimeter ? '#EDF7ED' : '#FEF3C7',
+                            padding: '2px 7px',
+                            borderRadius: '4px',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '3px'
+                          }}>
+                            <MapPin size={10} />
+                            {therapist.calculatedDistanceKm !== null ? `${therapist.calculatedDistanceKm.toFixed(1)} km away` : 'In service perimeter'}
+                            {therapist.isWithinPerimeter ? ' • 10 km Area ✓' : ' • Extended Area'}
+                          </span>
+                          {therapist.currentLocation?.area && (
+                            <span style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
+                              Base: {therapist.currentLocation.area}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    );
-                  })}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -903,7 +1130,11 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                         sharedAt: new Date().toISOString(),
                         placeName: coords.placeName
                       });
-                      if (!address.trim()) {
+                      if (coords.placeName) {
+                        if (!address.trim() || address.startsWith('Sanctuary Pin')) {
+                          setAddress(coords.placeName);
+                        }
+                      } else if (!address.trim()) {
                         setAddress(`Sanctuary Pin (${coords.latitude.toFixed(4)}° N, ${coords.longitude.toFixed(4)}° E)`);
                       }
                     }}
@@ -1006,6 +1237,38 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                 </div>
               )}
 
+              {/* Specialist Proximity & 10 km Perimeter Validation */}
+              {selectedTherapist && (
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: isSelectedWithin10Km ? 'var(--status-success-bg)' : '#FFFBEB',
+                  border: isSelectedWithin10Km ? '1px solid var(--status-success)' : '1px solid #F59E0B',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '8px',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <MapPin size={15} color={isSelectedWithin10Km ? 'var(--status-success)' : '#D97706'} />
+                    <div style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
+                      <strong>{selectedTherapist.fullName}</strong> ({selectedTherapist.currentLocation?.area || 'Base'}) is {selectedDistanceKm !== null ? <strong>{selectedDistanceKm.toFixed(1)} km</strong> : 'in service perimeter'} from this pin
+                    </div>
+                  </div>
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    backgroundColor: isSelectedWithin10Km ? 'var(--status-success)' : '#D97706',
+                    color: '#FFFFFF',
+                    padding: '2px 8px',
+                    borderRadius: 'var(--radius-pill)'
+                  }}>
+                    {isSelectedWithin10Km ? 'WITHIN 10 KM ZONE ✓' : 'OUTSIDE 10 KM'}
+                  </span>
+                </div>
+              )}
+
               <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '6px', display: 'block' }}>
                 SPECIAL REQUESTS OR THERAPIST NOTES (OPTIONAL)
               </label>
@@ -1031,14 +1294,16 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
           {step === 6 && (
             <div>
               <div style={{ marginBottom: '14px' }}>
-                <span className="eyebrow">Enhance Your Sanctuary</span>
+                <span className="eyebrow">{isTherapyService ? "Clinical Modality Add-ons" : "Enhance Your Sanctuary"}</span>
                 <p style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                  Complement your {selectedService.name} with botanical essential oils, hot volcanic stones, or targeted acupressure.
+                  {isTherapyService
+                    ? "Clinical adjuncts prescribed by physiotherapists to accelerate healing, decompress nerve roots, and reduce joint inflammation."
+                    : `Complement your ${selectedService.name} with botanical essential oils, hot volcanic stones, or targeted acupressure.`}
                 </p>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {ADD_ONS.map(addon => {
+                {(isTherapyService ? PHYSIO_ADD_ONS : ADD_ONS).map(addon => {
                   const isSelected = selectedAddOns.some(a => a.id === addon.id);
                   return (
                     <div
@@ -1060,7 +1325,8 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                           <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
                             {addon.name}
                           </span>
-                          {addon.durationDeltaMin && (
+                          {/* Timing selection (+15m, +20m) is strictly for spa only, never therapy */}
+                          {!isTherapyService && addon.durationDeltaMin && (
                             <span style={{ fontSize: '10px', color: 'var(--accent-gold-hover)', fontWeight: 600 }}>
                               +{addon.durationDeltaMin}m
                             </span>
@@ -1111,7 +1377,11 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                     <span className="eyebrow">{selectedService.category}</span>
                     <h3 style={{ fontSize: '18px', margin: '2px 0' }}>{selectedService.name}</h3>
                     <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', gap: '8px' }}>
-                      <span>🕒 {durationMin} Minutes</span>
+                      {isSpaService ? (
+                        <span>🕒 {durationMin} Minutes</span>
+                      ) : (
+                        <span>🩺 Clinical Therapy Protocol</span>
+                      )}
                       <span>•</span>
                       <span>📅 {selectedDate} at {selectedTime}</span>
                     </div>
@@ -1291,7 +1561,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                 gap: '6px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
-                  <span>Base Therapy ({durationMin} min)</span>
+                  <span>{isSpaService ? `Base Spa Ritual (${durationMin} min)` : `Clinical Therapy Session`}</span>
                   <span>₹{basePrice}</span>
                 </div>
                 {addOnsTotal > 0 && (
@@ -1357,7 +1627,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
 
           {step < 7 ? (
             <button
-              onClick={() => setStep(step + 1)}
+              onClick={handleContinue}
               className="btn-primary"
               style={{ minWidth: '140px' }}
             >

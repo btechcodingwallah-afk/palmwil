@@ -139,6 +139,7 @@ export interface Therapist {
     longitude: number;
     area: string;
   };
+  serviceRadiusKm?: number;
   isAuthenticated?: boolean;
   aadhaarNumber?: string;
   panNumber?: string;

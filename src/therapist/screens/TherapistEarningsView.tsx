@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Download, ArrowUpRight, DollarSign, Calendar, ShieldCheck, Check, Clock, CheckCircle2 } from 'lucide-react';
+import { Download, ArrowUpRight, DollarSign, Calendar, ShieldCheck, Check, Clock, CheckCircle2, ArrowLeft } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
 export const TherapistEarningsView: React.FC = () => {
-  const { currentTherapist, bookings, payoutRequests, platformCommissionRate } = usePamwill();
+  const { currentTherapist, bookings, payoutRequests, platformCommissionRate, setTherapistSubRoute } = usePamwill();
   const [settlementCycle, setSettlementCycle] = useState<'Daily' | 'Weekly'>('Daily');
 
   // Real completed bookings for this therapist
@@ -20,7 +20,25 @@ export const TherapistEarningsView: React.FC = () => {
   return (
     <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
       <div>
-        <span className="eyebrow">Financial Transparency</span>
+        <button
+          onClick={() => setTherapistSubRoute('profile')}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: 'none',
+            border: 'none',
+            color: 'var(--accent-gold)',
+            fontSize: '13px',
+            fontWeight: 700,
+            cursor: 'pointer',
+            padding: 0,
+            marginBottom: '10px'
+          }}
+        >
+          <ArrowLeft size={16} /> Back to Profile
+        </button>
+        <span className="eyebrow" style={{ display: 'block' }}>Financial Transparency</span>
         <h2 style={{ fontSize: '24px', margin: 0 }}>Earnings & Payouts</h2>
         <p style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
           {(100 - platformCommissionRate * 100).toFixed(0)}% practitioner revenue share settled directly to your UPI account.

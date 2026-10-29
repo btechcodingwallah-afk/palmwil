@@ -41,7 +41,7 @@ export const DailyGoalGameView: React.FC = () => {
       {/* Back button */}
       <div style={{ marginBottom: '20px' }}>
         <button
-          onClick={() => setTherapistSubRoute('dashboard')}
+          onClick={() => setTherapistSubRoute('profile')}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -50,12 +50,12 @@ export const DailyGoalGameView: React.FC = () => {
             border: 'none',
             color: 'var(--accent-gold)',
             fontSize: '13px',
-            fontWeight: 600,
+            fontWeight: 700,
             cursor: 'pointer',
             padding: 0
           }}
         >
-          <ArrowLeft size={16} /> Back to Sanctuary Dashboard
+          <ArrowLeft size={16} /> Back to Profile
         </button>
       </div>
 

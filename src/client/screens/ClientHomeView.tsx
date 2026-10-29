@@ -584,22 +584,36 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                         <div style={{ display: 'flex', gap: '4px' }}>
-                          {svc.durationOptionsMin.map(d => (
-                            <span
-                              key={d}
-                              style={{
-                                backgroundColor: '#F7EEDD',
-                                border: '1px solid #E4DDD2',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                fontSize: '10px',
-                                fontWeight: 700,
-                                color: '#A9812F'
-                              }}
-                            >
-                              {d}m
+                          {clientHomeMode === 'spa' ? (
+                            svc.durationOptionsMin.map(d => (
+                              <span
+                                key={d}
+                                style={{
+                                  backgroundColor: '#F7EEDD',
+                                  border: '1px solid #E4DDD2',
+                                  padding: '2px 6px',
+                                  borderRadius: '4px',
+                                  fontSize: '10px',
+                                  fontWeight: 700,
+                                  color: '#A9812F'
+                                }}
+                              >
+                                {d}m
+                              </span>
+                            ))
+                          ) : (
+                            <span style={{
+                              backgroundColor: '#EDF7ED',
+                              border: '1px solid #4C6B4F',
+                              padding: '2px 8px',
+                              borderRadius: '4px',
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              color: '#4C6B4F'
+                            }}>
+                              CLINICAL PROTOCOL
                             </span>
-                          ))}
+                          )}
                         </div>
 
                         <span style={{ fontSize: '12px', fontWeight: 700, color: '#A9812F', display: 'flex', alignItems: 'center', gap: '2px' }}>
@@ -1000,11 +1014,17 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
 
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div style={{ display: 'flex', gap: '4px' }}>
-                          {service.durationOptionsMin.map(d => (
-                            <span key={d} style={{ fontSize: '10px', color: 'var(--text-muted)', backgroundColor: 'var(--bg-secondary)', padding: '2px 5px', borderRadius: '4px' }}>
-                              {d}m
-                            </span>
-                          ))}
+                          <span style={{
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            color: '#4C6B4F',
+                            backgroundColor: '#EDF7ED',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
+                            border: '1px solid #C4DFC5'
+                          }}>
+                            CLINICAL CARE
+                          </span>
                         </div>
                         <span style={{ fontSize: '11px', color: 'var(--accent-gold)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '2px' }}>
                           Reserve <ChevronRight size={12} />

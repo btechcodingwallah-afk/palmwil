@@ -127,6 +127,14 @@ export async function dbUpdateTherapist(therapistId: string, updates: Partial<Th
     if (updates.walletBalance !== undefined) row.wallet_balance = updates.walletBalance;
     if (updates.completedJobs !== undefined) row.completed_jobs = updates.completedJobs;
     if (updates.documents !== undefined) row.documents = updates.documents;
+    if (updates.currentLocation !== undefined) row.current_location = updates.currentLocation;
+    if (updates.fullName !== undefined) row.full_name = updates.fullName;
+    if (updates.phone !== undefined) row.phone = updates.phone;
+    if (updates.email !== undefined) row.email = updates.email;
+    if (updates.workingHours !== undefined) row.working_hours = updates.workingHours;
+    if (updates.upiId !== undefined) row.upi_id = updates.upiId;
+    if (updates.bankAccount !== undefined) row.bank_account = updates.bankAccount;
+    if (updates.photoUrl !== undefined) row.photo_url = updates.photoUrl;
 
     const { error } = await supabase.from('therapists').update(row).eq('id', therapistId);
     return !error;

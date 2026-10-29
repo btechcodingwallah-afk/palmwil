@@ -53,28 +53,162 @@ import { Voucher, DeliveryAddress, StoreOrder, TrainingApplication, ConnectInqui
 export const INITIAL_THERAPISTS: Therapist[] = [
   {
     id: "ther-1793003027409",
-    fullName: "EduNiketan Pvt. Ltd.",
+    fullName: "Pooja Sharma",
     photoUrl: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80",
     phone: "+91 98765 43210",
-    email: "eduniketanpvtltd@gmail.com",
+    email: "pooja.pamwill@gmail.com",
     status: "Approved",
     role: "spa_therapist",
     gender: "Female",
-    rating: 5.0,
-    reviewCount: 0,
-    completedJobs: 0,
-    experienceYears: 5,
+    rating: 4.96,
+    reviewCount: 42,
+    completedJobs: 38,
+    experienceYears: 6,
     languages: ["English", "Hindi"],
-    availableCities: ["Delhi NCR", "Gurugram", "Bengaluru"],
+    availableCities: ["Delhi NCR", "Gurugram"],
     workingHours: "08:00 AM - 08:30 PM",
     isOnline: true,
-    walletBalance: 0,
-    bankAccount: "Direct Deposit",
-    upiId: "eduniketan@okhdfcbank",
+    walletBalance: 4250,
+    bankAccount: "HDFC Bank •••• 4091",
+    upiId: "pooja@okhdfcbank",
     certifications: [
-      "Certified Master Practitioner"
+      "CIDESCO Diploma in Swedish & Deep Tissue",
+      "ITEC Level 4 Sports Massage"
     ],
-    documents: []
+    documents: [],
+    currentLocation: {
+      latitude: 28.4680,
+      longitude: 77.0850,
+      area: "DLF Cyber City, Gurugram"
+    },
+    serviceRadiusKm: 10
+  },
+  {
+    id: "ther-doc-1",
+    fullName: "Dr. Ananya Iyer",
+    photoUrl: "https://images.unsplash.com/photo-1594824813571-638f026385a1?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 98111 22334",
+    email: "dr.ananya@pamwill.com",
+    status: "Approved",
+    role: "physiotherapist",
+    gender: "Female",
+    rating: 4.98,
+    reviewCount: 68,
+    completedJobs: 54,
+    experienceYears: 8,
+    languages: ["English", "Hindi", "Tamil"],
+    availableCities: ["Delhi NCR", "Gurugram"],
+    workingHours: "07:30 AM - 07:00 PM",
+    isOnline: true,
+    walletBalance: 8600,
+    bankAccount: "ICICI Bank •••• 8821",
+    upiId: "dr.ananya@okicici",
+    certifications: [
+      "Master of Physiotherapy (MPT Ortho)",
+      "Certified Dry Needling & Kinesiology"
+    ],
+    documents: [],
+    currentLocation: {
+      latitude: 28.4595,
+      longitude: 77.0945,
+      area: "DLF Phase 5, Golf Course Road, Gurugram"
+    },
+    serviceRadiusKm: 10
+  },
+  {
+    id: "ther-blr-1",
+    fullName: "Rajesh Nair",
+    photoUrl: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 97400 55667",
+    email: "rajesh.nair@pamwill.com",
+    status: "Approved",
+    role: "spa_therapist",
+    gender: "Male",
+    rating: 4.94,
+    reviewCount: 39,
+    completedJobs: 31,
+    experienceYears: 7,
+    languages: ["English", "Hindi", "Kannada", "Malayalam"],
+    availableCities: ["Bengaluru"],
+    workingHours: "08:00 AM - 09:00 PM",
+    isOnline: true,
+    walletBalance: 3900,
+    bankAccount: "Axis Bank •••• 1204",
+    upiId: "rajesh@okaxis",
+    certifications: [
+      "Kerala Ayurvedic Panchakarma Master",
+      "Thai Yoga Bodywork Certified"
+    ],
+    documents: [],
+    currentLocation: {
+      latitude: 12.9784,
+      longitude: 77.6408,
+      area: "100 Feet Road, Indiranagar, Bengaluru"
+    },
+    serviceRadiusKm: 10
+  },
+  {
+    id: "ther-blr-2",
+    fullName: "Priya Menon",
+    photoUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 96200 44332",
+    email: "priya.menon@pamwill.com",
+    status: "Approved",
+    role: "spa_therapist",
+    gender: "Female",
+    rating: 4.97,
+    reviewCount: 52,
+    completedJobs: 47,
+    experienceYears: 5,
+    languages: ["English", "Hindi", "Kannada"],
+    availableCities: ["Bengaluru"],
+    workingHours: "09:00 AM - 08:30 PM",
+    isOnline: true,
+    walletBalance: 5100,
+    bankAccount: "HDFC Bank •••• 9931",
+    upiId: "priya.menon@okhdfcbank",
+    certifications: [
+      "Aromatherapy Specialist",
+      "Deep Tissue & Reflexology Diploma"
+    ],
+    documents: [],
+    currentLocation: {
+      latitude: 12.9352,
+      longitude: 77.6245,
+      area: "5th Block, Koramangala, Bengaluru"
+    },
+    serviceRadiusKm: 10
+  },
+  {
+    id: "ther-far-1",
+    fullName: "Vikas Verma",
+    photoUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 95555 77889",
+    email: "vikas.verma@pamwill.com",
+    status: "Approved",
+    role: "spa_therapist",
+    gender: "Male",
+    rating: 4.88,
+    reviewCount: 15,
+    completedJobs: 12,
+    experienceYears: 4,
+    languages: ["English", "Hindi"],
+    availableCities: ["Delhi NCR"],
+    workingHours: "10:00 AM - 07:00 PM",
+    isOnline: true,
+    walletBalance: 1200,
+    bankAccount: "SBI •••• 4401",
+    upiId: "vikas@oksbi",
+    certifications: [
+      "Holistic Wellness Diploma"
+    ],
+    documents: [],
+    currentLocation: {
+      latitude: 28.3200,
+      longitude: 77.5400,
+      area: "Pari Chowk, Greater Noida (>35km from Gurugram)"
+    },
+    serviceRadiusKm: 10
   }
 ];
 
