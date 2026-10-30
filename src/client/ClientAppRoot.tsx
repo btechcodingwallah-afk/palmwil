@@ -60,6 +60,12 @@ export const ClientAppRoot: React.FC = () => {
   const activeTrackingBooking = (activeTrackingBookingId ? myBookings.find(b => b.id === activeTrackingBookingId) : null) || inProgressJob || myBookings[0] || null;
 
   useEffect(() => {
+    if (!isClientLoggedIn && (clientSubRoute === 'tracking' || clientSubRoute === 'chat')) {
+      setClientSubRoute('home');
+    }
+  }, [isClientLoggedIn, clientSubRoute, setClientSubRoute]);
+
+  useEffect(() => {
     const scrollToTop = () => {
       window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       document.documentElement.scrollTop = 0;
@@ -128,7 +134,7 @@ export const ClientAppRoot: React.FC = () => {
         )}
 
         {/* Live Session Tracking */}
-        {clientSubRoute === 'tracking' && activeTrackingBooking ? (
+        {clientSubRoute === 'tracking' && isClientLoggedIn && activeTrackingBooking ? (
           <LiveBookingStatusView
             booking={activeTrackingBooking}
             onBack={() => setClientSubRoute('bookings')}

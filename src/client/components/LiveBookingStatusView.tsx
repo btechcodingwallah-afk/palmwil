@@ -20,6 +20,11 @@ export const LiveBookingStatusView: React.FC<LiveBookingStatusViewProps> = ({
   onOpenChat
 }) => {
   const { triggerSOS, dismissSOS, updateBookingStatus, therapists, submitClientRatingAndGenerateEndOtp, generateStartOtp } = usePamwill();
+  
+  const displayTherapistName = (booking.therapistName && !booking.therapistName.includes('EduNiketan'))
+    ? booking.therapistName
+    : 'Certified Practitioner';
+
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [showIdModal, setShowIdModal] = useState(false);
   const [sosActive, setSosActive] = useState(booking.sosTriggered || false);
@@ -558,12 +563,12 @@ export const LiveBookingStatusView: React.FC<LiveBookingStatusViewProps> = ({
           <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
             <img 
               src={booking.therapistPhoto || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80"}
-              alt={booking.therapistName || "Therapist"}
+              alt={displayTherapistName}
               style={{ width: '56px', height: '56px', borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--accent-gold)' }}
             />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <h4 style={{ fontSize: '15px', fontWeight: 600 }}>{booking.therapistName || 'Your Practitioner'}</h4>
+                <h4 style={{ fontSize: '15px', fontWeight: 600 }}>{displayTherapistName}</h4>
                 <ShieldCheck size={16} color="var(--status-success)" />
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: '2px 0' }}>

@@ -468,8 +468,19 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (saved) {
       try {
         const parsed: Booking[] = JSON.parse(saved);
-        const cleaned = parsed.filter(b => b.id !== 'PW-98214' && b.id !== 'PW-98102' && !b.id.startsWith('PW-98'));
+        const cleaned = parsed.filter(b => 
+          b.id !== 'PW-98214' && 
+          b.id !== 'PW-98102' && 
+          !b.id.startsWith('PW-98') &&
+          b.id !== 'PW-43266' &&
+          b.id !== 'PW-42164' &&
+          b.id !== 'PW-47633' &&
+          b.id !== 'PW-99601'
+        );
         return cleaned.map(b => {
+          if (b.therapistName && b.therapistName.includes('EduNiketan')) {
+            b.therapistName = 'Certified Practitioner';
+          }
           if (!b.liveLocation) {
             const svcLoc = (b.service as any)?.liveLocation;
             if (svcLoc?.latitude && svcLoc?.longitude) {
@@ -981,7 +992,22 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         };
 
         setBookings(prev => {
-          return remoteBookings.map(rb => {
+          const filteredRemote = remoteBookings
+            .filter(rb => 
+              rb.id !== 'PW-98214' && 
+              rb.id !== 'PW-98102' && 
+              !rb.id.startsWith('PW-98') &&
+              rb.id !== 'PW-43266' &&
+              rb.id !== 'PW-42164' &&
+              rb.id !== 'PW-47633' &&
+              rb.id !== 'PW-99601'
+            )
+            .map(rb => ({
+              ...rb,
+              therapistName: (rb.therapistName && rb.therapistName.includes('EduNiketan')) ? 'Certified Practitioner' : rb.therapistName
+            }));
+
+          return filteredRemote.map(rb => {
             const local = prev.find(p => p.id === rb.id);
             if (!local) return rb;
             const localPriority = STATUS_PRIORITY[local.status] ?? 0;
