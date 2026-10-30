@@ -33,7 +33,8 @@ export const TherapistDashboardView: React.FC<TherapistDashboardViewProps> = ({
 
   // Filter therapist's bookings
   const myUpcomingBookings = bookings.filter(b => 
-    (b.therapistId === currentTherapist.id || !b.therapistId) && 
+    (b.therapistId === currentTherapist.id || 
+     (b.therapistName && currentTherapist.fullName && b.therapistName.toLowerCase() === currentTherapist.fullName.toLowerCase())) && 
     b.status !== 'Service Completed' && 
     b.status !== 'Cancelled'
   );
@@ -44,7 +45,8 @@ export const TherapistDashboardView: React.FC<TherapistDashboardViewProps> = ({
 
   // Real Completed Bookings for this therapist
   const myCompletedBookings = bookings.filter(b => 
-    b.therapistId === currentTherapist.id && 
+    (b.therapistId === currentTherapist.id || 
+     (b.therapistName && currentTherapist.fullName && b.therapistName.toLowerCase() === currentTherapist.fullName.toLowerCase())) && 
     b.status === 'Service Completed'
   );
 

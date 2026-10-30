@@ -421,8 +421,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (parsed.id === 'user-souvik' || parsed.name === 'Dr. Souvik Sen' || parsed.name === 'Aarav Mehra' || parsed.email === 'aarav.mehra@pamwill.com' || !parsed.isAuthenticated) {
-          localStorage.removeItem('pamwill_user');
+        if (!parsed || !parsed.isAuthenticated || parsed.id === 'guest') {
           return INITIAL_USER;
         }
         return parsed;
@@ -475,7 +474,9 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
           b.id !== 'PW-43266' &&
           b.id !== 'PW-42164' &&
           b.id !== 'PW-47633' &&
-          b.id !== 'PW-99601'
+          b.id !== 'PW-99601' &&
+          b.id !== 'PW-DEMO-8821' &&
+          b.customerName !== 'Aarav Mehra'
         );
         return cleaned.map(b => {
           if (b.therapistName && b.therapistName.includes('EduNiketan')) {
@@ -1081,19 +1082,32 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // Listen to Firebase Auth state
     const unsubscribeFirebase = onFirebaseAuthStateChange(async (fbUser) => {
       if (fbUser) {
+        if (typeof window !== 'undefined' && localStorage.getItem('pamwill_logged_out') === 'true') {
+          return;
+        }
         setPendingGoogleUser({
           email: fbUser.email || '',
           name: fbUser.displayName || '',
           photoUrl: fbUser.photoURL || ''
         });
-        setUser(prev => ({
-          ...prev,
-          name: fbUser.displayName || prev.name,
-          email: fbUser.email || prev.email,
-          phone: fbUser.phoneNumber || prev.phone,
-          avatarUrl: fbUser.photoURL || prev.avatarUrl,
-          isAuthenticated: true
-        }));
+        setUser(prev => {
+          const userId = prev.id && prev.id !== 'guest' ? prev.id : fbUser.uid;
+          const updated = {
+            ...prev,
+            id: userId,
+            name: fbUser.displayName || (prev.name && prev.name !== 'Guest Patron' ? prev.name : 'Valued Patron'),
+            email: fbUser.email || prev.email,
+            phone: fbUser.phoneNumber || prev.phone,
+            avatarUrl: fbUser.photoURL || prev.avatarUrl,
+            isAuthenticated: true
+          };
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('pamwill_user', JSON.stringify(updated));
+            } catch (e) {}
+          }
+          return updated;
+        });
       }
     });
 
@@ -1204,7 +1218,15 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   }, [bookings, user, currentTherapist]);
 
   const updateUser = (updates: Partial<UserProfile>) => {
-    setUser(prev => ({ ...prev, ...updates }));
+    setUser(prev => {
+      const updated = { ...prev, ...updates };
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('pamwill_user', JSON.stringify(updated));
+        } catch (e) {}
+      }
+      return updated;
+    });
   };
 
   const toggleTherapistOnline = (therapistId: string) => {
@@ -1697,10 +1719,14 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const logout = async () => {
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('pamwill_logged_out', 'true');
+        localStorage.removeItem('pamwill_user');
+      } catch (e) {}
+    }
     await firebaseSignOutUser();
     setUser(INITIAL_USER);
-    localStorage.removeItem('pamwill_user');
-    localStorage.removeItem('pamwill_logged_out');
   };
 
   return (

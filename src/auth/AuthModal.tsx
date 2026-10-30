@@ -34,6 +34,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     therapists, 
     currentTherapist,
     setCurrentTherapistId, 
+    currentRole,
     setCurrentRole, 
     registerTherapist,
     loginTherapist,
@@ -122,6 +123,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Sync initialMode and values whenever modal opens or role changes
   useEffect(() => {
     if (!isOpen) return;
+
+    if (currentRole === 'client' && authTargetRole !== 'client') {
+      setAuthTargetRole('client');
+    } else if (currentRole === 'therapist' && authTargetRole !== 'therapist') {
+      setAuthTargetRole('therapist');
+    }
 
     if (initialMode === 'onboarding') {
       setView('onboarding');
@@ -292,14 +299,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           }
         } else {
           // Patron Login
-          const updated = {
-            name: fbUser.displayName || user.name,
-            email: fbUser.email || user.email,
-            phone: fbUser.phoneNumber || user.phone,
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.removeItem('pamwill_logged_out');
+            } catch (e) {}
+          }
+          const userId = fbUser.uid || (user.id && user.id !== 'guest' ? user.id : `user-${Date.now()}`);
+          const updated: Partial<UserProfile> = {
+            id: userId,
+            name: fbUser.displayName || (user.name && user.name !== 'Guest Patron' ? user.name : 'Valued Patron'),
+            email: fbUser.email || user.email || '',
+            phone: fbUser.phoneNumber || user.phone || '',
             avatarUrl: fbUser.photoURL || undefined,
             isAuthenticated: true
           };
           updateUser(updated);
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('pamwill_user', JSON.stringify({ ...user, ...updated }));
+            } catch (e) {}
+          }
           await dbSaveUserProfile({ ...user, ...updated });
           setIsLoading(false);
           onClose();
@@ -359,10 +378,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setView('therapist-onboarding');
         }
       } else {
-        updateUser({
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('pamwill_logged_out');
+          } catch (e) {}
+        }
+        const userId = user.id && user.id !== 'guest' ? user.id : `user-${Date.now()}`;
+        const updated = {
+          id: userId,
           phone: formattedPhone,
+          name: user.name && user.name !== 'Guest Patron' ? user.name : 'Valued Patron',
           isAuthenticated: true
-        });
+        };
+        updateUser(updated);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('pamwill_user', JSON.stringify({ ...user, ...updated }));
+          } catch (e) {}
+        }
         onClose();
       }
     }, 700);
@@ -395,11 +428,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setView('therapist-onboarding');
         }
       } else {
-        updateUser({
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.removeItem('pamwill_logged_out');
+          } catch (e) {}
+        }
+        const userId = user.id && user.id !== 'guest' ? user.id : `user-${Date.now()}`;
+        const updated = {
+          id: userId,
           email,
           name: email.split('@')[0],
           isAuthenticated: true
-        });
+        };
+        updateUser(updated);
+        if (typeof window !== 'undefined') {
+          try {
+            localStorage.setItem('pamwill_user', JSON.stringify({ ...user, ...updated }));
+          } catch (e) {}
+        }
         onClose();
       }
     }, 800);
@@ -408,8 +454,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // ================= COMPLETE PATRON ONBOARDING =================
   const handleCompletePatronOnboarding = async () => {
     setIsLoading(true);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('pamwill_logged_out');
+      } catch (e) {}
+    }
+    const userId = user.id && user.id !== 'guest' ? user.id : `user-${Date.now()}`;
     const updatedProfile: UserProfile = {
       ...user,
+      id: userId,
       name: patronName,
       gender: patronGender,
       age: Number(patronAge),

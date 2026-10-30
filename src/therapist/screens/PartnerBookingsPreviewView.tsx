@@ -60,103 +60,111 @@ export const PartnerBookingsPreviewView: React.FC<PartnerBookingsPreviewViewProp
         </p>
       </div>
 
-      {/* Simulated Live Dispatch Flow Demo */}
+      {/* Live Dispatch Radar & Active Job Pipeline */}
       <div style={{
         backgroundColor: 'var(--bg-surface)',
         borderRadius: '18px',
-        padding: '20px',
+        padding: '24px 20px',
         border: '1px solid var(--border-hairline)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{
               width: '8px',
               height: '8px',
               borderRadius: '50%',
-              backgroundColor: '#3B82F6',
-              boxShadow: '0 0 10px #3B82F6'
+              backgroundColor: '#10B981',
+              boxShadow: '0 0 10px #10B981'
             }} />
-            <span style={{ fontSize: '13px', fontWeight: 700 }}>Interactive Dispatch Simulation</span>
+            <span style={{ fontSize: '13px', fontWeight: 700 }}>Live Dispatch Radar Active</span>
           </div>
           <span style={{
             fontSize: '11px',
-            color: '#16A34A',
-            backgroundColor: 'rgba(22, 163, 74, 0.1)',
+            color: 'var(--accent-gold-hover)',
+            backgroundColor: 'var(--accent-gold-light)',
             padding: '3px 10px',
             borderRadius: 'var(--radius-pill)',
             fontWeight: 700
           }}>
-            Status: On the Way
+            Zero Active Bookings
           </span>
         </div>
 
+        {/* Radar Scanning Area */}
         <div style={{
           backgroundColor: 'var(--bg-secondary)',
           borderRadius: '14px',
-          padding: '16px',
-          border: '1px solid var(--border-hairline)'
+          padding: '28px 20px',
+          border: '1px dashed var(--border-hairline)',
+          textAlign: 'center',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '12px'
         }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary)' }}>
-                90m Luxury Swedish Stress Relief
-              </div>
-              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
-                Booking Ref: #PW-DEMO-8821
-              </div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--accent-gold)' }}>
-                ₹2,499
-              </div>
-              <div style={{ fontSize: '11px', color: '#16A34A', fontWeight: 600 }}>
-                Instant UPI Payout
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px', margin: '14px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              <Clock size={14} color="var(--accent-gold)" />
-              <span>Slot: Today, 04:00 PM (90 Min)</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-secondary)' }}>
-              <MapPin size={14} color="var(--accent-gold)" />
-              <span>The Magnolias, Sector 42 (3.2 km)</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#16A34A', fontWeight: 600 }}>
-              <ShieldCheck size={14} />
-              <span>Patron: Ananya S. (VIP Verified)</span>
-            </div>
-          </div>
-
-          {/* Workflow Steps Preview */}
           <div style={{
+            width: '52px',
+            height: '52px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(212, 163, 89, 0.12)',
             display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'center',
-            backgroundColor: 'var(--bg-surface)',
-            padding: '12px 16px',
-            borderRadius: '10px',
-            border: '1px solid var(--border-hairline)',
-            marginTop: '12px'
+            justifyContent: 'center',
+            color: 'var(--accent-gold)'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#16A34A' }}>
-              <CheckCircle2 size={16} />
-              <span>1. Accepted</span>
+            <Navigation size={24} />
+          </div>
+          <div>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)' }}>
+              Awaiting Incoming Client Requests
             </div>
-            <div style={{ width: '20px', height: '1px', backgroundColor: 'var(--border-hairline)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: 'var(--accent-gold)' }}>
-              <Navigation size={16} />
-              <span>2. On the Way</span>
+            <p style={{ fontSize: '12px', color: 'var(--text-secondary)', maxWidth: '440px', margin: '6px auto 0' }}>
+              When your profile is active and status set to Online, real customer bookings within your serviceable radius alert you here with direct route navigation and upfront payout details.
+            </p>
+          </div>
+        </div>
+
+        {/* How Real Dispatch Operates */}
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '10px' }}>
+            STANDARD SESSION DISPATCH PIPELINE
+          </div>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))',
+            gap: '10px'
+          }}>
+            <div style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-hairline)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <CheckCircle2 size={14} color="#16A34A" /> 1. Request Alert
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Instant notifications with client location and net payout.
+              </div>
             </div>
-            <div style={{ width: '20px', height: '1px', backgroundColor: 'var(--border-hairline)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              <span>3. Start OTP</span>
+            <div style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-hairline)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: 'var(--accent-gold)' }}>
+                <Navigation size={14} color="var(--accent-gold)" /> 2. Live Navigation
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Turn-by-turn route to patron residence or hotel sanctuary.
+              </div>
             </div>
-            <div style={{ width: '20px', height: '1px', backgroundColor: 'var(--border-hairline)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)' }}>
-              <span>4. Complete</span>
+            <div style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-hairline)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: '#3B82F6' }}>
+                <ShieldCheck size={14} color="#3B82F6" /> 3. Secure OTP
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Mutual 4-digit code verification at session start and finish.
+              </div>
+            </div>
+            <div style={{ padding: '12px', backgroundColor: 'var(--bg-secondary)', borderRadius: '10px', border: '1px solid var(--border-hairline)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                <Sparkles size={14} color="#EAB308" /> 4. Direct Payout
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                Automated bank transfer or instant UPI payout upon completion.
+              </div>
             </div>
           </div>
         </div>

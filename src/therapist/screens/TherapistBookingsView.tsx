@@ -37,11 +37,14 @@ export const TherapistBookingsView: React.FC<TherapistBookingsViewProps> = ({
     Mon: true, Tue: true, Wed: true, Thu: true, Fri: true, Sat: true, Sun: false
   });
 
-  const myBookings = bookings.filter(b => b.therapistId === currentTherapist.id || !b.therapistId);
+  const myBookings = bookings.filter(b => 
+    b.therapistId === currentTherapist.id || 
+    (b.therapistName && currentTherapist.fullName && b.therapistName.toLowerCase() === currentTherapist.fullName.toLowerCase())
+  );
   const liveSelected = selectedBooking ? bookings.find(b => b.id === selectedBooking.id) : null;
   const currentActiveJob = liveSelected || myBookings.find(b => 
     b.status === 'Accepted' || b.status === 'On the Way' || b.status === 'Arrived' || b.status === 'Service Started'
-  ) || selectedBooking || myBookings[0];
+  ) || null;
 
   const handleNextStatus = (booking: Booking) => {
     if (booking.status === 'Pending' || booking.status === 'Accepted') {

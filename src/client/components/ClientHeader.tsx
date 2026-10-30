@@ -4,7 +4,7 @@ import { usePamwill } from '../../state/store';
 import { INDIAN_CITIES } from '../../data/indianCities';
 
 export const ClientHeader: React.FC = () => {
-  const { selectedCity, setSelectedCity, user, setAuthModalOpen, setAuthMode, setActiveClientTab } = usePamwill();
+  const { selectedCity, setSelectedCity, user, setAuthModalOpen, setAuthMode, setAuthTargetRole, setActiveClientTab } = usePamwill();
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -96,6 +96,7 @@ export const ClientHeader: React.FC = () => {
                 // When logged in, navigate straight to Profile tab!
                 setActiveClientTab('profile');
               } else {
+                setAuthTargetRole('client');
                 setAuthMode('login');
                 setAuthModalOpen(true);
               }
