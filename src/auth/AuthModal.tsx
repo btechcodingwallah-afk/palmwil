@@ -40,7 +40,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsTherapistLoggedIn,
     authTargetRole,
     setAuthTargetRole,
-    pendingGoogleUser
+    pendingGoogleUser,
+    setPendingGoogleUser
   } = usePamwill();
 
   const [view, setView] = useState<'onboarding' | 'login' | 'otp' | 'patron-onboarding' | 'therapist-onboarding'>('login');
@@ -58,6 +59,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [therapistAuthTab, setTherapistAuthTab] = useState<'signin' | 'signup'>('signup');
+  const [tPartnerType, setTPartnerType] = useState<'therapist' | 'spa_center'>('therapist');
+  const [tSpaCenterName, setTSpaCenterName] = useState('');
+  const [tSpaCenterType, setTSpaCenterType] = useState('Luxury Day Spa & Sanctuary');
+  const [tManagerName, setTManagerName] = useState('');
+  const [tGstin, setTGstin] = useState('');
+  const [tStaffCount, setTStaffCount] = useState('5-10 Certified Therapists');
+  const [tSpaFacilities, setTSpaFacilities] = useState<string[]>([
+    'Swedish & Deep Tissue Suites',
+    'Ayurvedic Abhyanga & Steam',
+    'Couples Wellness Chamber'
+  ]);
+  const [accountNotFoundError, setAccountNotFoundError] = useState<string | null>(null);
 
   // ================= PATRON ONBOARDING STATE =================
   const [patronStep, setPatronStep] = useState(1);
@@ -114,12 +127,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setView('onboarding');
     } else if (initialMode === 'register') {
       if (authTargetRole === 'therapist') {
-        setView('therapist-onboarding');
+        // ALWAYS prompt to Sign Up with Google first!
+        setView('login');
+        setTherapistAuthTab('signup');
       } else {
         setView('patron-onboarding');
       }
     } else {
       setView('login');
+      if (authTargetRole === 'therapist') {
+        setTherapistAuthTab('signin');
+      }
     }
 
     // Refresh therapist form state:
@@ -134,6 +152,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setTFullName(gUser?.name || '');
       setTEmail(gUser?.email || '');
       if (gUser?.photoUrl) setTPhotoUrl(gUser.photoUrl);
+      setTManagerName(gUser?.name || '');
+      setTSpaCenterName(gUser?.name ? `${gUser.name}'s Wellness Sanctuary` : '');
       setTPhone('');
       setTAge('');
       setTAadhaarNumber('');
@@ -144,6 +164,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       setTBankAccount('');
       setTIfsc('');
       setTUpiId('');
+      setAccountNotFoundError(null);
       setTherapistStep(1);
     } else if (authTargetRole === 'therapist' && currentTherapist && initialMode !== 'register') {
       // ONLY load currentTherapist if intentionally editing active practitioner
@@ -158,6 +179,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       if (currentTherapist.aadhaarNumber) setTAadhaarNumber(currentTherapist.aadhaarNumber);
       if (currentTherapist.panNumber) setTPanNumber(currentTherapist.panNumber);
       if (currentTherapist.upiId) setTUpiId(currentTherapist.upiId);
+      if (currentTherapist.role === 'spa_center') {
+        setTPartnerType('spa_center');
+        setTSpaCenterName(currentTherapist.fullName);
+      } else {
+        setTPartnerType('therapist');
+      }
     }
 
     // Refresh patron form state if editing current user
@@ -203,30 +230,63 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setErrorMessage(null);
+    setAccountNotFoundError(null);
 
     try {
       const { user: fbUser, error } = await firebaseSignInWithGoogle();
       
       if (fbUser) {
         if (authTargetRole === 'therapist') {
-          // Check if therapist exists
+          // Check if therapist exists by email or phone
           const existingT = therapists.find(t => 
             (fbUser.email && t.email.toLowerCase() === fbUser.email.toLowerCase()) ||
             (fbUser.phoneNumber && t.phone.includes(fbUser.phoneNumber))
           );
 
-          if (existingT) {
-            loginTherapist(existingT.id);
-            setIsLoading(false);
-            onClose();
-            return;
+          setPendingGoogleUser({
+            email: fbUser.email || '',
+            name: fbUser.displayName || '',
+            photoUrl: fbUser.photoURL || ''
+          });
+
+          if (therapistAuthTab === 'signin') {
+            if (existingT) {
+              loginTherapist(existingT.id);
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('pamwill_current_therapist_id', existingT.id);
+                localStorage.setItem('pamwill_therapist_logged_in', 'true');
+              }
+              setIsLoading(false);
+              onClose();
+              return;
+            } else {
+              setIsLoading(false);
+              setAccountNotFoundError(
+                `No registered partner profile was found for ${fbUser.email}. Please switch to Sign Up below to create your practitioner or spa center profile.`
+              );
+              return;
+            }
           } else {
-            // Pre-fill and launch therapist onboarding
+            // Therapist Sign Up
+            if (existingT) {
+              // Already exists! Sign them in directly
+              loginTherapist(existingT.id);
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('pamwill_current_therapist_id', existingT.id);
+                localStorage.setItem('pamwill_therapist_logged_in', 'true');
+              }
+              setIsLoading(false);
+              onClose();
+              return;
+            }
+
+            // New user: Pre-fill identity from Google and stay on Google Gateway to select role!
             setTFullName(fbUser.displayName || '');
             setTEmail(fbUser.email || '');
-            setTPhotoUrl(fbUser.photoURL || tPhotoUrl);
+            if (fbUser.photoURL) setTPhotoUrl(fbUser.photoURL);
             setTPhone(fbUser.phoneNumber || '');
-            setView('therapist-onboarding');
+            setTManagerName(fbUser.displayName || '');
+            setTSpaCenterName(fbUser.displayName ? `${fbUser.displayName}'s Wellness Sanctuary` : '');
             setIsLoading(false);
             return;
           }
@@ -248,35 +308,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
 
       if (error) {
-        if (authTargetRole === 'therapist') {
-          setIsLoading(false);
-          if (therapistAuthTab === 'signin') {
-            setErrorMessage(error.message || 'Google sign-in was cancelled or failed.');
-            return;
-          } else {
-            const currentFbUser = auth.currentUser;
-            setTFullName(currentFbUser?.displayName || '');
-            setTEmail(currentFbUser?.email || '');
-            setView('therapist-onboarding');
-            return;
-          }
-        }
-        setErrorMessage(error.message || 'Google sign-in failed. Please try again.');
+        setIsLoading(false);
+        setErrorMessage(error.message || 'Google sign-in was cancelled or failed.');
       }
     } catch (err: any) {
-      if (authTargetRole === 'therapist') {
-        setIsLoading(false);
-        if (therapistAuthTab === 'signin') {
-          setErrorMessage(err?.message || 'Google sign-in error.');
-          return;
-        } else {
-          const currentFbUser = auth.currentUser;
-          setTFullName(currentFbUser?.displayName || '');
-          setTEmail(currentFbUser?.email || '');
-          setView('therapist-onboarding');
-          return;
-        }
-      }
+      setIsLoading(false);
       setErrorMessage(err?.message || 'Error communicating with Google authentication.');
     } finally {
       setIsLoading(false);
@@ -407,14 +443,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleCompleteTherapistOnboarding = async () => {
     setIsLoading(true);
     const newId = `ther-${Date.now()}`;
+    const isSpa = tPartnerType === 'spa_center';
+    const chosenName = isSpa ? (tSpaCenterName.trim() || tFullName.trim() || 'Wellness Sanctuary') : tFullName.trim();
 
     const newTherapist: Therapist = {
       id: newId,
-      fullName: tFullName,
-      photoUrl: tPhotoUrl,
+      fullName: chosenName,
+      photoUrl: tPhotoUrl || (isSpa ? 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=400&q=80' : 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=400&q=80'),
       phone: tPhone.startsWith('+91') ? tPhone : `+91 ${tPhone}`,
       email: tEmail,
       status: 'Under Review',
+      role: isSpa ? 'spa_center' : 'spa_therapist',
       gender: tGender,
       rating: 5.0,
       reviewCount: 0,
@@ -427,20 +466,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       walletBalance: 0,
       bankAccount: tBankName && tBankAccount ? `${tBankName} •••• ${tBankAccount.slice(-4)}` : 'Direct Deposit (In Setup)',
       upiId: tUpiId,
-      certifications: tCertifications,
-      aadhaarNumber: tAadhaarNumber,
+      certifications: isSpa ? tSpaFacilities : tCertifications,
+      aadhaarNumber: isSpa ? (tGstin || tAadhaarNumber) : tAadhaarNumber,
       panNumber: tPanNumber,
       documents: [
         {
           id: `doc-${newId}-1`,
-          title: aadhaarFile ? `Aadhaar Card (${aadhaarFile.name})` : 'Aadhaar Card Front & Back',
-          type: 'aadhaar',
+          title: isSpa 
+            ? (aadhaarFile ? `Trade License (${aadhaarFile.name})` : 'Commercial Establishment License')
+            : (aadhaarFile ? `Aadhaar Card (${aadhaarFile.name})` : 'Aadhaar Card Front & Back'),
+          type: isSpa ? 'certificate' : 'aadhaar',
           url: aadhaarFile ? URL.createObjectURL(aadhaarFile) : `/therapist_resources/aadhaar/${newId}_aadhaar.png`,
           verificationStatus: 'pending'
         },
         {
           id: `doc-${newId}-2`,
-          title: policeCertFile ? `Police Clearance (${policeCertFile.name})` : 'State Police Verification Certificate',
+          title: isSpa
+            ? (policeCertFile ? `Commercial Safety NOC (${policeCertFile.name})` : 'Commercial Safety Clearance')
+            : (policeCertFile ? `Police Clearance (${policeCertFile.name})` : 'State Police Verification Certificate'),
           type: 'police',
           url: policeCertFile ? URL.createObjectURL(policeCertFile) : `/therapist_resources/police_clearance/${newId}_police_clearance.png`,
           verificationStatus: 'pending'
@@ -448,10 +491,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       ]
     };
 
-    // Insert into Supabase
+    // 1. Insert into Supabase
     await dbInsertTherapist(newTherapist);
+    // 2. Register into state and localStorage
     registerTherapist(newTherapist);
     setCurrentTherapistId(newId);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pamwill_current_therapist_id', newId);
+      localStorage.setItem('pamwill_therapist_logged_in', 'true');
+    }
     setIsTherapistLoggedIn(true);
     setCurrentRole('therapist');
 
@@ -621,7 +669,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               </div>
 
               {authTargetRole === 'therapist' ? (
-                /* ================= THERAPIST EXCLUSIVE GOOGLE FLOW ================= */
+                /* ================= THERAPIST & SPA PARTNER GOOGLE FLOW ================= */
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   {/* Therapist 2-Way Tab Switcher */}
                   <div style={{
@@ -634,7 +682,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     border: '1px solid var(--border-hairline)'
                   }}>
                     <button
-                      onClick={() => setTherapistAuthTab('signin')}
+                      onClick={() => {
+                        setTherapistAuthTab('signin');
+                        setErrorMessage(null);
+                        setAccountNotFoundError(null);
+                      }}
                       style={{
                         flex: 1,
                         padding: '7px 14px',
@@ -652,7 +704,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       Sign In
                     </button>
                     <button
-                      onClick={() => setTherapistAuthTab('signup')}
+                      onClick={() => {
+                        setTherapistAuthTab('signup');
+                        setErrorMessage(null);
+                        setAccountNotFoundError(null);
+                      }}
                       style={{
                         flex: 1,
                         padding: '7px 14px',
@@ -677,59 +733,362 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </div>
                   )}
 
-                  {/* Google Action Button */}
-                  <button
-                    onClick={handleGoogleLogin}
-                    disabled={isLoading}
-                    style={{
-                      width: '100%',
-                      padding: '13px 16px',
+                  {accountNotFoundError && (
+                    <div style={{
+                      padding: '12px 14px',
+                      backgroundColor: 'rgba(212, 163, 89, 0.12)',
+                      border: '1px solid var(--accent-gold)',
                       borderRadius: 'var(--radius-md)',
-                      border: '1.5px solid #e0dbd3',
-                      backgroundColor: '#ffffff',
-                      color: '#1F1B16',
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '12px',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
-                    }}
-                  >
-                    <svg width="18" height="18" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                    </svg>
-                    <span>
-                      {isLoading
-                        ? 'Connecting to Google...'
-                        : therapistAuthTab === 'signin'
-                          ? 'Sign In with Google'
-                          : 'Sign Up with Google & Start Onboarding →'}
-                    </span>
-                  </button>
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        <ShieldAlert size={16} color="var(--accent-gold)" />
+                        <span>Account Not Found</span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                        {accountNotFoundError}
+                      </p>
+                      <button
+                        onClick={() => {
+                          setTherapistAuthTab('signup');
+                          setAccountNotFoundError(null);
+                        }}
+                        style={{
+                          alignSelf: 'flex-start',
+                          padding: '6px 12px',
+                          borderRadius: 'var(--radius-pill)',
+                          backgroundColor: 'var(--accent-gold)',
+                          color: '#1F1B16',
+                          border: 'none',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <span>Sign Up as New Partner with Google</span>
+                        <ArrowRight size={12} />
+                      </button>
+                    </div>
+                  )}
 
-                  <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                    {therapistAuthTab === 'signin' ? (
+                  {therapistAuthTab === 'signin' ? (
+                    /* ---------------- PARTNER SIGN IN ---------------- */
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       <button
-                        onClick={() => setTherapistAuthTab('signup')}
-                        style={{ background: 'none', border: 'none', color: 'var(--accent-gold-hover)', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                        onClick={handleGoogleLogin}
+                        disabled={isLoading}
+                        style={{
+                          width: '100%',
+                          padding: '13px 16px',
+                          borderRadius: 'var(--radius-md)',
+                          border: '1.5px solid #e0dbd3',
+                          backgroundColor: '#ffffff',
+                          color: '#1F1B16',
+                          fontSize: '14px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '12px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
+                        }}
                       >
-                        New practitioner? Switch to Sign Up & Onboarding →
+                        <svg width="18" height="18" viewBox="0 0 24 24">
+                          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                        </svg>
+                        <span>
+                          {isLoading ? 'Signing in with Google...' : 'Sign In with Google'}
+                        </span>
                       </button>
-                    ) : (
+
+                      <div style={{ textAlign: 'center', marginTop: '6px' }}>
+                        <button
+                          onClick={() => {
+                            setTherapistAuthTab('signup');
+                            setAccountNotFoundError(null);
+                          }}
+                          style={{ background: 'none', border: 'none', color: 'var(--accent-gold-hover)', fontSize: '11px', fontWeight: 600, cursor: 'pointer' }}
+                        >
+                          New to PamWill? Sign Up as Therapist or Spa Center →
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* ---------------- PARTNER SIGN UP & ROLE SELECTION ---------------- */
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                      {/* Step 1: Google Identity Verification */}
+                      {!tEmail ? (
+                        <div style={{
+                          padding: '16px',
+                          borderRadius: 'var(--radius-md)',
+                          backgroundColor: 'var(--bg-secondary)',
+                          border: '1px solid var(--border-hairline)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '50%',
+                              backgroundColor: 'var(--accent-gold)',
+                              color: '#1F1B16',
+                              fontSize: '11px',
+                              fontWeight: 800,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}>1</span>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                              Authenticate with Google First
+                            </span>
+                          </div>
+                          <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                            Google identity verification binds your official Aadhaar and direct banking account for tamper-proof daily payouts.
+                          </p>
+
+                          <button
+                            onClick={handleGoogleLogin}
+                            disabled={isLoading}
+                            style={{
+                              width: '100%',
+                              padding: '12px 14px',
+                              borderRadius: 'var(--radius-md)',
+                              border: '1.5px solid #e0dbd3',
+                              backgroundColor: '#ffffff',
+                              color: '#1F1B16',
+                              fontSize: '13px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              gap: '10px',
+                              boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
+                            }}
+                          >
+                            <svg width="16" height="16" viewBox="0 0 24 24">
+                              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                            </svg>
+                            <span>{isLoading ? 'Connecting to Google...' : 'Continue with Google to Sign Up'}</span>
+                          </button>
+                        </div>
+                      ) : (
+                        /* Google Identity Verified Badge */
+                        <div style={{
+                          padding: '10px 14px',
+                          borderRadius: 'var(--radius-md)',
+                          backgroundColor: 'var(--status-success-bg)',
+                          border: '1px solid rgba(13, 148, 136, 0.25)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <img
+                              src={tPhotoUrl || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&q=80'}
+                              alt={tFullName}
+                              style={{ width: '34px', height: '34px', borderRadius: '50%', objectFit: 'cover' }}
+                            />
+                            <div>
+                              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--status-success)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                <CheckCircle2 size={13} /> Google Verified
+                              </div>
+                              <div style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600 }}>
+                                {tFullName || 'Partner'} • <span style={{ color: 'var(--text-secondary)', fontWeight: 400 }}>{tEmail}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            onClick={handleGoogleLogin}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--text-muted)',
+                              fontSize: '10px',
+                              cursor: 'pointer',
+                              textDecoration: 'underline'
+                            }}
+                          >
+                            Switch
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Step 2: Role Selection (Therapist Specialist vs Spa Center) */}
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+                          <span style={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--accent-gold)',
+                            color: '#1F1B16',
+                            fontSize: '11px',
+                            fontWeight: 800,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>2</span>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                            Select Partner Role
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                          {/* Role Card 1: Independent Therapist */}
+                          <div
+                            onClick={() => setTPartnerType('therapist')}
+                            style={{
+                              padding: '14px',
+                              borderRadius: 'var(--radius-md)',
+                              border: tPartnerType === 'therapist' ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                              backgroundColor: tPartnerType === 'therapist' ? 'rgba(212, 163, 89, 0.08)' : 'var(--bg-secondary)',
+                              cursor: 'pointer',
+                              transition: 'all 150ms ease',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '6px',
+                              position: 'relative'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                backgroundColor: tPartnerType === 'therapist' ? 'var(--accent-gold)' : 'var(--bg-surface)',
+                                color: tPartnerType === 'therapist' ? '#1F1B16' : 'var(--accent-gold)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}>
+                                <Sparkles size={16} />
+                              </div>
+                              <div style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '50%',
+                                border: tPartnerType === 'therapist' ? '4px solid var(--accent-gold)' : '1.5px solid var(--border-hairline)',
+                                backgroundColor: '#ffffff'
+                              }} />
+                            </div>
+                            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
+                              Specialist Therapist
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                              Individual certified massage therapist or physiotherapist.
+                            </div>
+                            <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--accent-gold-hover)', marginTop: 'auto', paddingTop: '4px' }}>
+                              Doorstep calls • Daily Payout
+                            </div>
+                          </div>
+
+                          {/* Role Card 2: Spa Center & Clinic */}
+                          <div
+                            onClick={() => setTPartnerType('spa_center')}
+                            style={{
+                              padding: '14px',
+                              borderRadius: 'var(--radius-md)',
+                              border: tPartnerType === 'spa_center' ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                              backgroundColor: tPartnerType === 'spa_center' ? 'rgba(212, 163, 89, 0.08)' : 'var(--bg-secondary)',
+                              cursor: 'pointer',
+                              transition: 'all 150ms ease',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '6px',
+                              position: 'relative'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{
+                                width: '30px',
+                                height: '30px',
+                                borderRadius: '50%',
+                                backgroundColor: tPartnerType === 'spa_center' ? 'var(--accent-gold)' : 'var(--bg-surface)',
+                                color: tPartnerType === 'spa_center' ? '#1F1B16' : 'var(--accent-gold)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}>
+                                <Building size={16} />
+                              </div>
+                              <div style={{
+                                width: '16px',
+                                height: '16px',
+                                borderRadius: '50%',
+                                border: tPartnerType === 'spa_center' ? '4px solid var(--accent-gold)' : '1.5px solid var(--border-hairline)',
+                                backgroundColor: '#ffffff'
+                              }} />
+                            </div>
+                            <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '2px' }}>
+                              Spa Center / Clinic
+                            </div>
+                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
+                              Commercial wellness center, luxury day spa, or clinic.
+                            </div>
+                            <div style={{ fontSize: '10px', fontWeight: 600, color: 'var(--accent-gold-hover)', marginTop: 'auto', paddingTop: '4px' }}>
+                              Multi-Staff • Commercial Payout
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Primary CTA Button */}
                       <button
-                        onClick={() => setTherapistAuthTab('signin')}
-                        style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+                        onClick={() => {
+                          if (!tEmail) {
+                            handleGoogleLogin();
+                            return;
+                          }
+                          setView('therapist-onboarding');
+                          setTherapistStep(1);
+                        }}
+                        className="btn-gold"
+                        style={{
+                          width: '100%',
+                          padding: '13px 16px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '8px',
+                          fontSize: '13px',
+                          fontWeight: 700
+                        }}
                       >
-                        Already registered? <span style={{ color: 'var(--accent-gold-hover)', fontWeight: 600 }}>Sign In →</span>
+                        <span>
+                          {!tEmail
+                            ? 'Continue with Google First →'
+                            : `Proceed to KYC (${tPartnerType === 'spa_center' ? 'Spa Center' : 'Therapist'}) →`}
+                        </span>
                       </button>
-                    )}
-                  </div>
+
+                      <div style={{ textAlign: 'center' }}>
+                        <button
+                          onClick={() => {
+                            setTherapistAuthTab('signin');
+                            setAccountNotFoundError(null);
+                          }}
+                          style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 500, cursor: 'pointer' }}
+                        >
+                          Already registered? <span style={{ color: 'var(--accent-gold-hover)', fontWeight: 600 }}>Sign In →</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 /* ================= PATRON CLIENT AUTH OPTIONS ================= */
@@ -1272,17 +1631,72 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* ================= THERAPIST 5-STEP ONBOARDING ================= */}
+          {/* ================= THERAPIST & SPA CENTER 5-STEP ONBOARDING ================= */}
           {view === 'therapist-onboarding' && (
             <div>
+              {/* Partner Category Toggle Pill */}
+              <div style={{
+                display: 'flex',
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: 'var(--radius-pill)',
+                padding: '3px',
+                marginBottom: '14px',
+                border: '1px solid var(--border-hairline)'
+              }}>
+                <button
+                  onClick={() => setTPartnerType('therapist')}
+                  style={{
+                    flex: 1,
+                    padding: '7px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    border: 'none',
+                    backgroundColor: tPartnerType === 'therapist' ? 'var(--bg-surface)' : 'transparent',
+                    color: tPartnerType === 'therapist' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: tPartnerType === 'therapist' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Sparkles size={13} color="var(--accent-gold)" />
+                  Specialist Therapist
+                </button>
+                <button
+                  onClick={() => setTPartnerType('spa_center')}
+                  style={{
+                    flex: 1,
+                    padding: '7px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    border: 'none',
+                    backgroundColor: tPartnerType === 'spa_center' ? 'var(--bg-surface)' : 'transparent',
+                    color: tPartnerType === 'spa_center' ? 'var(--text-primary)' : 'var(--text-secondary)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    boxShadow: tPartnerType === 'spa_center' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px'
+                  }}
+                >
+                  <Building size={13} color="var(--accent-gold)" />
+                  Spa Center & Clinic
+                </button>
+              </div>
+
               {/* Progress Bar */}
               <div style={{ marginBottom: '16px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                   <span className="eyebrow" style={{ color: 'var(--accent-gold)' }}>
                     Step {therapistStep} of 5: {
-                      therapistStep === 1 ? 'Personal Identity' :
-                      therapistStep === 2 ? 'Government & Police Clearance' :
-                      therapistStep === 3 ? 'Certifications & Skills' :
+                      therapistStep === 1 ? (tPartnerType === 'spa_center' ? 'Spa Center Profile' : 'Personal Identity') :
+                      therapistStep === 2 ? (tPartnerType === 'spa_center' ? 'Commercial Trade Clearance' : 'Government & Police Clearance') :
+                      therapistStep === 3 ? (tPartnerType === 'spa_center' ? 'Staff & Facilities' : 'Certifications & Skills') :
                       therapistStep === 4 ? 'Metros & Timings' : 'Direct Payout Banking'
                     }
                   </span>
@@ -1299,55 +1713,107 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
-              {/* STEP 1: Personal Details */}
+              {/* STEP 1: Personal or Spa Center Details */}
               {therapistStep === 1 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>Practitioner Identity</h3>
+                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>
+                    {tPartnerType === 'spa_center' ? 'Spa Center / Clinic Profile' : 'Practitioner Identity'}
+                  </h3>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                    Enter your official legal details matching your government identity documents.
+                    {tPartnerType === 'spa_center'
+                      ? 'Enter your official establishment details matching your commercial business trade license.'
+                      : 'Enter your official legal details matching your government identity documents.'}
                   </p>
 
-                  <div>
-                    <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      LEGAL FULL NAME
-                    </label>
-                    <input
-                      type="text"
-                      value={tFullName}
-                      onChange={e => setTFullName(e.target.value)}
-                      placeholder="As printed on Aadhaar card"
-                      style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
-                    />
-                  </div>
+                  {tPartnerType === 'spa_center' ? (
+                    <>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          SPA CENTER / CLINIC ESTABLISHMENT NAME
+                        </label>
+                        <input
+                          type="text"
+                          value={tSpaCenterName}
+                          onChange={e => setTSpaCenterName(e.target.value)}
+                          placeholder="e.g. Ananda Luxury Spa & Wellness Sanctuary"
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        />
+                      </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
-                    <div>
-                      <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                        GENDER
-                      </label>
-                      <select
-                        value={tGender}
-                        onChange={e => setTGender(e.target.value as any)}
-                        style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
-                      >
-                        <option value="Female">Female</option>
-                        <option value="Male">Male</option>
-                      </select>
-                    </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          ESTABLISHMENT CATEGORY
+                        </label>
+                        <select
+                          value={tSpaCenterType}
+                          onChange={e => setTSpaCenterType(e.target.value)}
+                          style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        >
+                          <option value="Luxury Day Spa & Sanctuary">Luxury Day Spa & Sanctuary</option>
+                          <option value="Ayurvedic Healing Retreat & Panchakarma">Ayurvedic Healing Retreat & Panchakarma</option>
+                          <option value="Physiotherapy & Sports Rehabilitation Clinic">Physiotherapy & Sports Rehabilitation Clinic</option>
+                          <option value="Hotel & Resort Wellness Center">Hotel & Resort Wellness Center</option>
+                        </select>
+                      </div>
 
-                    <div>
-                      <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                        AGE
-                      </label>
-                      <input
-                        type="number"
-                        value={tAge}
-                        onChange={e => setTAge(e.target.value)}
-                        placeholder="e.g. 29"
-                        style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
-                      />
-                    </div>
-                  </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          AUTHORIZED MANAGER / DIRECTOR FULL NAME
+                        </label>
+                        <input
+                          type="text"
+                          value={tManagerName}
+                          onChange={e => setTManagerName(e.target.value)}
+                          placeholder="Primary contact person"
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        />
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          LEGAL FULL NAME
+                        </label>
+                        <input
+                          type="text"
+                          value={tFullName}
+                          onChange={e => setTFullName(e.target.value)}
+                          placeholder="As printed on Aadhaar card"
+                          style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                        <div>
+                          <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                            GENDER
+                          </label>
+                          <select
+                            value={tGender}
+                            onChange={e => setTGender(e.target.value as any)}
+                            style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                          >
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                            AGE
+                          </label>
+                          <input
+                            type="number"
+                            value={tAge}
+                            onChange={e => setTAge(e.target.value)}
+                            placeholder="e.g. 29"
+                            style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <div>
                     <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
@@ -1387,14 +1853,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       type="email"
                       value={tEmail}
                       onChange={e => setTEmail(e.target.value)}
-                      placeholder="practitioner@pamwill.in"
+                      placeholder="partner@pamwill.in"
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
                     />
                   </div>
 
                   <button
                     onClick={() => {
-                      if (!tFullName.trim()) { setErrorMessage("Please enter your legal full name matching your government ID"); return; }
+                      if (tPartnerType === 'spa_center') {
+                        if (!tSpaCenterName.trim()) { setErrorMessage("Please enter your Spa Center establishment name"); return; }
+                      } else {
+                        if (!tFullName.trim()) { setErrorMessage("Please enter your legal full name matching your government ID"); return; }
+                      }
                       if (!tEmail.trim()) { setErrorMessage("Please enter or verify your email address"); return; }
                       setErrorMessage(null);
                       setTherapistStep(2);
@@ -1402,28 +1872,35 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     className="btn-gold"
                     style={{ width: '100%', padding: '12px', marginTop: '8px' }}
                   >
-                    Next: Government & Police Clearance →
+                    Next: {tPartnerType === 'spa_center' ? 'Commercial Trade Clearance →' : 'Government & Police Clearance →'}
                   </button>
                 </div>
               )}
 
-              {/* STEP 2: Government Legal & Police Clearance */}
+              {/* STEP 2: Government Legal & Commercial Clearance */}
               {therapistStep === 2 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>Legal & Police Clearance</h3>
+                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>
+                    {tPartnerType === 'spa_center' ? 'Commercial Trade Clearance' : 'Legal & Police Clearance'}
+                  </h3>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                    100% of PamWill therapists are verified by State Police and UIDAI biometric records.
+                    {tPartnerType === 'spa_center'
+                      ? 'All partner spa establishments are audited for municipal trade licenses and safety clearance.'
+                      : '100% of PamWill therapists are verified by State Police and UIDAI biometric records.'}
                   </p>
 
                   <div>
                     <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      AADHAAR NUMBER (12 DIGITS)
+                      {tPartnerType === 'spa_center' ? 'GSTIN / TRADE LICENSE / REGISTRATION NUMBER' : 'AADHAAR NUMBER (12 DIGITS)'}
                     </label>
                     <input
                       type="text"
-                      value={tAadhaarNumber}
-                      onChange={e => setTAadhaarNumber(e.target.value)}
-                      placeholder="e.g. 4892 1029 4819"
+                      value={tPartnerType === 'spa_center' ? tGstin : tAadhaarNumber}
+                      onChange={e => {
+                        if (tPartnerType === 'spa_center') setTGstin(e.target.value.toUpperCase());
+                        else setTAadhaarNumber(e.target.value);
+                      }}
+                      placeholder={tPartnerType === 'spa_center' ? "e.g. 07AAAAA0000A1Z5 / TL-98214" : "e.g. 4892 1029 4819"}
                       style={{ width: '100%', padding: '10px 12px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
                     />
                   </div>
@@ -1453,7 +1930,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     }}
                   />
 
-                  {/* Interactive Aadhaar Upload Zone */}
+                  {/* Primary License / Aadhaar Upload Zone */}
                   <div 
                     onClick={() => aadhaarInputRef.current?.click()}
                     style={{
@@ -1472,12 +1949,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       <FileText size={20} color={aadhaarFile ? "var(--status-success)" : "var(--accent-gold)"} />
                       <div>
                         <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                          {aadhaarFile ? aadhaarFile.name : "Aadhaar Card (Front & Back)"}
+                          {aadhaarFile ? aadhaarFile.name : (tPartnerType === 'spa_center' ? "Establishment License / Trade Registration" : "Aadhaar Card (Front & Back)")}
                         </div>
                         <div style={{ fontSize: '10px', color: aadhaarFile ? 'var(--status-success)' : 'var(--text-muted)' }}>
                           {aadhaarFile 
                             ? `File attached (${(aadhaarFile.size / 1024).toFixed(0)} KB) ✓ Click to change` 
-                            : "Click to upload original Aadhaar (PDF / JPG)"}
+                            : (tPartnerType === 'spa_center' ? "Click to upload Trade License (PDF / JPG)" : "Click to upload original Aadhaar (PDF / JPG)")}
                         </div>
                       </div>
                     </div>
@@ -1493,7 +1970,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     </span>
                   </div>
 
-                  {/* Interactive Police Clearance Upload Zone */}
+                  {/* Police / Safety Clearance Upload Zone */}
                   <div 
                     onClick={() => policeCertInputRef.current?.click()}
                     style={{
@@ -1512,12 +1989,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       <ShieldCheck size={20} color={policeCertFile ? "var(--status-success)" : "var(--accent-gold)"} />
                       <div>
                         <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                          {policeCertFile ? policeCertFile.name : "Police Character Clearance Certificate"}
+                          {policeCertFile ? policeCertFile.name : (tPartnerType === 'spa_center' ? "Commercial Safety / Fire / Police NOC" : "Police Character Clearance Certificate")}
                         </div>
                         <div style={{ fontSize: '10px', color: policeCertFile ? 'var(--status-success)' : 'var(--text-muted)' }}>
                           {policeCertFile 
                             ? `File attached (${(policeCertFile.size / 1024).toFixed(0)} KB) ✓ Click to change` 
-                            : "Click to upload State Police record (PDF / JPG)"}
+                            : (tPartnerType === 'spa_center' ? "Click to upload commercial NOC (PDF / JPG)" : "Click to upload State Police record (PDF / JPG)")}
                         </div>
                       </div>
                     </div>
@@ -1535,7 +2012,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <div>
                     <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      PAN CARD NUMBER (TAX COMPLIANCE)
+                      {tPartnerType === 'spa_center' ? 'PAN CARD NUMBER (COMPANY / PROPRIETOR)' : 'PAN CARD NUMBER (TAX COMPLIANCE)'}
                     </label>
                     <input
                       type="text"
@@ -1551,72 +2028,152 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       ← Back
                     </button>
                     <button onClick={() => setTherapistStep(3)} className="btn-gold" style={{ flex: 2, padding: '10px' }}>
-                      Next: Certifications & Skills →
+                      Next: {tPartnerType === 'spa_center' ? 'Staff & Facilities →' : 'Certifications & Skills →'}
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* STEP 3: Certifications & Skills */}
+              {/* STEP 3: Certifications & Skills or Spa Facilities */}
               {therapistStep === 3 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>Certifications & Experience</h3>
+                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>
+                    {tPartnerType === 'spa_center' ? 'Staff Roster & Spa Specialties' : 'Certifications & Experience'}
+                  </h3>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                    Highlight diplomas, hospital credentials, and international spa certificates.
+                    {tPartnerType === 'spa_center'
+                      ? 'Highlight your team capacity and luxury facilities available to PamWill clients.'
+                      : 'Highlight diplomas, hospital credentials, and international spa certificates.'}
                   </p>
 
-                  <div>
-                    <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      YEARS OF EXPERIENCE
-                    </label>
-                    <input
-                      type="number"
-                      value={tExperienceYears}
-                      onChange={e => setTExperienceYears(Number(e.target.value))}
-                      style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
-                    />
-                  </div>
+                  {tPartnerType === 'spa_center' ? (
+                    <>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          AVAILABLE CERTIFIED PRACTITIONERS ON ROSTER
+                        </label>
+                        <select
+                          value={tStaffCount}
+                          onChange={e => setTStaffCount(e.target.value)}
+                          style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        >
+                          <option value="2-5 Certified Therapists">2–5 Certified Therapists</option>
+                          <option value="6-12 Certified Therapists">6–12 Certified Therapists</option>
+                          <option value="13-25 Certified Therapists">13–25 Certified Therapists</option>
+                          <option value="25+ Certified Therapists">25+ Certified Therapists</option>
+                        </select>
+                      </div>
 
-                  <div>
-                    <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
-                      CERTIFICATIONS ON FILE
-                    </label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                      {[
-                        'CIDESCO International Spa Diploma',
-                        'National Academy of Sports Medicine (NASM) Bodywork',
-                        'Ayurvedic Panchakarma & Abhyanga Institute',
-                        'Thai Yoga Traditional Therapy'
-                      ].map(cert => {
-                        const selected = tCertifications.includes(cert);
-                        return (
-                          <button
-                            key={cert}
-                            onClick={() => {
-                              if (selected) setTCertifications(tCertifications.filter(c => c !== cert));
-                              else setTCertifications([...tCertifications, cert]);
-                            }}
-                            style={{
-                              padding: '8px 12px',
-                              borderRadius: 'var(--radius-sm)',
-                              border: selected ? '1.5px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
-                              backgroundColor: selected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
-                              color: selected ? 'var(--accent-gold-hover)' : 'var(--text-secondary)',
-                              fontSize: '12px',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between'
-                            }}
-                          >
-                            <span>{cert}</span>
-                            {selected && <Check size={14} />}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          YEARS OF COMMERCIAL OPERATION
+                        </label>
+                        <input
+                          type="number"
+                          value={tExperienceYears}
+                          onChange={e => setTExperienceYears(Number(e.target.value))}
+                          style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                          CENTER SPECIALTIES & FACILITIES
+                        </label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {[
+                            'Swedish & Deep Tissue Suites',
+                            'Ayurvedic Abhyanga & Steam',
+                            'Couples Wellness Chamber',
+                            'Hydrotherapy & Thermal Spa',
+                            'Physiotherapy & Spine Rehabilitation'
+                          ].map(facility => {
+                            const selected = tSpaFacilities.includes(facility);
+                            return (
+                              <button
+                                key={facility}
+                                onClick={() => {
+                                  if (selected) setTSpaFacilities(tSpaFacilities.filter(f => f !== facility));
+                                  else setTSpaFacilities([...tSpaFacilities, facility]);
+                                }}
+                                style={{
+                                  padding: '8px 12px',
+                                  borderRadius: 'var(--radius-sm)',
+                                  border: selected ? '1.5px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                                  backgroundColor: selected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
+                                  color: selected ? 'var(--accent-gold-hover)' : 'var(--text-secondary)',
+                                  fontSize: '12px',
+                                  textAlign: 'left',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between'
+                                }}
+                              >
+                                <span>{facility}</span>
+                                {selected && <Check size={14} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                          YEARS OF EXPERIENCE
+                        </label>
+                        <input
+                          type="number"
+                          value={tExperienceYears}
+                          onChange={e => setTExperienceYears(Number(e.target.value))}
+                          style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>
+                          CERTIFICATIONS ON FILE
+                        </label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          {[
+                            'CIDESCO International Spa Diploma',
+                            'National Academy of Sports Medicine (NASM) Bodywork',
+                            'Ayurvedic Panchakarma & Abhyanga Institute',
+                            'Thai Yoga Traditional Therapy'
+                          ].map(cert => {
+                            const selected = tCertifications.includes(cert);
+                            return (
+                              <button
+                                key={cert}
+                                onClick={() => {
+                                  if (selected) setTCertifications(tCertifications.filter(c => c !== cert));
+                                  else setTCertifications([...tCertifications, cert]);
+                                }}
+                                style={{
+                                  padding: '8px 12px',
+                                  borderRadius: 'var(--radius-sm)',
+                                  border: selected ? '1.5px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                                  backgroundColor: selected ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
+                                  color: selected ? 'var(--accent-gold-hover)' : 'var(--text-secondary)',
+                                  fontSize: '12px',
+                                  textAlign: 'left',
+                                  cursor: 'pointer',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between'
+                                }}
+                              >
+                                <span>{cert}</span>
+                                {selected && <Check size={14} />}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </>
+                  )}
 
                   <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
                     <button onClick={() => setTherapistStep(2)} className="btn-secondary" style={{ flex: 1, padding: '10px' }}>
@@ -1634,7 +2191,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                   <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>Service Coverage</h3>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                    Select the Indian cities where you are available for private mobile house calls.
+                    Select the Indian cities where you are available for appointments.
                   </p>
 
                   <div>
@@ -1697,14 +2254,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {/* STEP 5: Direct Payout Banking */}
               {therapistStep === 5 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>Payout & Direct Deposits</h3>
+                  <h3 style={{ fontSize: '18px', margin: 0, fontFamily: 'var(--font-serif)' }}>
+                    {tPartnerType === 'spa_center' ? 'Commercial Settlement Banking' : 'Payout & Direct Deposits'}
+                  </h3>
                   <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0 }}>
-                    Earnings are credited daily via NEFT / IMPS and instant UPI settlement.
+                    {tPartnerType === 'spa_center'
+                      ? 'Consolidated earnings are credited daily via NEFT / IMPS corporate settlement and instant UPI.'
+                      : 'Earnings are credited daily via NEFT / IMPS and instant UPI settlement.'}
                   </p>
 
                   <div>
                     <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      BANK NAME
+                      {tPartnerType === 'spa_center' ? 'CORPORATE BANK NAME' : 'BANK NAME'}
                     </label>
                     <input
                       type="text"
@@ -1717,7 +2278,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <div>
                     <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      ACCOUNT NUMBER
+                      {tPartnerType === 'spa_center' ? 'CURRENT / BUSINESS ACCOUNT NUMBER' : 'ACCOUNT NUMBER'}
                     </label>
                     <input
                       type="text"
@@ -1743,13 +2304,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
                   <div>
                     <label style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
-                      UPI ID FOR INSTANT WITHDRAWAL
+                      {tPartnerType === 'spa_center' ? 'MERCHANT UPI ID FOR INSTANT SETTLEMENT' : 'UPI ID FOR INSTANT WITHDRAWAL'}
                     </label>
                     <input
                       type="text"
                       value={tUpiId}
                       onChange={e => setTUpiId(e.target.value)}
-                      placeholder="practitioner@okhdfcbank"
+                      placeholder="partner@okhdfcbank"
                       style={{ width: '100%', padding: '10px', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-hairline)', fontSize: '13px' }}
                     />
                   </div>

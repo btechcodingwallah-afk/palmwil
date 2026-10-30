@@ -18,8 +18,13 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
     setSelectedCity,
     clientHomeMode,
     user,
-    bookings
+    bookings,
+    setAuthModalOpen,
+    setAuthMode,
+    setAuthTargetRole
   } = usePamwill();
+
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
 
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
 
@@ -254,34 +259,64 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
             )}
           </button>
 
-          {/* User Profile Avatar */}
-          <button
-            onClick={() => setClientSubRoute('profile')}
-            style={{
-              width: '34px',
-              height: '34px',
-              borderRadius: '50%',
-              backgroundColor: '#F7EEDD',
-              border: '1.5px solid #A9812F',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              color: '#A9812F',
-              overflow: 'hidden',
-              padding: 0,
-              flexShrink: 0
-            }}
-            title="My Profile"
-          >
-            {user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#A9812F' }}>
-                {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
-              </span>
-            )}
-          </button>
+          {/* User Profile or Sign In */}
+          {isClientLoggedIn ? (
+            <button
+              onClick={() => setClientSubRoute('profile')}
+              style={{
+                width: '34px',
+                height: '34px',
+                borderRadius: '50%',
+                backgroundColor: '#F7EEDD',
+                border: '1.5px solid #A9812F',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                color: '#A9812F',
+                overflow: 'hidden',
+                padding: 0,
+                flexShrink: 0
+              }}
+              title="My Profile"
+            >
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#A9812F' }}>
+                  {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
+                </span>
+              )}
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setAuthTargetRole('client');
+                setAuthMode('login');
+                setAuthModalOpen(true);
+              }}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                padding: '6px 14px',
+                borderRadius: '20px',
+                backgroundColor: '#F7EEDD',
+                border: '1px solid #A9812F',
+                color: '#A9812F',
+                fontSize: '12px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                flexShrink: 0,
+                boxShadow: '0 2px 6px rgba(169, 129, 47, 0.1)',
+                transition: 'all 0.15s ease'
+              }}
+              title="Sign In to Pamwill"
+            >
+              <User size={13} color="#A9812F" />
+              <span>Sign In</span>
+            </button>
+          )}
         </div>
 
       </div>

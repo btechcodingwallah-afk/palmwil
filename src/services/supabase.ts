@@ -97,6 +97,7 @@ export async function dbFetchTherapists(): Promise<Therapist[] | null> {
       phone: row.phone,
       email: row.email,
       status: row.status,
+      role: row.role || 'spa_therapist',
       gender: row.gender,
       rating: Number(row.rating) || 0,
       reviewCount: row.review_count || 0,
@@ -111,7 +112,9 @@ export async function dbFetchTherapists(): Promise<Therapist[] | null> {
       upiId: row.upi_id,
       certifications: row.certifications || [],
       documents: row.documents || [],
-      currentLocation: row.current_location
+      currentLocation: row.current_location,
+      aadhaarNumber: row.aadhaar_number,
+      panNumber: row.pan_number || row.medical_reg_no
     }));
   } catch (err) {
     console.warn('Supabase dbFetchTherapists error:', err);
@@ -123,6 +126,7 @@ export async function dbUpdateTherapist(therapistId: string, updates: Partial<Th
   try {
     const row: any = {};
     if (updates.status !== undefined) row.status = updates.status;
+    if (updates.role !== undefined) row.role = updates.role;
     if (updates.isOnline !== undefined) row.is_online = updates.isOnline;
     if (updates.walletBalance !== undefined) row.wallet_balance = updates.walletBalance;
     if (updates.completedJobs !== undefined) row.completed_jobs = updates.completedJobs;
@@ -446,6 +450,7 @@ export async function dbInsertTherapist(therapist: Therapist): Promise<boolean> 
       phone: therapist.phone,
       email: therapist.email,
       status: therapist.status,
+      role: therapist.role || 'spa_therapist',
       gender: therapist.gender,
       rating: therapist.rating,
       review_count: therapist.reviewCount,
@@ -460,7 +465,8 @@ export async function dbInsertTherapist(therapist: Therapist): Promise<boolean> 
       upi_id: therapist.upiId,
       certifications: therapist.certifications,
       documents: therapist.documents,
-      current_location: therapist.currentLocation || null
+      current_location: therapist.currentLocation || null,
+      aadhaar_number: therapist.aadhaarNumber || null
     };
 
     const { error } = await supabase.from('therapists').insert([row]);

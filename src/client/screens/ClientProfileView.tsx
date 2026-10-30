@@ -2,12 +2,31 @@ import React, { useState } from 'react';
 import { 
   Crown, Coins, MapPin, Calendar, FileText, Tag, 
   Headphones, MessageSquare, Info, Shield, RefreshCw, 
-  LogOut, ChevronRight, Edit3, Camera, ShieldCheck
+  LogOut, ChevronRight, Edit3, Camera, ShieldCheck,
+  LogIn, UserPlus, Sparkles, Lock
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
 export const ClientProfileView: React.FC = () => {
-  const { user, updateUser, bookings, setClientSubRoute, logout } = usePamwill();
+  const { 
+    user, 
+    updateUser, 
+    bookings, 
+    setClientSubRoute, 
+    logout,
+    setAuthModalOpen,
+    setAuthMode,
+    setAuthTargetRole 
+  } = usePamwill();
+
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+
+  const handleOpenAuth = (mode: 'login' | 'register' = 'login') => {
+    setAuthTargetRole('client');
+    setAuthMode(mode);
+    setAuthModalOpen(true);
+  };
+
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [signOutModalOpen, setSignOutModalOpen] = useState(false);
   const [editName, setEditName] = useState(user?.name || 'Valued Patron');
@@ -68,26 +87,50 @@ export const ClientProfileView: React.FC = () => {
           </h1>
         </div>
 
-        <button
-          onClick={() => setEditModalOpen(true)}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            backgroundColor: '#FFFFFF',
-            border: '1px solid #E4DDD2',
-            padding: '7px 14px',
-            borderRadius: '20px',
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#A9812F',
-            cursor: 'pointer',
-            boxShadow: '0 2px 6px rgba(31, 27, 22, 0.04)'
-          }}
-        >
-          <Edit3 size={14} color="#A9812F" />
-          <span>Edit Profile</span>
-        </button>
+        {isClientLoggedIn ? (
+          <button
+            onClick={() => setEditModalOpen(true)}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E4DDD2',
+              padding: '7px 14px',
+              borderRadius: '20px',
+              fontSize: '12px',
+              fontWeight: 700,
+              color: '#A9812F',
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(31, 27, 22, 0.04)'
+            }}
+          >
+            <Edit3 size={14} color="#A9812F" />
+            <span>Edit Profile</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => handleOpenAuth('login')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: '#A9812F',
+              border: 'none',
+              padding: '8px 18px',
+              borderRadius: '20px',
+              fontSize: '13px',
+              fontWeight: 700,
+              color: '#FFFFFF',
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(169, 129, 47, 0.25)',
+              transition: 'all 0.15s ease'
+            }}
+          >
+            <LogIn size={14} color="#FFFFFF" />
+            <span>Sign In / Join</span>
+          </button>
+        )}
       </div>
 
       {/* Responsive 2-Column Grid for Desktop */}
@@ -99,110 +142,270 @@ export const ClientProfileView: React.FC = () => {
       }}>
         {/* Left Column: Hero Patron Card, Membership, Reservations */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
-          {/* Hero Patron Card (Screenshots 2 & 4) */}
-          <div style={{
-            backgroundColor: '#FFFFFF',
-            borderRadius: '20px',
-            border: '1px solid #E4DDD2',
-            boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)',
-            overflow: 'hidden'
-          }}>
-            {/* Gold top bar */}
-            <div style={{ height: '4px', backgroundColor: '#A9812F' }} />
+          {/* Hero Patron Card (Logged In) OR Sanctuary Guest Invitation Card */}
+          {isClientLoggedIn ? (
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E4DDD2',
+              boxShadow: '0 4px 16px rgba(31, 27, 22, 0.04)',
+              overflow: 'hidden'
+            }}>
+              {/* Gold top bar */}
+              <div style={{ height: '4px', backgroundColor: '#A9812F' }} />
 
-            <div style={{ padding: '20px' }}>
-              {/* Top row: Avatar + Info */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '18px' }}>
-                <div style={{ position: 'relative' }}>
+              <div style={{ padding: '20px' }}>
+                {/* Top row: Avatar + Info */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '18px' }}>
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      backgroundColor: '#F7EEDD',
+                      border: '2px solid #A9812F',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      overflow: 'hidden'
+                    }}>
+                      {user?.avatarUrl ? (
+                        <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span style={{ fontSize: '20px', fontWeight: 800, color: '#A9812F' }}>
+                          {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
+                        </span>
+                      )}
+                    </div>
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      right: 0,
+                      width: '20px',
+                      height: '20px',
+                      borderRadius: '50%',
+                      backgroundColor: '#A9812F',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '1.5px solid #FFFFFF'
+                    }}>
+                      <Camera size={11} color="#FFFFFF" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>
+                      {user?.name || 'Valued Patron'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6B6259', marginTop: '2px' }}>
+                      {user?.email || user?.phone || 'Sanctuary Patron'}
+                    </div>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      backgroundColor: '#F7EEDD',
+                      color: '#A9812F',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '2px 8px',
+                      borderRadius: '10px',
+                      marginTop: '6px'
+                    }}>
+                      <span>🪪 PAMWILL PATRON</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4 Stat columns */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  borderTop: '1px solid #F1ECE4',
+                  paddingTop: '14px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ borderRight: '1px solid #F1ECE4' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>{bookings.length}</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SESSIONS</div>
+                  </div>
+                  <div style={{ borderRight: '1px solid #F1ECE4' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>🪙 0</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>PAMCOINS</div>
+                  </div>
+                  <div style={{ borderRight: '1px solid #F1ECE4' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>Standard</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>TIER</div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#4C6B4F' }}>Active</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SOS SAFETY</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Guest Sanctuary Invitation Card */
+            <div style={{
+              backgroundColor: '#FFFFFF',
+              borderRadius: '20px',
+              border: '1px solid #E4DDD2',
+              boxShadow: '0 4px 18px rgba(169, 129, 47, 0.08)',
+              overflow: 'hidden',
+              background: 'linear-gradient(180deg, #FFFFFF 0%, #FDFBF7 100%)'
+            }}>
+              {/* Gold gradient top accent */}
+              <div style={{ height: '4px', background: 'linear-gradient(90deg, #A9812F, #DFBE82, #A9812F)' }} />
+
+              <div style={{ padding: '24px 22px' }}>
+                {/* Header Icon + Title */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '16px' }}>
                   <div style={{
-                    width: '64px',
-                    height: '64px',
+                    width: '56px',
+                    height: '56px',
                     borderRadius: '50%',
                     backgroundColor: '#F7EEDD',
                     border: '2px solid #A9812F',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    overflow: 'hidden'
+                    flexShrink: 0,
+                    boxShadow: '0 4px 12px rgba(169, 129, 47, 0.15)'
                   }}>
-                    {user?.avatarUrl ? (
-                      <img src={user.avatarUrl} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <span style={{ fontSize: '20px', fontWeight: 800, color: '#A9812F' }}>
-                        {user?.name ? user.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase() : 'PW'}
-                      </span>
-                    )}
+                    <Crown size={28} color="#A9812F" />
                   </div>
-                  <div style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    width: '20px',
-                    height: '20px',
-                    borderRadius: '50%',
-                    backgroundColor: '#A9812F',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    border: '1.5px solid #FFFFFF'
-                  }}>
-                    <Camera size={11} color="#FFFFFF" />
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      backgroundColor: '#F7EEDD',
+                      color: '#A9812F',
+                      fontSize: '10px',
+                      fontWeight: 800,
+                      padding: '3px 9px',
+                      borderRadius: '12px',
+                      marginBottom: '6px',
+                      letterSpacing: '0.5px'
+                    }}>
+                      <Sparkles size={11} color="#A9812F" />
+                      <span>SANCTUARY PATRON ACCESS</span>
+                    </div>
+                    <h2 style={{
+                      fontSize: '20px',
+                      fontWeight: 800,
+                      color: '#1F1B16',
+                      margin: '0 0 4px 0',
+                      lineHeight: 1.25,
+                      letterSpacing: '-0.3px'
+                    }}>
+                      Welcome to Pamwill
+                    </h2>
+                    <p style={{
+                      fontSize: '13px',
+                      color: '#6B6259',
+                      margin: 0,
+                      lineHeight: 1.5
+                    }}>
+                      Sign in or create your profile to access doctor-led physiotherapy and boutique spa rituals, track verified therapists in real-time, and earn PamCoin cashback on every session.
+                    </p>
                   </div>
                 </div>
 
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>
-                    {user?.name || 'Valued Patron'}
-                  </div>
-                  <div style={{ fontSize: '12px', color: '#6B6259', marginTop: '2px' }}>
-                    {user?.email || 'patron@pamwill.com'}
-                  </div>
-                  <div style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    backgroundColor: '#F7EEDD',
-                    color: '#A9812F',
-                    fontSize: '10px',
-                    fontWeight: 800,
-                    padding: '2px 8px',
-                    borderRadius: '10px',
-                    marginTop: '6px'
-                  }}>
-                    <span>🪪 PAMWILL PATRON</span>
-                  </div>
-                </div>
-              </div>
+                {/* Primary Action Buttons */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: '10px',
+                  marginBottom: '20px'
+                }}>
+                  <button
+                    onClick={() => handleOpenAuth('login')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      backgroundColor: '#A9812F',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '12px 18px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(169, 129, 47, 0.28)',
+                      transition: 'transform 0.12s ease'
+                    }}
+                  >
+                    <LogIn size={15} color="#FFFFFF" />
+                    <span>Sign In to Pamwill</span>
+                  </button>
 
-              {/* 4 Stat columns */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                borderTop: '1px solid #F1ECE4',
-                paddingTop: '14px',
-                textAlign: 'center'
-              }}>
-                <div style={{ borderRight: '1px solid #F1ECE4' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>0</div>
-                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SESSIONS</div>
+                  <button
+                    onClick={() => handleOpenAuth('register')}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      backgroundColor: '#F7EEDD',
+                      color: '#A9812F',
+                      border: '1.5px solid rgba(169, 129, 47, 0.35)',
+                      borderRadius: '12px',
+                      padding: '12px 18px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 0.12s ease'
+                    }}
+                  >
+                    <UserPlus size={15} color="#A9812F" />
+                    <span>Create Account</span>
+                  </button>
                 </div>
-                <div style={{ borderRight: '1px solid #F1ECE4' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>🪙 0</div>
-                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>PAMCOINS</div>
-                </div>
-                <div style={{ borderRight: '1px solid #F1ECE4' }}>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>Standard</div>
-                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>TIER</div>
-                </div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: 800, color: '#4C6B4F' }}>Active</div>
-                  <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SOS SAFETY</div>
+
+                {/* 4 Patron Privilege Pillars */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(4, 1fr)',
+                  borderTop: '1px solid #F1ECE4',
+                  paddingTop: '16px',
+                  textAlign: 'center',
+                  gap: '8px'
+                }}>
+                  <div style={{ borderRight: '1px solid #F1ECE4', paddingRight: '4px' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#A9812F' }}>🪙 10%</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px', marginTop: '2px' }}>
+                      PAMCOIN CASHBACK
+                    </div>
+                  </div>
+                  <div style={{ borderRight: '1px solid #F1ECE4', paddingRight: '4px' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#1F1B16' }}>👑 4 Free</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px', marginTop: '2px' }}>
+                      MONTHLY RITUALS
+                    </div>
+                  </div>
+                  <div style={{ borderRight: '1px solid #F1ECE4', paddingRight: '4px' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#1F1B16' }}>📍 1-Tap</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px', marginTop: '2px' }}>
+                      SAVED SUITES
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: 800, color: '#4C6B4F' }}>🛡️ Verified</div>
+                    <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px', marginTop: '2px' }}>
+                      CIDESCO SAFETY
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          {/* Section: SANCTUARY MEMBERSHIP (Screenshot 4) */}
+          {/* Section: SANCTUARY MEMBERSHIP */}
           <div>
             <div style={{
               fontSize: '11px',
@@ -258,7 +461,7 @@ export const ClientProfileView: React.FC = () => {
                       padding: '2px 8px',
                       borderRadius: '10px'
                     }}>
-                      {credits} Credits
+                      {isClientLoggedIn ? `${credits} Credits` : 'Exclusive Plans'}
                     </span>
                   </div>
                   <div style={{ fontSize: '11px', color: '#6B6259', marginTop: '2px' }}>
@@ -271,7 +474,7 @@ export const ClientProfileView: React.FC = () => {
             </div>
           </div>
 
-          {/* Section: RESERVATIONS & STORE (Screenshot 4) */}
+          {/* Section: RESERVATIONS & STORE */}
           <div>
             <div style={{
               fontSize: '11px',
@@ -288,7 +491,13 @@ export const ClientProfileView: React.FC = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {/* PamCoin */}
               <div
-                onClick={() => setClientSubRoute('pamcoin')}
+                onClick={() => {
+                  if (!isClientLoggedIn) {
+                    handleOpenAuth('login');
+                  } else {
+                    setClientSubRoute('pamcoin');
+                  }
+                }}
                 style={menuCardStyle}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
@@ -300,7 +509,11 @@ export const ClientProfileView: React.FC = () => {
                         1 COIN = ₹1
                       </span>
                     </div>
-                    <div style={menuSubStyle}>Wallet balance & 1–10% cashback reward transaction details</div>
+                    <div style={menuSubStyle}>
+                      {isClientLoggedIn 
+                        ? 'Wallet balance & 1–10% cashback reward transaction details' 
+                        : 'Sign in to access your wallet & claim 5–10% cashback'}
+                    </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -313,14 +526,24 @@ export const ClientProfileView: React.FC = () => {
 
               {/* Saved Delivery Addresses */}
               <div
-                onClick={() => setClientSubRoute('addresses')}
+                onClick={() => {
+                  if (!isClientLoggedIn) {
+                    handleOpenAuth('login');
+                  } else {
+                    setClientSubRoute('addresses');
+                  }
+                }}
                 style={menuCardStyle}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={iconWrapStyle}><MapPin size={18} color="#A9812F" /></div>
                   <div>
                     <div style={menuTitleStyle}>Saved Delivery Addresses</div>
-                    <div style={menuSubStyle}>Manage delivery destinations for sanctuary orders</div>
+                    <div style={menuSubStyle}>
+                      {isClientLoggedIn 
+                        ? 'Manage delivery destinations for sanctuary orders' 
+                        : 'Sign in to save and manage home & office destinations'}
+                    </div>
                   </div>
                 </div>
                 <ChevronRight size={16} color="#9A8F82" />
@@ -328,18 +551,28 @@ export const ClientProfileView: React.FC = () => {
 
               {/* Booking History */}
               <div
-                onClick={() => setClientSubRoute('bookings')}
+                onClick={() => {
+                  if (!isClientLoggedIn) {
+                    handleOpenAuth('login');
+                  } else {
+                    setClientSubRoute('bookings');
+                  }
+                }}
                 style={menuCardStyle}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={iconWrapStyle}><Calendar size={18} color="#A9812F" /></div>
                   <div>
                     <div style={menuTitleStyle}>Booking History</div>
-                    <div style={menuSubStyle}>Active sessions, past rituals, and rebooking</div>
+                    <div style={menuSubStyle}>
+                      {isClientLoggedIn 
+                        ? 'Active sessions, past rituals, and rebooking' 
+                        : 'Sign in to view real-time arrival and session history'}
+                    </div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {activeBookingsCount > 0 && (
+                  {isClientLoggedIn && activeBookingsCount > 0 && (
                     <span style={{ backgroundColor: '#EFF6FF', color: '#2563EB', fontSize: '11px', fontWeight: 800, padding: '2px 8px', borderRadius: '10px' }}>
                       {activeBookingsCount} Active
                     </span>
@@ -350,14 +583,24 @@ export const ClientProfileView: React.FC = () => {
 
               {/* Order & Invoice History */}
               <div
-                onClick={() => setClientSubRoute('orders')}
+                onClick={() => {
+                  if (!isClientLoggedIn) {
+                    handleOpenAuth('login');
+                  } else {
+                    setClientSubRoute('orders');
+                  }
+                }}
                 style={menuCardStyle}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                   <div style={iconWrapStyle}><FileText size={18} color="#A9812F" /></div>
                   <div>
                     <div style={menuTitleStyle}>Order & Invoice History</div>
-                    <div style={menuSubStyle}>Tax invoices, GST receipts, and transaction records</div>
+                    <div style={menuSubStyle}>
+                      {isClientLoggedIn 
+                        ? 'Tax invoices, GST receipts, and transaction records' 
+                        : 'Sign in to view transaction records & official invoices'}
+                    </div>
                   </div>
                 </div>
                 <ChevronRight size={16} color="#9A8F82" />
@@ -478,56 +721,152 @@ export const ClientProfileView: React.FC = () => {
             </div>
           </div>
 
-          {/* Section: ACCOUNT ACTIONS (Screenshot 2) */}
-          <div>
-            <div style={{
-              fontSize: '11px',
-              fontWeight: 800,
-              color: '#6B6259',
-              letterSpacing: '0.8px',
-              textTransform: 'uppercase',
-              marginBottom: '8px',
-              paddingLeft: '4px'
-            }}>
-              ACCOUNT ACTIONS
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div
-                onClick={() => window.location.href = '/therapist'}
-                style={menuCardStyle}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={iconWrapStyle}><RefreshCw size={18} color="#A9812F" /></div>
-                  <div style={menuTitleStyle}>Switch / Relink Account</div>
-                </div>
-                <ChevronRight size={16} color="#9A8F82" />
+          {/* Section: ACCOUNT ACTIONS (Logged In) OR SANCTUARY ACCESS (Guest) */}
+          {isClientLoggedIn ? (
+            <div>
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                color: '#6B6259',
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+                marginBottom: '8px',
+                paddingLeft: '4px'
+              }}>
+                ACCOUNT ACTIONS
               </div>
 
-              <button
-                onClick={() => setSignOutModalOpen(true)}
-                style={{
-                  backgroundColor: '#F9EFEF',
-                  border: '1px solid rgba(140, 58, 43, 0.15)',
-                  borderRadius: '16px',
-                  padding: '16px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  color: '#8C3A2B',
-                  fontSize: '14px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  width: '100%',
-                  marginTop: '4px'
-                }}
-              >
-                <LogOut size={16} color="#8C3A2B" />
-                <span>Sign Out of Pamwill</span>
-              </button>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div
+                  onClick={() => window.location.href = '/therapist'}
+                  style={menuCardStyle}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <div style={iconWrapStyle}><RefreshCw size={18} color="#A9812F" /></div>
+                    <div style={menuTitleStyle}>Switch / Relink Account</div>
+                  </div>
+                  <ChevronRight size={16} color="#9A8F82" />
+                </div>
+
+                <button
+                  onClick={() => setSignOutModalOpen(true)}
+                  style={{
+                    backgroundColor: '#F9EFEF',
+                    border: '1px solid rgba(140, 58, 43, 0.15)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    color: '#8C3A2B',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    width: '100%',
+                    marginTop: '4px'
+                  }}
+                >
+                  <LogOut size={16} color="#8C3A2B" />
+                  <span>Sign Out of Pamwill</span>
+                </button>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <div style={{
+                fontSize: '11px',
+                fontWeight: 800,
+                color: '#6B6259',
+                letterSpacing: '0.8px',
+                textTransform: 'uppercase',
+                marginBottom: '8px',
+                paddingLeft: '4px'
+              }}>
+                SANCTUARY ACCESS
+              </div>
+
+              <div style={{
+                backgroundColor: '#FFFFFF',
+                borderRadius: '16px',
+                border: '1px solid #E4DDD2',
+                padding: '20px',
+                boxShadow: '0 4px 14px rgba(31, 27, 22, 0.04)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                  <div style={{
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    backgroundColor: '#F7EEDD',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#A9812F'
+                  }}>
+                    <Lock size={16} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#1F1B16' }}>
+                      Exclusive Patron Privileges
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#6B6259' }}>
+                      Instant access via mobile OTP or Google
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ fontSize: '12px', color: '#6B6259', lineHeight: 1.5, marginBottom: '16px' }}>
+                  Log in to track your active rituals, access rebooking with previous preferred therapists, view GST invoices, and redeem earned PamCoins.
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    onClick={() => handleOpenAuth('login')}
+                    style={{
+                      backgroundColor: '#A9812F',
+                      color: '#FFFFFF',
+                      border: 'none',
+                      borderRadius: '12px',
+                      padding: '12px 16px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px',
+                      boxShadow: '0 3px 10px rgba(169, 129, 47, 0.22)'
+                    }}
+                  >
+                    <LogIn size={15} color="#FFFFFF" />
+                    <span>Sign In / Enter OTP</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleOpenAuth('register')}
+                    style={{
+                      backgroundColor: '#FFFFFF',
+                      color: '#A9812F',
+                      border: '1px solid #E4DDD2',
+                      borderRadius: '12px',
+                      padding: '11px 16px',
+                      fontSize: '13px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <UserPlus size={15} color="#A9812F" />
+                    <span>New to Pamwill? Create Account</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

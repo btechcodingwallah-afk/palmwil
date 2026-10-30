@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Booking, 
   BookingStatus, 
@@ -436,7 +436,17 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     return INITIAL_THERAPISTS;
   });
 
-  const [currentTherapistId, setCurrentTherapistId] = useState<string>('ther-1793003027409');
+  const [currentTherapistId, setCurrentTherapistId] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('pamwill_current_therapist_id');
+      if (saved && saved !== 'ther-1793003027409') return saved;
+      if (saved === 'ther-1793003027409') {
+        localStorage.removeItem('pamwill_current_therapist_id');
+        localStorage.setItem('pamwill_therapist_logged_in', 'false');
+      }
+    }
+    return '';
+  });
 
   const [bookings, setBookings] = useState<Booking[]>(() => {
     const saved = localStorage.getItem('pamwill_bookings');
@@ -813,8 +823,18 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [authMode, setAuthMode] = useState<'onboarding' | 'login' | 'register'>('login');
   const [authTargetRole, setAuthTargetRole] = useState<'client' | 'therapist'>('client');
   const [isTherapistLoggedIn, setIsTherapistLoggedIn] = useState<boolean>(() => {
-    const saved = localStorage.getItem('pamwill_therapist_logged_in');
-    return saved !== null ? JSON.parse(saved) : false;
+    if (typeof window !== 'undefined') {
+      const savedTherapistId = localStorage.getItem('pamwill_current_therapist_id');
+      const saved = localStorage.getItem('pamwill_therapist_logged_in');
+      if (savedTherapistId && saved !== null) {
+        try {
+          return JSON.parse(saved);
+        } catch {
+          return false;
+        }
+      }
+    }
+    return false;
   });
   const [therapistRegisterModalOpen, setTherapistRegisterModalOpen] = useState<boolean>(false);
   const [pendingGoogleUser, setPendingGoogleUser] = useState<{ email: string; name: string; photoUrl: string } | null>(() => {
@@ -823,8 +843,23 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   });
 
   useEffect(() => {
-    localStorage.setItem('pamwill_therapist_logged_in', JSON.stringify(isTherapistLoggedIn));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pamwill_therapist_logged_in', JSON.stringify(isTherapistLoggedIn));
+      if (!isTherapistLoggedIn) {
+        localStorage.removeItem('pamwill_current_therapist_id');
+      }
+    }
   }, [isTherapistLoggedIn]);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      if (currentTherapistId) {
+        localStorage.setItem('pamwill_current_therapist_id', currentTherapistId);
+      } else {
+        localStorage.removeItem('pamwill_current_therapist_id');
+      }
+    }
+  }, [currentTherapistId]);
 
   useEffect(() => {
     if (pendingGoogleUser) {
@@ -898,16 +933,23 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
       if (remoteTherapists && remoteTherapists.length > 0) {
         setTherapists(prev => {
-          // Merge wallet balance and stats if local has newer completion
-          return remoteTherapists.map(rt => {
+          const remoteIds = new Set(remoteTherapists.map(rt => rt.id));
+          const mergedRemote = remoteTherapists.map(rt => {
             const loc = prev.find(p => p.id === rt.id);
             if (!loc) return rt;
             return {
               ...rt,
               walletBalance: Math.max(rt.walletBalance || 0, loc.walletBalance || 0),
-              completedJobs: Math.max(rt.completedJobs || 0, loc.completedJobs || 0)
+              completedJobs: Math.max(rt.completedJobs || 0, loc.completedJobs || 0),
+              status: loc.status || rt.status
             };
           });
+          const localOnly = prev.filter(p => !remoteIds.has(p.id));
+          const allTherapists = [...localOnly, ...mergedRemote];
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('pamwill_therapists', JSON.stringify(allTherapists));
+          }
+          return allTherapists;
         });
         connected = true;
       }
@@ -1028,7 +1070,13 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     localStorage.setItem('pamwill_services', JSON.stringify(services));
   }, [services]);
 
-  const currentTherapist = therapists.find(t => t.id === currentTherapistId) || therapists[0];
+  const currentTherapist = useMemo(() => {
+    if (currentTherapistId) {
+      const found = therapists.find(t => t.id === currentTherapistId);
+      if (found) return found;
+    }
+    return therapists.find(t => t.status === 'Approved') || therapists[0] || INITIAL_THERAPISTS[0];
+  }, [therapists, currentTherapistId]);
 
   const getBookingMessages = useCallback((bookingId: string): ChatMessage[] => {
     if (chatMessages[bookingId] && chatMessages[bookingId].length > 0) {
@@ -1072,7 +1120,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
       id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       bookingId,
       sender,
-      senderName: resolvedSenderName,
+      senderName: resolvedSenderName || 'PamWill Member',
       text: text.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
@@ -1532,9 +1580,13 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const registerTherapist = (newTherapist: Therapist) => {
-    setTherapists(prev => [newTherapist, ...prev]);
+    setTherapists(prev => [newTherapist, ...prev.filter(t => t.id !== newTherapist.id)]);
     setCurrentTherapistId(newTherapist.id);
     setIsTherapistLoggedIn(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pamwill_current_therapist_id', newTherapist.id);
+      localStorage.setItem('pamwill_therapist_logged_in', 'true');
+    }
   };
 
   const updateTherapistProfile = (therapistId: string, updates: Partial<Therapist>) => {
@@ -1550,11 +1602,21 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const logoutTherapist = () => {
     setTherapists(prev => prev.map(t => t.id === currentTherapistId ? { ...t, isOnline: false } : t));
     setIsTherapistLoggedIn(false);
+    setCurrentTherapistId('');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('pamwill_current_therapist_id');
+      localStorage.setItem('pamwill_therapist_logged_in', 'false');
+      localStorage.removeItem('pamwill_pending_google_user');
+    }
   };
 
   const loginTherapist = (therapistId: string) => {
     setCurrentTherapistId(therapistId);
     setIsTherapistLoggedIn(true);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('pamwill_current_therapist_id', therapistId);
+      localStorage.setItem('pamwill_therapist_logged_in', 'true');
+    }
     setCurrentRole('therapist');
   };
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { ShieldAlert, Clock, CheckCircle2, AlertOctagon, FileText, ArrowRight } from 'lucide-react';
-import { Therapist } from '../../types';
+import { ShieldAlert, Clock, CheckCircle2, AlertOctagon, FileText, ArrowRight, Building, Sparkles } from 'lucide-react';
+import { Therapist, getTherapistRoleBadge, formatTherapistDisplayName } from '../../types';
 import { usePamwill } from '../../state/store';
 
 interface VerificationGateViewProps {
@@ -14,6 +14,8 @@ export const VerificationGateView: React.FC<VerificationGateViewProps> = ({
   therapist
 }) => {
   const { logoutTherapist } = usePamwill();
+  const roleBadge = getTherapistRoleBadge(therapist?.role);
+  const displayName = formatTherapistDisplayName(therapist?.fullName || '', therapist?.role);
 
   return (
     <div style={{
@@ -43,15 +45,30 @@ export const VerificationGateView: React.FC<VerificationGateViewProps> = ({
           )}
         </div>
 
-        <span className="eyebrow">Trust & Compliance Gate</span>
-        <h2 style={{ fontSize: '24px', margin: '6px 0' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
+          <span style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            padding: '3px 10px',
+            borderRadius: 'var(--radius-pill)',
+            backgroundColor: roleBadge.bg,
+            color: roleBadge.color,
+            border: `1px solid ${roleBadge.color}40`,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em'
+          }}>
+            {roleBadge.label}
+          </span>
+        </div>
+
+        <h2 style={{ fontSize: '24px', margin: '4px 0 6px 0', fontFamily: 'var(--font-serif)' }}>
           {therapist.status === 'Under Review' && "Application Under Review"}
           {therapist.status === 'Pending' && "Awaiting Verification"}
           {therapist.status === 'Suspended' && "Practitioner Account Suspended"}
         </h2>
-        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', maxWidth: '320px', margin: '0 auto', lineHeight: 1.4 }}>
+        <p style={{ fontSize: '13px', color: 'var(--text-secondary)', maxWidth: '360px', margin: '0 auto', lineHeight: 1.45 }}>
           {therapist.status === 'Under Review' && 
-            "Our compliance desk is currently cross-verifying your Aadhaar biometric records and CIDESCO massage diploma. Expected turnaround: 4-6 business hours."}
+            `Welcome, ${displayName}. Our compliance desk is currently cross-verifying your credentials and partner documentation. Expected turnaround: 4-6 business hours.`}
           {therapist.status === 'Pending' && 
             "Your submitted documents are in queue. You will receive an SMS and WhatsApp notification upon approval."}
           {therapist.status === 'Suspended' && 
@@ -61,26 +78,32 @@ export const VerificationGateView: React.FC<VerificationGateViewProps> = ({
 
       {/* Uploaded Documents Status Checklist */}
       <div className="card-luxury" style={{ padding: '18px', marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '15px', marginBottom: '12px' }}>Submitted Credentials ({therapist.fullName})</h3>
+        <h3 style={{ fontSize: '15px', marginBottom: '12px' }}>Submitted Credentials ({displayName})</h3>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {therapist.documents.map(doc => (
-            <div key={doc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FileText size={16} color="var(--accent-gold)" />
-                <span style={{ fontWeight: 500 }}>{doc.title}</span>
+          {therapist.documents && therapist.documents.length > 0 ? (
+            therapist.documents.map(doc => (
+              <div key={doc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <FileText size={16} color="var(--accent-gold)" />
+                  <span style={{ fontWeight: 500 }}>{doc.title}</span>
+                </div>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: doc.verificationStatus === 'verified' ? 'var(--status-success-bg)' : 'var(--accent-gold-light)',
+                  color: doc.verificationStatus === 'verified' ? 'var(--status-success)' : 'var(--accent-gold-hover)'
+                }}>
+                  {(doc.verificationStatus || 'PENDING').toUpperCase()}
+                </span>
               </div>
-              <span style={{
-                fontSize: '10px',
-                fontWeight: 600,
-                padding: '2px 8px',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: doc.verificationStatus === 'verified' ? 'var(--status-success-bg)' : 'var(--accent-gold-light)',
-                color: doc.verificationStatus === 'verified' ? 'var(--status-success)' : 'var(--accent-gold-hover)'
-              }}>
-                {doc.verificationStatus.toUpperCase()}
-              </span>
+            ))
+          ) : (
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', padding: '6px 0' }}>
+              Identity & Credential verification package submitted.
             </div>
-          ))}
+          )}
         </div>
       </div>
 

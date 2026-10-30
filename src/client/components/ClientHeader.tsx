@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MapPin, Bell, ChevronDown, Sparkles } from 'lucide-react';
+import { MapPin, Bell, ChevronDown, Sparkles, User } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 import { INDIAN_CITIES } from '../../data/indianCities';
 
@@ -115,7 +115,7 @@ export const ClientHeader: React.FC = () => {
             }}
             title={user.isAuthenticated ? "View My Profile & Settings" : "Click to sign in with Google or Phone OTP"}
           >
-            {user.avatarUrl ? (
+            {user.isAuthenticated && user.avatarUrl ? (
               <div style={{
                 width: '22px',
                 height: '22px',
@@ -135,7 +135,7 @@ export const ClientHeader: React.FC = () => {
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
                 />
               </div>
-            ) : (
+            ) : user.isAuthenticated ? (
               <div style={{
                 width: '22px',
                 height: '22px',
@@ -153,6 +153,8 @@ export const ClientHeader: React.FC = () => {
               }}>
                 {user.name.charAt(0)}
               </div>
+            ) : (
+              <User size={13} color="var(--accent-gold)" />
             )}
             <span style={{ maxWidth: '75px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {user.isAuthenticated ? user.name.split(' ')[0] : 'Sign In'}

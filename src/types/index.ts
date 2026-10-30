@@ -44,10 +44,14 @@ export type TherapistRole =
   | "physiotherapist"
   | "intern"
   | "therapist"
-  | "doctor";
+  | "doctor"
+  | "spa_center";
 
 export function formatTherapistDisplayName(fullName: string, role?: string): string {
   if (!fullName) return '';
+  if (role === 'spa_center') {
+    return fullName;
+  }
   const clean = fullName.replace(/^Dr\.\s*/i, '').replace(/\s*\(intern\)$/i, '').trim();
   if (role === 'physiotherapist' || role === 'doctor') {
     return `Dr. ${clean}`;
@@ -66,6 +70,16 @@ export function getTherapistRoleBadge(role?: string): {
   icon: string;
   desc: string;
 } {
+  if (role === 'spa_center') {
+    return {
+      label: 'Spa Center & Clinic',
+      short: 'Spa Center',
+      color: '#B45309',
+      bg: '#FEF3C7',
+      icon: 'building',
+      desc: 'Verified Wellness Sanctuary & Multi-Practitioner Spa Center'
+    };
+  }
   if (role === 'physiotherapist' || role === 'doctor') {
     return {
       label: 'Dr. Physiotherapist',

@@ -278,10 +278,10 @@ export const INITIAL_THERAPISTS: Therapist[] = [
 
 export const INITIAL_USER: UserProfile = {
   id: "guest",
-  name: "Guest Client",
+  name: "Guest Patron",
   phone: "",
   email: "",
-  avatarUrl: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=300&q=80",
+  avatarUrl: "",
   isAuthenticated: false,
   gender: "Other",
   age: 0,
