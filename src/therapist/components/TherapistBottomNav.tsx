@@ -1,22 +1,34 @@
 import React from 'react';
 import { 
-  LayoutDashboard, Calendar, User, MessageSquare 
+  LayoutDashboard, Calendar, User, MessageSquare, DollarSign, HelpCircle, Sparkles 
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
 export const TherapistBottomNav: React.FC = () => {
-  const { therapistSubRoute, setTherapistSubRoute, bookings, currentTherapist } = usePamwill();
+  const { 
+    therapistSubRoute, 
+    setTherapistSubRoute, 
+    bookings, 
+    currentTherapist, 
+    isTherapistLoggedIn 
+  } = usePamwill();
 
   const activeJobsCount = bookings.filter(b => 
     b.therapistId === currentTherapist?.id && 
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   ).length;
 
-  const navItems = [
+  const navItems = isTherapistLoggedIn ? [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'bookings', label: 'Active Jobs', icon: Calendar, badge: activeJobsCount > 0 ? activeJobsCount : undefined },
     { id: 'chat', label: 'Patient Chat', icon: MessageSquare },
     { id: 'profile', label: 'Profile', icon: User }
+  ] : [
+    { id: 'dashboard', label: 'Perks & Radar', icon: Sparkles },
+    { id: 'bookings', label: 'Live Jobs', icon: Calendar },
+    { id: 'earnings', label: 'Earnings', icon: DollarSign },
+    { id: 'faqs', label: 'Partner FAQs', icon: HelpCircle },
+    { id: 'profile', label: 'Join / Sign In', icon: User }
   ];
 
   return (
@@ -36,10 +48,10 @@ export const TherapistBottomNav: React.FC = () => {
       justifyContent: 'center'
     }}>
       <div style={{
-        maxWidth: '560px',
+        maxWidth: isTherapistLoggedIn ? '560px' : '680px',
         width: '100%',
         margin: '0 auto',
-        padding: '0 16px',
+        padding: '0 12px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around'
@@ -47,7 +59,7 @@ export const TherapistBottomNav: React.FC = () => {
         {navItems.map(item => {
           const isActive = 
             item.id === 'profile'
-              ? ['profile', 'earnings', 'daily-goal', 'edit-profile'].includes(therapistSubRoute)
+              ? ['profile', 'daily-goal', 'edit-profile'].includes(therapistSubRoute)
               : therapistSubRoute === item.id;
           const Icon = item.icon;
 
@@ -65,7 +77,7 @@ export const TherapistBottomNav: React.FC = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '4px',
-                padding: '6px 8px',
+                padding: '6px 6px',
                 borderRadius: '12px',
                 border: 'none',
                 backgroundColor: isActive ? 'rgba(212, 163, 89, 0.16)' : 'transparent',
@@ -104,7 +116,7 @@ export const TherapistBottomNav: React.FC = () => {
                 )}
               </div>
               <span style={{
-                fontSize: '11px',
+                fontSize: '10px',
                 fontWeight: isActive ? 700 : 500,
                 whiteSpace: 'nowrap',
                 letterSpacing: '-0.01em'
@@ -118,5 +130,4 @@ export const TherapistBottomNav: React.FC = () => {
     </nav>
   );
 };
-
 export default TherapistBottomNav;
