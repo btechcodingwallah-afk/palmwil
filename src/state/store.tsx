@@ -426,17 +426,11 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        const cleaned = parsed.filter((t: Therapist) => 
-          !t.id.startsWith('ther-doc') && 
-          !t.id.startsWith('ther-spa') && 
-          !t.id.startsWith('ther-int') &&
-          t.id !== 'ther-1788953840879' &&
-          t.id !== 'ther-1789309555782' &&
-          t.id !== 'ther-1790413299202' &&
-          t.id !== 'ther-1791440556858' &&
-          t.id !== 'ther-1791551131740'
-        );
-        if (cleaned.length > 0) return cleaned;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((t: Therapist) => t.id));
+          const missingInitial = INITIAL_THERAPISTS.filter(it => !existingIds.has(it.id));
+          return [...parsed, ...missingInitial];
+        }
       } catch {}
     }
     return INITIAL_THERAPISTS;

@@ -10,7 +10,7 @@ import { PHYSIO_ADD_ONS } from '../../data/physioData';
 import { usePamwill } from '../../state/store';
 import { INDIAN_CITIES } from '../../data/indianCities';
 import { PamwillMap } from '../../components/map/PamwillMap';
-import { calculateDistanceKm } from '../../services/googleMaps';
+import { calculateDistanceKm, reverseGeocodeCoords } from '../../services/googleMaps';
 
 interface BookingFlowModalProps {
   initialService?: MassageService;
@@ -68,24 +68,36 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   } | null>(null);
   const [isLocating, setIsLocating] = useState<boolean>(false);
 
-  // Handle live satellite location sharing
+  // Handle live satellite location sharing with Google Maps reverse geocoding
   const handleShareLiveLocation = () => {
     setIsLocating(true);
     if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        position => {
+        async position => {
           const { latitude, longitude, accuracy } = position.coords;
+          const lat = Number(latitude.toFixed(6));
+          const lng = Number(longitude.toFixed(6));
+          
+          let resolvedAddress = '';
+          try {
+            resolvedAddress = await reverseGeocodeCoords(lat, lng);
+          } catch (e) {
+            console.warn('Geocoding lookup error:', e);
+          }
+
           const loc = {
-            latitude: Number(latitude.toFixed(6)),
-            longitude: Number(longitude.toFixed(6)),
+            latitude: lat,
+            longitude: lng,
             accuracy: Math.round(accuracy) || 6,
             sharedAt: new Date().toISOString(),
-            placeName: `Live GPS Pin (${latitude.toFixed(4)}° N, ${longitude.toFixed(4)}° E)`
+            placeName: resolvedAddress || `Live GPS Pin (${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E)`
           };
           setLiveLocation(loc);
           setIsLocating(false);
-          if (!address.trim() || address.includes('Villa 42')) {
-            setAddress(`${user.address || user.city || 'Shared Live Location'}`);
+          if (resolvedAddress) {
+            setAddress(resolvedAddress);
+          } else if (!address.trim() || address.includes('Villa 42')) {
+            setAddress(user.address || user.city || `Sanctuary Pin (${lat.toFixed(4)}° N, ${lng.toFixed(4)}° E)`);
           }
         },
         error => {
@@ -95,12 +107,12 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
             longitude: 77.0266,
             accuracy: 6,
             sharedAt: new Date().toISOString(),
-            placeName: 'DLF Magnolias Golf Course Rd (Live GPS Pin)'
+            placeName: 'DLF Magnolias, Golf Course Rd (Sanctuary Base)'
           };
           setLiveLocation(loc);
           setIsLocating(false);
           if (!address.trim()) {
-            setAddress('The Magnolias, Sector 42, Golf Course Road (Live Pin Attached)');
+            setAddress('The Magnolias, Sector 42, Golf Course Road');
           }
         },
         { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
@@ -208,7 +220,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
 
   // Filter approved therapists and compute live distance to client sanctuary coordinates
   const therapistsWithDistance = therapists
-    .filter(t => t.status === 'Approved')
+    .filter(t => !t.status || t.status === 'Approved' || (t.status as string)?.toLowerCase() === 'approved' || (t.status as string) === 'Active')
     .map(t => {
       let distanceKm: number | null = null;
       if (t.currentLocation?.latitude && t.currentLocation?.longitude) {
@@ -224,7 +236,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
     });
 
   const filteredByPrefs = therapistsWithDistance
-    .filter(t => therapistGenderPref === 'No Preference' || t.gender === therapistGenderPref)
+    .filter(t => therapistGenderPref === 'No Preference' || (t.gender && t.gender.toLowerCase() === therapistGenderPref.toLowerCase()))
     .filter(t => {
       if (practitionerTier === 'All') return true;
       if (practitionerTier === 'doctor') {
@@ -236,13 +248,18 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
       return true;
     });
 
-  // Strict 10 km filter: only therapists within 10 km
+  // Strict 10 km filter: therapists within 10 km
   const therapistsWithin10Km = filteredByPrefs.filter(t => t.isWithinPerimeter);
+  const anyWithin10Km = therapistsWithDistance.filter(t => t.isWithinPerimeter);
 
-  // If none within 10 km (edge case), provide nearest available specialists in city sorted by proximity
+  // If none within 10 km matching current filter, fallback gracefully to nearest verified specialists
   const displayedTherapists = therapistsWithin10Km.length > 0
     ? [...therapistsWithin10Km].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0))
-    : [...filteredByPrefs].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0));
+    : anyWithin10Km.length > 0
+    ? [...anyWithin10Km].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0))
+    : filteredByPrefs.length > 0
+    ? [...filteredByPrefs].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0))
+    : [...therapistsWithDistance].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0));
 
   useEffect(() => {
     if (step === 4 && displayedTherapists.length > 0) {
@@ -872,8 +889,8 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                     </div>
                     <div style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>
                       {therapistsWithin10Km.length > 0
-                        ? `Showing certified practitioners within 10 km Google Maps radius`
-                        : `Showing nearest available practitioners in ${INDIAN_CITIES.find(c => c.id === selectedCity)?.name || 'Metro'}`}
+                        ? `Specialists stationed within 10 km Google Maps radius`
+                        : `Nearest certified specialists in your region sorted by proximity`}
                     </div>
                   </div>
                 </div>

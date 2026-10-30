@@ -84,6 +84,70 @@ export const INITIAL_THERAPISTS: Therapist[] = [
     serviceRadiusKm: 10
   },
   {
+    id: "ther-pb-1",
+    fullName: "Simran Kaur",
+    photoUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 98140 33445",
+    email: "simran.kaur@pamwill.com",
+    status: "Approved",
+    role: "spa_therapist",
+    gender: "Female",
+    rating: 4.97,
+    reviewCount: 56,
+    completedJobs: 49,
+    experienceYears: 7,
+    languages: ["Punjabi", "Hindi", "English"],
+    availableCities: ["Punjab", "Jalandhar", "Kapurthala", "Delhi NCR"],
+    workingHours: "08:00 AM - 09:00 PM",
+    isOnline: true,
+    walletBalance: 6400,
+    bankAccount: "HDFC Bank •••• 7712",
+    upiId: "simran@okhdfcbank",
+    certifications: [
+      "CIDESCO Diploma in Swedish & Deep Tissue",
+      "Ayurvedic Abhyanga & Marma Therapy Master"
+    ],
+    documents: [],
+    currentLocation: {
+      latitude: 31.2522,
+      longitude: 75.6995,
+      area: "Civil Lines & Model Town, Jalandhar / Kapurthala"
+    },
+    serviceRadiusKm: 15
+  },
+  {
+    id: "ther-pb-2",
+    fullName: "Dr. Harpreet Singh",
+    photoUrl: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80",
+    phone: "+91 98722 66778",
+    email: "dr.harpreet@pamwill.com",
+    status: "Approved",
+    role: "physiotherapist",
+    gender: "Male",
+    rating: 4.99,
+    reviewCount: 82,
+    completedJobs: 71,
+    experienceYears: 10,
+    languages: ["Punjabi", "English", "Hindi"],
+    availableCities: ["Punjab", "Jalandhar", "Kapurthala"],
+    workingHours: "07:30 AM - 08:00 PM",
+    isOnline: true,
+    walletBalance: 11200,
+    bankAccount: "Axis Bank •••• 3041",
+    upiId: "dr.harpreet@okaxis",
+    certifications: [
+      "Master of Physiotherapy (MPT Sports & Spine)",
+      "Certified Chiropractic & Spinal Decompression"
+    ],
+    documents: [],
+    currentLocation: {
+      latitude: 31.2550,
+      longitude: 75.7010,
+      area: "Model Town & Urban Estate, Jalandhar / Kapurthala"
+    },
+    serviceRadiusKm: 15
+  },
+  {
     id: "ther-doc-1",
     fullName: "Dr. Ananya Iyer",
     photoUrl: "https://images.unsplash.com/photo-1594824813571-638f026385a1?auto=format&fit=crop&w=600&q=80",
