@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   X, Check, ChevronRight, ChevronLeft, Clock, Calendar, 
-  MapPin, Shield, Sparkles, User, AlertCircle, CreditCard, Smartphone,
+  MapPin, Shield, ShieldCheck, Sparkles, User, AlertCircle, CreditCard, Smartphone,
   Navigation, CheckCircle2, Stethoscope, GraduationCap
 } from 'lucide-react';
 import { MassageService, AddOn, Booking } from '../../types';
@@ -23,7 +23,28 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   onClose,
   onSuccess
 }) => {
-  const { services, therapists, user, updateUser, selectedCity, createBooking } = usePamwill();
+  const { 
+    services, 
+    therapists, 
+    user, 
+    updateUser, 
+    selectedCity, 
+    createBooking,
+    setAuthModalOpen,
+    setAuthMode,
+    setAuthTargetRole 
+  } = usePamwill();
+
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+  const [awaitingAuthForFinalStep, setAwaitingAuthForFinalStep] = useState<boolean>(false);
+
+  // Automatically advance to final Review & Reserve step once user signs in
+  useEffect(() => {
+    if (isClientLoggedIn && awaitingAuthForFinalStep) {
+      setAwaitingAuthForFinalStep(false);
+      setStep(7);
+    }
+  }, [isClientLoggedIn, awaitingAuthForFinalStep]);
 
   const [step, setStep] = useState<number>(initialService ? 2 : 1);
   const [selectedService, setSelectedService] = useState<MassageService>(initialService || services[0]);
@@ -155,12 +176,27 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
     if (step === 2 && isTherapyService) {
       // For therapy, skip duration/timing selection - that is only for spa!
       setStep(4);
+    } else if (step === 6) {
+      // Before final one (Step 7: Review & Reserve), ask user to sign up or log in to continue
+      if (!isClientLoggedIn) {
+        setAwaitingAuthForFinalStep(true);
+        setAuthTargetRole('client');
+        setAuthMode('login');
+        setAuthModalOpen(true);
+        return;
+      }
+      setStep(7);
     } else {
       setStep(step + 1);
     }
   };
 
   const handleBack = () => {
+    if (awaitingAuthForFinalStep) {
+      setAwaitingAuthForFinalStep(false);
+      setStep(6);
+      return;
+    }
     if (step === 4 && isTherapyService) {
       // Step back skips Step 3 for therapy
       setStep(2);
@@ -281,6 +317,14 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   };
 
   const handleConfirmAndPay = async () => {
+    if (!isClientLoggedIn) {
+      setAwaitingAuthForFinalStep(true);
+      setAuthTargetRole('client');
+      setAuthMode('login');
+      setAuthModalOpen(true);
+      return;
+    }
+
     setIsProcessing(true);
 
     const completeOrder = (payId?: string) => {
@@ -455,18 +499,25 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                   <ChevronLeft size={20} color="var(--text-primary)" />
                 </button>
               )}
-              <div>
-                <span className="eyebrow">Booking Step {isTherapyService ? (step >= 4 ? step - 1 : step) : step} of {isTherapyService ? 6 : 7}</span>
-                <h3 style={{ fontSize: '17px', margin: 0 }}>
-                  {step === 1 && (isTherapyService ? "Choose Clinical Therapy" : "Choose Massage Therapy")}
-                  {step === 2 && "Select Date & Time"}
-                  {step === 3 && (isSpaService ? "Select Duration" : "Clinical Treatment Protocol")}
-                  {step === 4 && "Therapist Preference"}
-                  {step === 5 && "Sanctuary Location"}
-                  {step === 6 && (isTherapyService ? "Clinical Modality Add-ons" : "Curated Luxury Add-ons")}
-                  {step === 7 && "Review & Reserve"}
-                </h3>
-              </div>
+              {awaitingAuthForFinalStep && !isClientLoggedIn ? (
+                <div>
+                  <span className="eyebrow" style={{ color: 'var(--accent-gold)' }}>Authentication Required</span>
+                  <h3 style={{ fontSize: '17px', margin: 0 }}>Sign In to Finalize Booking</h3>
+                </div>
+              ) : (
+                <div>
+                  <span className="eyebrow">Booking Step {isTherapyService ? (step >= 4 ? step - 1 : step) : step} of {isTherapyService ? 6 : 7}</span>
+                  <h3 style={{ fontSize: '17px', margin: 0 }}>
+                    {step === 1 && (isTherapyService ? "Choose Clinical Therapy" : "Choose Massage Therapy")}
+                    {step === 2 && "Select Date & Time"}
+                    {step === 3 && (isSpaService ? "Select Duration" : "Clinical Treatment Protocol")}
+                    {step === 4 && "Therapist Preference"}
+                    {step === 5 && "Sanctuary Location"}
+                    {step === 6 && (isTherapyService ? "Clinical Modality Add-ons" : "Curated Luxury Add-ons")}
+                    {step === 7 && "Review & Reserve"}
+                  </h3>
+                </div>
+              )}
             </div>
             <button 
               onClick={onClose}
@@ -505,6 +556,109 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
 
         {/* Step Body Content */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
+
+          {/* ================= AUTHENTICATION REQUIRED BEFORE FINAL STEP ================= */}
+          {awaitingAuthForFinalStep && !isClientLoggedIn ? (
+            <div style={{
+              textAlign: 'center',
+              padding: '36px 20px',
+              backgroundColor: 'var(--bg-surface)',
+              borderRadius: '20px',
+              border: '1px solid var(--border-hairline)',
+              boxShadow: '0 8px 30px rgba(0,0,0,0.25)',
+              margin: '10px auto'
+            }}>
+              <div style={{
+                width: '64px',
+                height: '64px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(198, 165, 103, 0.15)',
+                color: 'var(--accent-gold)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 16px auto',
+                border: '1px solid rgba(198, 165, 103, 0.3)'
+              }}>
+                <ShieldCheck size={32} />
+              </div>
+
+              <span className="eyebrow" style={{ color: 'var(--accent-gold)' }}>Configuration Saved • Step 6 of 6 Complete</span>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', margin: '8px 0 6px 0' }}>
+                Sign In or Register to Continue
+              </h2>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', maxWidth: '440px', margin: '0 auto 20px auto', lineHeight: 1.55 }}>
+                You have configured your treatment details! Before proceeding to the final review and reservation, please sign in or create an account to assign your certified practitioner and secure your slot.
+              </p>
+
+              {/* Summary of Preserved Configuration */}
+              <div style={{
+                backgroundColor: 'var(--bg-secondary)',
+                borderRadius: '14px',
+                padding: '14px 18px',
+                maxWidth: '440px',
+                margin: '0 auto 24px auto',
+                textAlign: 'left',
+                border: '1px solid var(--border-hairline)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                fontSize: '12.5px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
+                  <span>Therapy:</span>
+                  <strong style={{ color: 'var(--text-primary)' }}>{selectedService.name}</strong>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
+                  <span>Scheduled:</span>
+                  <span style={{ color: 'var(--text-primary)' }}>{selectedDate} at {selectedTime}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
+                  <span>Location:</span>
+                  <span style={{ color: 'var(--text-primary)' }}>{locationType} • {selectedCity.toUpperCase()}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-secondary)' }}>
+                  <span>Estimated Total:</span>
+                  <strong style={{ color: 'var(--accent-gold)' }}>₹{finalTotal}</strong>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                <button
+                  onClick={() => {
+                    setAuthTargetRole('client');
+                    setAuthMode('login');
+                    setAuthModalOpen(true);
+                  }}
+                  className="btn-gold"
+                  style={{
+                    padding: '12px 28px',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Sign In / Register
+                </button>
+                <button
+                  onClick={() => setAwaitingAuthForFinalStep(false)}
+                  style={{
+                    backgroundColor: 'transparent',
+                    color: 'var(--text-secondary)',
+                    border: '1px solid var(--border-hairline)',
+                    padding: '12px 20px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Back to Add-ons
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
 
           {/* ================= STEP 1: SELECT SERVICE ================= */}
           {step === 1 && (
@@ -1381,6 +1535,48 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
           {/* ================= STEP 7: REVIEW & PAY ================= */}
           {step === 7 && (
             <div>
+              {/* Sign In Required Notice Banner if unauthenticated */}
+              {!isClientLoggedIn && (
+                <div style={{
+                  padding: '12px 16px',
+                  backgroundColor: 'rgba(198, 165, 103, 0.12)',
+                  borderRadius: '14px',
+                  border: '1px solid rgba(198, 165, 103, 0.35)',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: '12px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <ShieldCheck size={18} color="var(--accent-gold)" style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: '13px', color: 'var(--text-primary)', fontWeight: 600 }}>
+                      Sign in required to finalize and confirm this booking.
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setAuthTargetRole('client');
+                      setAuthMode('login');
+                      setAuthModalOpen(true);
+                    }}
+                    style={{
+                      backgroundColor: 'var(--accent-gold)',
+                      color: '#100E0C',
+                      border: 'none',
+                      padding: '6px 14px',
+                      borderRadius: 'var(--radius-pill)',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      flexShrink: 0
+                    }}
+                  >
+                    Sign In
+                  </button>
+                </div>
+              )}
+
               {/* Service Summary Card */}
               <div style={{
                 padding: '16px',
@@ -1621,6 +1817,8 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
               </div>
             </div>
           )}
+          </>
+          )}
 
         </div>
 
@@ -1642,13 +1840,25 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
             </div>
           </div>
 
-          {step < 7 ? (
+          {awaitingAuthForFinalStep && !isClientLoggedIn ? (
+            <button
+              onClick={() => {
+                setAuthTargetRole('client');
+                setAuthMode('login');
+                setAuthModalOpen(true);
+              }}
+              className="btn-gold"
+              style={{ minWidth: '160px' }}
+            >
+              Sign In to Continue <ChevronRight size={16} />
+            </button>
+          ) : step < 7 ? (
             <button
               onClick={handleContinue}
               className="btn-primary"
               style={{ minWidth: '140px' }}
             >
-              Continue <ChevronRight size={16} />
+              {step === 6 && !isClientLoggedIn ? 'Continue to Sign In' : 'Continue'} <ChevronRight size={16} />
             </button>
           ) : (
             <button
@@ -1657,7 +1867,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
               className="btn-gold"
               style={{ minWidth: '160px' }}
             >
-              {isProcessing ? 'Authorizing...' : 'Confirm & Reserve'}
+              {isProcessing ? 'Authorizing...' : (!isClientLoggedIn ? 'Sign In to Confirm' : 'Confirm & Reserve')}
             </button>
           )}
         </div>
