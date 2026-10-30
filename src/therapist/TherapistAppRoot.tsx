@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   LayoutDashboard, Calendar, DollarSign, MessageSquare, 
-  User, Bell, Shield, Trophy, ShoppingBag 
+  User, Bell, Shield, Trophy, ShoppingBag, X 
 } from 'lucide-react';
 import { usePamwill } from '../state/store';
 import { TherapistWebHeader } from './components/TherapistWebHeader';
@@ -43,38 +43,15 @@ export const TherapistAppRoot: React.FC = () => {
   } = usePamwill();
 
   const [selectedBookingIdForWorkflow, setSelectedBookingIdForWorkflow] = useState<string | null>(null);
+  const [showVerificationModal, setShowVerificationModal] = useState<boolean>(false);
 
   // Derive the active job from live bookings state to avoid stale snapshots
   const selectedBookingForWorkflow = selectedBookingIdForWorkflow 
     ? bookings.find(b => b.id === selectedBookingIdForWorkflow) || null 
     : null;
 
-  // Gated access check for LOGGED IN practitioners: Unverified or Suspended practitioners see Verification Gate
-  if (isTherapistLoggedIn && currentTherapist?.status !== 'Approved') {
-    return (
-      <div style={{ minHeight: '100vh', width: '100%' }}>
-        <VerificationGateView
-          therapist={currentTherapist}
-          onSwitchTherapist={id => setCurrentTherapistId(id)}
-          onSwitchToAdmin={() => setCurrentRole('admin')}
-          onOpenRegister={() => {
-            setAuthTargetRole('therapist');
-            setAuthMode('register');
-            setAuthModalOpen(true);
-          }}
-        />
-
-        <TherapistRegisterModal
-          isOpen={therapistRegisterModalOpen}
-          onClose={() => setTherapistRegisterModalOpen(false)}
-          onRegistered={newT => {
-            registerTherapist(newT);
-            setTherapistRegisterModalOpen(false);
-          }}
-        />
-      </div>
-    );
-  }
+  const isApproved = isTherapistLoggedIn && currentTherapist?.status === 'Approved';
+  const isUnderReview = isTherapistLoggedIn && currentTherapist?.status !== 'Approved';
 
   const handleAcceptJob = (bookingId: string) => {
     updateBookingStatus(bookingId, 'Accepted');
@@ -98,30 +75,30 @@ export const TherapistAppRoot: React.FC = () => {
     }}>
       
       {/* Responsive Therapist Portal Header */}
-      <TherapistWebHeader />
+      <TherapistWebHeader onOpenVerificationModal={() => setShowVerificationModal(true)} />
 
       {/* Main Tab Screen Content */}
       <main style={{ flex: 1, position: 'relative', paddingBottom: '80px' }}>
         {/* =========================================================================
-            1. UNAUTHENTICATED / GUEST PARTNER MODE:
-            Never block with full-screen login card! Show app features, live job radar,
-            perks, earnings simulator, comprehensive FAQs, and motivating CTAs.
+            1. EXPLORATION / GUEST / UNDER REVIEW PARTNER MODE:
+            Never block with full-screen gate! Show app features, live job radar,
+            perks, earnings simulator, comprehensive FAQs, and let the partner explore.
             ========================================================================= */}
-        {!isTherapistLoggedIn ? (
+        {!isApproved ? (
           therapistSubRoute === 'bookings' ? (
-            <PartnerBookingsPreviewView />
+            <PartnerBookingsPreviewView onOpenVerificationModal={() => setShowVerificationModal(true)} />
           ) : therapistSubRoute === 'earnings' ? (
             <TherapistEarningsView />
           ) : therapistSubRoute === 'profile' ? (
-            <PartnerProfilePreviewView />
+            <PartnerProfilePreviewView onOpenVerificationModal={() => setShowVerificationModal(true)} />
           ) : (
             /* Default for 'dashboard' or 'faqs': Interactive Discovery, Live Radar, Simulator & FAQs */
-            <PartnerDiscoveryView />
+            <PartnerDiscoveryView onOpenVerificationModal={() => setShowVerificationModal(true)} />
           )
         ) : (
           /* =========================================================================
-             2. AUTHENTICATED / NORMAL OPERATIONAL MODE:
-             Show normal operational dashboard, actual incoming jobs, real earnings,
+             2. AUTHENTICATED / OPERATIONAL MODE FOR APPROVED PARTNERS:
+             Show live dispatch dashboard, incoming jobs, real earnings,
              real client chat, and live Google Maps profile perimeter configuration.
              ========================================================================= */
           therapistSubRoute === 'daily-goal' ? (
@@ -175,6 +152,76 @@ export const TherapistAppRoot: React.FC = () => {
           setTherapistRegisterModalOpen(false);
         }}
       />
+
+      {/* Verification Details Modal for Practitioners Under Review */}
+      {showVerificationModal && isUnderReview && currentTherapist && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(12px)',
+            zIndex: 1200,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '20px'
+          }}
+          onClick={() => setShowVerificationModal(false)}
+        >
+          <div 
+            style={{
+              maxWidth: '540px',
+              width: '100%',
+              backgroundColor: 'var(--bg-primary)',
+              borderRadius: '24px',
+              border: '1px solid rgba(212, 163, 89, 0.4)',
+              boxShadow: '0 24px 60px rgba(0, 0, 0, 0.75)',
+              position: 'relative',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowVerificationModal(false)}
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                color: '#FAF8F5',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 10
+              }}
+              title="Close and return to portal exploration"
+            >
+              <X size={18} />
+            </button>
+
+            <VerificationGateView
+              therapist={currentTherapist}
+              onSwitchTherapist={id => setCurrentTherapistId(id)}
+              onSwitchToAdmin={() => setCurrentRole('admin')}
+              onOpenRegister={() => {
+                setAuthTargetRole('therapist');
+                setAuthMode('register');
+                setAuthModalOpen(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
     </div>
   );

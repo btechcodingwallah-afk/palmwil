@@ -6,11 +6,21 @@ import {
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
-export const PartnerProfilePreviewView: React.FC = () => {
-  const { setAuthTargetRole, setAuthMode, setAuthModalOpen, setTherapistSubRoute } = usePamwill();
+interface PartnerProfilePreviewViewProps {
+  onOpenVerificationModal?: () => void;
+}
+
+export const PartnerProfilePreviewView: React.FC<PartnerProfilePreviewViewProps> = ({ onOpenVerificationModal }) => {
+  const { currentTherapist, isTherapistLoggedIn, logoutTherapist, setAuthTargetRole, setAuthMode, setAuthModalOpen, setTherapistSubRoute } = usePamwill();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
+  const isUnderReview = isTherapistLoggedIn && currentTherapist?.status !== 'Approved';
+
   const handleOpenRegister = () => {
+    if (isUnderReview && onOpenVerificationModal) {
+      onOpenVerificationModal();
+      return;
+    }
     setAuthTargetRole('therapist');
     setAuthMode('register');
     setAuthModalOpen(true);
@@ -75,56 +85,109 @@ export const PartnerProfilePreviewView: React.FC = () => {
 
         {/* Dual Primary Actions */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'center' }}>
-          <button
-            onClick={handleOpenLogin}
-            style={{
-              padding: '12px 24px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'transparent',
-              color: '#FAF8F5',
-              border: '1.5px solid var(--accent-gold)',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 150ms ease'
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.backgroundColor = 'rgba(212, 163, 89, 0.15)';
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.backgroundColor = 'transparent';
-            }}
-          >
-            <UserCheck size={16} color="var(--accent-gold)" />
-            <span>Sign In to Existing Account</span>
-          </button>
+          {isUnderReview ? (
+            <>
+              <button
+                onClick={onOpenVerificationModal}
+                style={{
+                  padding: '12px 26px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'var(--accent-gold)',
+                  color: '#15120F',
+                  border: 'none',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 6px 20px rgba(212, 163, 89, 0.4)',
+                  transition: 'transform 120ms ease'
+                }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <Clock size={16} />
+                <span>Application Under Review — View Credentials</span>
+                <ArrowRight size={14} />
+              </button>
 
-          <button
-            onClick={handleOpenRegister}
-            style={{
-              padding: '12px 26px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--accent-gold)',
-              color: '#15120F',
-              border: 'none',
-              fontSize: '13px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              boxShadow: '0 6px 20px rgba(212, 163, 89, 0.4)',
-              transition: 'transform 120ms ease'
-            }}
-            onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-            onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
-          >
-            <Sparkles size={16} />
-            <span>Apply as Therapist / Spa (5 Min)</span>
-          </button>
+              <button
+                onClick={logoutTherapist}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'transparent',
+                  color: '#FAF8F5',
+                  border: '1.5px solid rgba(239, 68, 68, 0.5)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 150ms ease'
+                }}
+                onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(239, 68, 68, 0.15)')}
+                onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+              >
+                <span>Sign Out</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleOpenLogin}
+                style={{
+                  padding: '12px 24px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'transparent',
+                  color: '#FAF8F5',
+                  border: '1.5px solid var(--accent-gold)',
+                  fontSize: '13px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 150ms ease'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.backgroundColor = 'rgba(212, 163, 89, 0.15)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.backgroundColor = 'transparent';
+                }}
+              >
+                <UserCheck size={16} color="var(--accent-gold)" />
+                <span>Sign In to Existing Account</span>
+              </button>
+
+              <button
+                onClick={handleOpenRegister}
+                style={{
+                  padding: '12px 26px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'var(--accent-gold)',
+                  color: '#15120F',
+                  border: 'none',
+                  fontSize: '13px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 6px 20px rgba(212, 163, 89, 0.4)',
+                  transition: 'transform 120ms ease'
+                }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <Sparkles size={16} />
+                <span>Apply as Therapist / Spa (5 Min)</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -233,9 +296,9 @@ export const PartnerProfilePreviewView: React.FC = () => {
               width: '100%',
               padding: '11px',
               borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--accent-gold)',
-              color: '#15120F',
-              border: 'none',
+              backgroundColor: isUnderReview ? 'rgba(212, 163, 89, 0.2)' : 'var(--accent-gold)',
+              color: isUnderReview ? 'var(--accent-gold)' : '#15120F',
+              border: isUnderReview ? '1.5px solid var(--accent-gold)' : 'none',
               fontSize: '13px',
               fontWeight: 800,
               cursor: 'pointer',
@@ -245,7 +308,7 @@ export const PartnerProfilePreviewView: React.FC = () => {
               gap: '6px'
             }}
           >
-            <span>Apply Now (5 Minutes)</span>
+            <span>{isUnderReview ? 'Application Under Review — Inspect Status' : 'Apply Now (5 Minutes)'}</span>
             <ArrowRight size={14} />
           </button>
         </div>

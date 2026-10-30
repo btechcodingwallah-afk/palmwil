@@ -6,7 +6,11 @@ import {
 import { usePamwill } from '../../state/store';
 import { getTherapistRoleBadge, formatTherapistDisplayName } from '../../types';
 
-export const TherapistWebHeader: React.FC = () => {
+interface TherapistWebHeaderProps {
+  onOpenVerificationModal?: () => void;
+}
+
+export const TherapistWebHeader: React.FC<TherapistWebHeaderProps> = ({ onOpenVerificationModal }) => {
   const { 
     currentTherapist, 
     therapistSubRoute, 
@@ -38,6 +42,7 @@ export const TherapistWebHeader: React.FC = () => {
 
   const roleBadge = getTherapistRoleBadge(currentTherapist?.role);
   const displayName = formatTherapistDisplayName(currentTherapist?.fullName || '', currentTherapist?.role);
+  const isUnderReview = isTherapistLoggedIn && currentTherapist?.status !== 'Approved';
 
   return (
     <>
@@ -165,8 +170,8 @@ export const TherapistWebHeader: React.FC = () => {
               </div>
             </div>
 
-            {/* If Logged In: Online / Offline Toggle Switch */}
-            {isTherapistLoggedIn && (
+            {/* If Logged In AND Approved: Online / Offline Toggle Switch */}
+            {isTherapistLoggedIn && currentTherapist?.status === 'Approved' && (
               <button
                 onClick={() => currentTherapist?.id && toggleTherapistOnline(currentTherapist.id)}
                 style={{
@@ -201,48 +206,98 @@ export const TherapistWebHeader: React.FC = () => {
           {/* Right: Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             {isTherapistLoggedIn ? (
-              /* Logged in state: Wallet & Logout */
-              <>
-                <button
-                  onClick={() => handleNavClick('earnings')}
-                  style={{
-                    padding: '5px 10px',
-                    borderRadius: 'var(--radius-pill)',
-                    backgroundColor: 'rgba(169, 129, 47, 0.15)',
-                    border: '1px solid rgba(169, 129, 47, 0.35)',
-                    color: '#FAF8F5',
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    whiteSpace: 'nowrap'
-                  }}
-                  title="Current Payout Balance"
-                >
-                  <DollarSign size={12} color="var(--accent-gold)" />
-                  <span>₹{currentTherapist?.walletBalance || 0}</span>
-                </button>
+              isUnderReview ? (
+                /* Under Review State: Status indicator & Sign Out */
+                <>
+                  <button
+                    onClick={onOpenVerificationModal}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      padding: '6px 12px',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'rgba(212, 163, 89, 0.16)',
+                      border: '1px solid rgba(212, 163, 89, 0.4)',
+                      color: 'var(--accent-gold)',
+                      fontSize: '11px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 150ms ease'
+                    }}
+                    title="Click to inspect uploaded documents and review progress"
+                  >
+                    <span style={{
+                      width: '7px',
+                      height: '7px',
+                      borderRadius: '50%',
+                      backgroundColor: 'var(--accent-gold)'
+                    }} />
+                    <span>Under Review</span>
+                  </button>
 
-                <button
-                  onClick={logoutTherapist}
-                  style={{
-                    background: 'none',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    borderRadius: 'var(--radius-pill)',
-                    padding: '5px 10px',
-                    color: '#EF4444',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 150ms ease',
-                    whiteSpace: 'nowrap'
-                  }}
-                >
-                  Sign Out
-                </button>
-              </>
+                  <button
+                    onClick={logoutTherapist}
+                    style={{
+                      background: 'none',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: 'var(--radius-pill)',
+                      padding: '5px 10px',
+                      color: '#EF4444',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                /* Approved Operational State: Wallet & Logout */
+                <>
+                  <button
+                    onClick={() => handleNavClick('earnings')}
+                    style={{
+                      padding: '5px 10px',
+                      borderRadius: 'var(--radius-pill)',
+                      backgroundColor: 'rgba(169, 129, 47, 0.15)',
+                      border: '1px solid rgba(169, 129, 47, 0.35)',
+                      color: '#FAF8F5',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title="Current Payout Balance"
+                  >
+                    <DollarSign size={12} color="var(--accent-gold)" />
+                    <span>₹{currentTherapist?.walletBalance || 0}</span>
+                  </button>
+
+                  <button
+                    onClick={logoutTherapist}
+                    style={{
+                      background: 'none',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: 'var(--radius-pill)',
+                      padding: '5px 10px',
+                      color: '#EF4444',
+                      fontSize: '10px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      transition: 'all 150ms ease',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    Sign Out
+                  </button>
+                </>
+              )
             ) : (
               /* Unauthenticated / Guest Partner State: Motivational Join / Sign In CTAs */
               <>

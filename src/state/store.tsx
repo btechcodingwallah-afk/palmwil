@@ -941,7 +941,8 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
               ...rt,
               walletBalance: Math.max(rt.walletBalance || 0, loc.walletBalance || 0),
               completedJobs: Math.max(rt.completedJobs || 0, loc.completedJobs || 0),
-              status: loc.status || rt.status
+              status: rt.status || loc.status,
+              documents: (rt.documents && rt.documents.length > 0) ? rt.documents : (loc.documents || [])
             };
           });
           const localOnly = prev.filter(p => !remoteIds.has(p.id));
@@ -1019,7 +1020,16 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
         } catch {}
       }
     };
+    const handleTherapistUpdated = () => {
+      try {
+        const saved = localStorage.getItem('pamwill_therapists');
+        if (saved) {
+          setTherapists(JSON.parse(saved));
+        }
+      } catch {}
+    };
     window.addEventListener('storage', handleStorage);
+    window.addEventListener('pamwill_therapist_updated', handleTherapistUpdated);
 
     // Subscribe to Realtime Postgres changes across tables
     const unsubscribe = subscribeToRealtimeUpdates((table, event, payload) => {
@@ -1048,6 +1058,7 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     return () => {
       window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('pamwill_therapist_updated', handleTherapistUpdated);
       unsubscribe();
       unsubscribeFirebase();
     };
@@ -1524,31 +1535,55 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const approveTherapist = (therapistId: string) => {
-    setTherapists(prev => prev.map(t => {
-      if (t.id === therapistId) {
-        return {
-          ...t,
-          status: 'Approved' as const,
-          documents: t.documents.map(d => ({ ...d, verificationStatus: 'verified' as const }))
-        };
+    let updatedDocs: any[] = [];
+    setTherapists(prev => {
+      const updated = prev.map(t => {
+        if (t.id === therapistId) {
+          updatedDocs = t.documents.map(d => ({ ...d, verificationStatus: 'verified' as const }));
+          return {
+            ...t,
+            status: 'Approved' as const,
+            documents: updatedDocs
+          };
+        }
+        return t;
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pamwill_therapists', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('pamwill_therapist_updated'));
       }
-      return t;
-    }));
-    dbUpdateTherapist(therapistId, { status: 'Approved' });
+      return updated;
+    });
+    dbUpdateTherapist(therapistId, { 
+      status: 'Approved',
+      documents: updatedDocs
+    });
   };
 
   const rejectTherapist = (therapistId: string) => {
-    setTherapists(prev => prev.map(t => {
-      if (t.id === therapistId) {
-        return {
-          ...t,
-          status: 'Suspended' as const,
-          documents: t.documents.map(d => ({ ...d, verificationStatus: 'rejected' as const }))
-        };
+    let updatedDocs: any[] = [];
+    setTherapists(prev => {
+      const updated = prev.map(t => {
+        if (t.id === therapistId) {
+          updatedDocs = t.documents.map(d => ({ ...d, verificationStatus: 'rejected' as const }));
+          return {
+            ...t,
+            status: 'Suspended' as const,
+            documents: updatedDocs
+          };
+        }
+        return t;
+      });
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('pamwill_therapists', JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('pamwill_therapist_updated'));
       }
-      return t;
-    }));
-    dbUpdateTherapist(therapistId, { status: 'Suspended' });
+      return updated;
+    });
+    dbUpdateTherapist(therapistId, { 
+      status: 'Suspended',
+      documents: updatedDocs
+    });
   };
 
   const submitReview = (bookingId: string, review: BookingReview) => {

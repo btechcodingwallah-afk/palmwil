@@ -5,10 +5,19 @@ import {
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
-export const PartnerBookingsPreviewView: React.FC = () => {
-  const { setAuthTargetRole, setAuthMode, setAuthModalOpen } = usePamwill();
+interface PartnerBookingsPreviewViewProps {
+  onOpenVerificationModal?: () => void;
+}
+
+export const PartnerBookingsPreviewView: React.FC<PartnerBookingsPreviewViewProps> = ({ onOpenVerificationModal }) => {
+  const { currentTherapist, isTherapistLoggedIn, setAuthTargetRole, setAuthMode, setAuthModalOpen } = usePamwill();
+  const isUnderReview = isTherapistLoggedIn && currentTherapist?.status !== 'Approved';
 
   const handleOpenRegister = () => {
+    if (isUnderReview && onOpenVerificationModal) {
+      onOpenVerificationModal();
+      return;
+    }
     setAuthTargetRole('therapist');
     setAuthMode('register');
     setAuthModalOpen(true);
@@ -188,9 +197,9 @@ export const PartnerBookingsPreviewView: React.FC = () => {
             style={{
               padding: '12px 28px',
               borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--accent-gold)',
-              color: '#15120F',
-              border: 'none',
+              backgroundColor: isUnderReview ? 'rgba(212, 163, 89, 0.2)' : 'var(--accent-gold)',
+              color: isUnderReview ? 'var(--accent-gold)' : '#15120F',
+              border: isUnderReview ? '1.5px solid var(--accent-gold)' : 'none',
               fontSize: '13px',
               fontWeight: 800,
               cursor: 'pointer',
@@ -199,25 +208,27 @@ export const PartnerBookingsPreviewView: React.FC = () => {
               gap: '6px'
             }}
           >
-            <span>Apply to Receive Bookings (5 Min)</span>
+            <span>{isUnderReview ? 'Application Under Review — View Status' : 'Apply to Receive Bookings (5 Min)'}</span>
             <ArrowRight size={14} />
           </button>
 
-          <button
-            onClick={handleOpenLogin}
-            style={{
-              padding: '12px 22px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'transparent',
-              color: 'var(--text-primary)',
-              border: '1px solid var(--border-hairline)',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            Existing Partner Login
-          </button>
+          {!isUnderReview && (
+            <button
+              onClick={handleOpenLogin}
+              style={{
+                padding: '12px 22px',
+                borderRadius: 'var(--radius-pill)',
+                backgroundColor: 'transparent',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-hairline)',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer'
+              }}
+            >
+              Existing Partner Login
+            </button>
+          )}
         </div>
       </div>
     </div>

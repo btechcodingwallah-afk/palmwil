@@ -18,7 +18,9 @@ export const TherapistBottomNav: React.FC = () => {
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   ).length;
 
-  const navItems = isTherapistLoggedIn ? [
+  const isApproved = isTherapistLoggedIn && currentTherapist?.status === 'Approved';
+
+  const navItems = isApproved ? [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'bookings', label: 'Active Jobs', icon: Calendar, badge: activeJobsCount > 0 ? activeJobsCount : undefined },
     { id: 'chat', label: 'Patient Chat', icon: MessageSquare },
@@ -28,7 +30,7 @@ export const TherapistBottomNav: React.FC = () => {
     { id: 'bookings', label: 'Live Jobs', icon: Calendar },
     { id: 'earnings', label: 'Earnings', icon: DollarSign },
     { id: 'faqs', label: 'Partner FAQs', icon: HelpCircle },
-    { id: 'profile', label: 'Join / Sign In', icon: User }
+    { id: 'profile', label: isTherapistLoggedIn ? 'Application' : 'Join / Sign In', icon: User }
   ];
 
   return (
@@ -48,7 +50,7 @@ export const TherapistBottomNav: React.FC = () => {
       justifyContent: 'center'
     }}>
       <div style={{
-        maxWidth: isTherapistLoggedIn ? '560px' : '680px',
+        maxWidth: isApproved ? '560px' : '680px',
         width: '100%',
         margin: '0 auto',
         padding: '0 12px',

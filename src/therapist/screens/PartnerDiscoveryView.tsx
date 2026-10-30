@@ -8,8 +8,14 @@ import {
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
-export const PartnerDiscoveryView: React.FC = () => {
+interface PartnerDiscoveryViewProps {
+  onOpenVerificationModal?: () => void;
+}
+
+export const PartnerDiscoveryView: React.FC<PartnerDiscoveryViewProps> = ({ onOpenVerificationModal }) => {
   const { 
+    currentTherapist,
+    isTherapistLoggedIn,
     setAuthTargetRole, 
     setAuthMode, 
     setAuthModalOpen,
@@ -17,6 +23,8 @@ export const PartnerDiscoveryView: React.FC = () => {
     platformCommissionRate,
     therapists
   } = usePamwill();
+
+  const isUnderReview = isTherapistLoggedIn && currentTherapist?.status !== 'Approved';
 
   // Earnings Simulator state
   const [dailySessions, setDailySessions] = useState<number>(3);
@@ -29,6 +37,10 @@ export const PartnerDiscoveryView: React.FC = () => {
 
   // Motivational Action Handlers
   const handleOpenRegister = () => {
+    if (isUnderReview && onOpenVerificationModal) {
+      onOpenVerificationModal();
+      return;
+    }
     setAuthTargetRole('therapist');
     setAuthMode('register');
     setAuthModalOpen(true);
@@ -172,6 +184,64 @@ export const PartnerDiscoveryView: React.FC = () => {
         }} />
 
         <div style={{ maxWidth: '780px', position: 'relative', zIndex: 1 }}>
+          {isUnderReview && (
+            <div style={{
+              backgroundColor: 'rgba(212, 163, 89, 0.15)',
+              border: '1.5px solid var(--accent-gold)',
+              borderRadius: '16px',
+              padding: '16px 20px',
+              marginBottom: '20px',
+              display: 'flex',
+              flexWrap: 'wrap',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(212, 163, 89, 0.25)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <Clock size={18} color="var(--accent-gold)" />
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, color: '#FAF8F5', fontSize: '14px' }}>
+                    Application Status: Under Review ({currentTherapist?.fullName || 'Partner'})
+                  </div>
+                  <div style={{ color: '#D8D1C7', fontSize: '12px', marginTop: '2px' }}>
+                    Your credentials and documents are being verified by PamWill Compliance. You can explore all platform features, live radar demo, and simulator below.
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={onOpenVerificationModal}
+                style={{
+                  padding: '8px 18px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'var(--accent-gold)',
+                  color: '#15120F',
+                  border: 'none',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                <span>View Submitted Documents</span>
+                <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
+
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -292,58 +362,81 @@ export const PartnerDiscoveryView: React.FC = () => {
             gap: '12px',
             alignItems: 'center'
           }}>
-            <button
-              onClick={handleOpenRegister}
-              style={{
-                padding: '14px 28px',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'var(--accent-gold)',
-                color: '#15120F',
-                border: 'none',
-                fontSize: '14px',
-                fontWeight: 800,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 8px 24px rgba(212, 163, 89, 0.4)',
-                transition: 'transform 150ms ease, box-shadow 150ms ease'
-              }}
-              onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
-              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
-            >
-              <span>✨ Apply as Therapist / Spa Partner</span>
-              <ArrowRight size={16} />
-            </button>
+            {isUnderReview ? (
+              <button
+                onClick={onOpenVerificationModal}
+                style={{
+                  padding: '14px 28px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'rgba(212, 163, 89, 0.2)',
+                  color: 'var(--accent-gold)',
+                  border: '1.5px solid var(--accent-gold)',
+                  fontSize: '14px',
+                  fontWeight: 800,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  boxShadow: '0 8px 24px rgba(212, 163, 89, 0.25)',
+                  transition: 'transform 150ms ease'
+                }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
+              >
+                <Clock size={16} />
+                <span>Application Under Review</span>
+                <ArrowRight size={16} />
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={handleOpenRegister}
+                  style={{
+                    padding: '14px 28px',
+                    borderRadius: 'var(--radius-pill)',
+                    backgroundColor: 'var(--accent-gold)',
+                    color: '#15120F',
+                    border: 'none',
+                    fontSize: '14px',
+                    fontWeight: 800,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 8px 24px rgba(212, 163, 89, 0.4)',
+                    transition: 'transform 150ms ease, box-shadow 150ms ease'
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px)')}
+                  onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)')}
+                >
+                  <span>✨ Apply as Therapist / Spa Partner</span>
+                  <ArrowRight size={16} />
+                </button>
 
-            <button
-              onClick={handleOpenLogin}
-              style={{
-                padding: '14px 24px',
-                borderRadius: 'var(--radius-pill)',
-                backgroundColor: 'transparent',
-                color: '#FAF8F5',
-                border: '1.5px solid rgba(212, 163, 89, 0.5)',
-                fontSize: '14px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 150ms ease'
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.backgroundColor = 'rgba(212, 163, 89, 0.15)';
-                e.currentTarget.style.borderColor = 'var(--accent-gold)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.backgroundColor = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(212, 163, 89, 0.5)';
-              }}
-            >
-              <UserCheck size={16} />
-              <span>Partner Sign In</span>
-            </button>
+                <button
+                  onClick={handleOpenLogin}
+                  style={{
+                    padding: '14px 24px',
+                    borderRadius: 'var(--radius-pill)',
+                    backgroundColor: 'transparent',
+                    color: '#FAF8F5',
+                    border: '1.5px solid rgba(212, 163, 89, 0.5)',
+                    fontSize: '14px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 150ms ease'
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.backgroundColor = 'rgba(212, 163, 89, 0.15)')}
+                  onMouseLeave={e => (e.currentTarget.style.backgroundColor = 'transparent')}
+                >
+                  <UserCheck size={16} color="var(--accent-gold)" />
+                  <span>Sign In</span>
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -1087,7 +1180,7 @@ export const PartnerDiscoveryView: React.FC = () => {
               boxShadow: '0 6px 20px rgba(212, 163, 89, 0.35)'
             }}
           >
-            Submit Your Application Now (5 Min)
+            {isUnderReview ? 'Application Under Review — View Status' : 'Submit Your Application Now (5 Min)'}
           </button>
         </div>
       </section>
@@ -1114,42 +1207,66 @@ export const PartnerDiscoveryView: React.FC = () => {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Sparkles size={16} color="var(--accent-gold)" />
           <span style={{ fontSize: '12px', fontWeight: 700, color: '#FFFFFF' }}>
-            Join 1,200+ Verified Specialists & Spas
+            {isUnderReview ? `Application In Review: ${currentTherapist?.fullName || 'Partner'}` : 'Join 1,200+ Verified Specialists & Spas'}
           </span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <button
-            onClick={handleOpenLogin}
-            style={{
-              padding: '6px 14px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'transparent',
-              color: '#D8D1C7',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              fontSize: '11px',
-              fontWeight: 700,
-              cursor: 'pointer'
-            }}
-          >
-            Login
-          </button>
+          {isUnderReview ? (
+            <button
+              onClick={onOpenVerificationModal}
+              style={{
+                padding: '7px 16px',
+                borderRadius: 'var(--radius-pill)',
+                backgroundColor: 'rgba(212, 163, 89, 0.2)',
+                color: 'var(--accent-gold)',
+                border: '1px solid var(--accent-gold)',
+                fontSize: '11px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px'
+              }}
+            >
+              <Clock size={12} />
+              <span>Under Review</span>
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={handleOpenLogin}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'transparent',
+                  color: '#D8D1C7',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  fontSize: '11px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                Login
+              </button>
 
-          <button
-            onClick={handleOpenRegister}
-            style={{
-              padding: '7px 16px',
-              borderRadius: 'var(--radius-pill)',
-              backgroundColor: 'var(--accent-gold)',
-              color: '#15120F',
-              border: 'none',
-              fontSize: '11px',
-              fontWeight: 800,
-              cursor: 'pointer'
-            }}
-          >
-            Apply Now
-          </button>
+              <button
+                onClick={handleOpenRegister}
+                style={{
+                  padding: '7px 16px',
+                  borderRadius: 'var(--radius-pill)',
+                  backgroundColor: 'var(--accent-gold)',
+                  color: '#15120F',
+                  border: 'none',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              >
+                Apply Now
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
