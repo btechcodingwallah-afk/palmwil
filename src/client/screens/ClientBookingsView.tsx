@@ -34,11 +34,27 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
   onTrackBooking,
   onRebook
 }) => {
-  const { bookings, user, setClientSubRoute } = usePamwill();
+  const { 
+    bookings, 
+    user, 
+    setClientSubRoute,
+    setAuthModalOpen,
+    setAuthMode,
+    setAuthTargetRole 
+  } = usePamwill();
 
-  const myBookings = [...bookings].sort((a, b) => 
-    new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-  );
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+
+  const myBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        (user.id && b.customerId === user.id) || 
+        (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+        (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+        (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())
+      ).sort((a, b) => 
+        new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      )
+    : [];
 
   return (
     <div className="client-bookings-container" style={{
@@ -69,7 +85,7 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
             My Bookings
           </h1>
           <div style={{ fontSize: '13px', color: '#9A8F82', marginTop: '4px', fontWeight: 500 }}>
-            {myBookings.length} scheduled sanctuary sessions
+            {isClientLoggedIn ? `${myBookings.length} scheduled sanctuary sessions` : 'Sign in to access your appointments'}
           </div>
         </div>
 
@@ -93,8 +109,76 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
         </button>
       </div>
 
-      {/* Bookings List */}
-      {myBookings.length === 0 ? (
+      {/* Bookings List or Guest Login Prompt */}
+      {!isClientLoggedIn ? (
+        <div style={{
+          textAlign: 'center',
+          padding: '48px 24px',
+          backgroundColor: '#FFFFFF',
+          borderRadius: '24px',
+          border: '1px solid #E8E2D9',
+          boxShadow: '0 8px 30px rgba(31, 27, 22, 0.04)',
+          maxWidth: '520px',
+          margin: '30px auto'
+        }}>
+          <div style={{
+            width: '64px',
+            height: '64px',
+            borderRadius: '50%',
+            backgroundColor: '#F7EEDD',
+            color: '#A9812F',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 18px auto'
+          }}>
+            <Calendar size={32} />
+          </div>
+          <h2 style={{ fontSize: '20px', fontWeight: 800, color: '#1F1B16', margin: '0 0 8px 0' }}>
+            Sign In to View Your Bookings
+          </h2>
+          <p style={{ fontSize: '13.5px', color: '#6B6259', margin: '0 0 24px 0', lineHeight: 1.55 }}>
+            Access your scheduled sanctuary sessions, live doctor & therapist GPS arrival, OTP verification, and treatment records.
+          </p>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => {
+                setAuthTargetRole('client');
+                setAuthMode('login');
+                setAuthModalOpen(true);
+              }}
+              style={{
+                backgroundColor: '#A9812F',
+                color: '#FFFFFF',
+                border: 'none',
+                padding: '12px 26px',
+                borderRadius: '999px',
+                fontSize: '14px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(169, 129, 47, 0.25)'
+              }}
+            >
+              Sign In / Register
+            </button>
+            <button
+              onClick={() => setClientSubRoute('home')}
+              style={{
+                backgroundColor: '#FAF8F5',
+                color: '#1F1B16',
+                border: '1px solid #E4DDD2',
+                padding: '12px 22px',
+                borderRadius: '999px',
+                fontSize: '14px',
+                fontWeight: 600,
+                cursor: 'pointer'
+              }}
+            >
+              Explore Treatments
+            </button>
+          </div>
+        </div>
+      ) : myBookings.length === 0 ? (
         <div style={{
           textAlign: 'center',
           padding: '60px 20px',
@@ -219,7 +303,7 @@ export const ClientBookingsView: React.FC<ClientBookingsViewProps> = ({
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#6B6259' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <User size={14} color="#9A8F82" style={{ flexShrink: 0 }} />
-                    <span>{booking.therapistName || 'EduNiketan Pvt. Ltd.'}</span>
+                    <span>{booking.therapistName || 'Certified Practitioner'}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Calendar size={14} color="#9A8F82" style={{ flexShrink: 0 }} />

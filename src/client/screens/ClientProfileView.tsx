@@ -33,7 +33,16 @@ export const ClientProfileView: React.FC = () => {
   const [editPhone, setEditPhone] = useState(user?.phone || '+91 98765 43210');
 
   const credits = user?.membershipCredits || 0;
-  const activeBookingsCount = bookings.filter(b =>
+  const myBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        (user.id && b.customerId === user.id) || 
+        (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+        (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+        (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())
+      )
+    : [];
+
+  const activeBookingsCount = myBookings.filter(b =>
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   ).length;
 
@@ -227,7 +236,7 @@ export const ClientProfileView: React.FC = () => {
                   textAlign: 'center'
                 }}>
                   <div style={{ borderRight: '1px solid #F1ECE4' }}>
-                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>{bookings.length}</div>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#1F1B16' }}>{myBookings.length}</div>
                     <div style={{ fontSize: '9px', fontWeight: 800, color: '#9A8F82', letterSpacing: '0.5px' }}>SESSIONS</div>
                   </div>
                   <div style={{ borderRight: '1px solid #F1ECE4' }}>

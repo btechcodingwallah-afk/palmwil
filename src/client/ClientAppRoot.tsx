@@ -33,6 +33,7 @@ export const ClientAppRoot: React.FC = () => {
     setClientSubRoute,
     setCurrentRole,
     bookings,
+    user,
     activeTrackingBookingId,
     setActiveTrackingBookingId,
     deviceFrame
@@ -42,11 +43,21 @@ export const ClientAppRoot: React.FC = () => {
   const [selectedDetailService, setSelectedDetailService] = useState<MassageService | null>(null);
   const [selectedDetailProduct, setSelectedDetailProduct] = useState<Product | null>(null);
 
-  // Dynamically prioritize any active in-progress booking
-  const inProgressJob = bookings.find(b => 
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+  const myBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        (user.id && b.customerId === user.id) || 
+        (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+        (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+        (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())
+      )
+    : [];
+
+  // Dynamically prioritize any active in-progress booking for this client
+  const inProgressJob = myBookings.find(b => 
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   );
-  const activeTrackingBooking = (activeTrackingBookingId ? bookings.find(b => b.id === activeTrackingBookingId) : null) || inProgressJob || bookings[0];
+  const activeTrackingBooking = (activeTrackingBookingId ? myBookings.find(b => b.id === activeTrackingBookingId) : null) || inProgressJob || myBookings[0] || null;
 
   useEffect(() => {
     const scrollToTop = () => {

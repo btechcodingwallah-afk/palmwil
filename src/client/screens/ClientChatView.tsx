@@ -5,8 +5,19 @@ import { usePamwill } from '../../state/store';
 export const ClientChatView: React.FC = () => {
   const { bookings, user, getBookingMessages, sendChatMessage, setClientSubRoute } = usePamwill();
   
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+
   // Available bookings for customer
-  const clientBookings = bookings.filter(b => b.status !== 'Cancelled');
+  const clientBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        ((user.id && b.customerId === user.id) || 
+         (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+         (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+         (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())) &&
+        b.status !== 'Cancelled'
+      )
+    : [];
+
   const [selectedBookingId, setSelectedBookingId] = useState<string>(() => {
     const active = clientBookings.find(b => b.status !== 'Service Completed') || clientBookings[0];
     return active?.id || '';

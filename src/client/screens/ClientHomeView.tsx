@@ -48,8 +48,17 @@ export const ClientHomeView: React.FC<ClientHomeViewProps> = ({
     setPhysioPage(1);
   }, [activePhysioCategory, physioSearch]);
 
-  // Active in-progress booking banner
-  const activeBooking = bookings.find(b => 
+  // Active in-progress booking banner for authenticated client
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+  const myBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        (user.id && b.customerId === user.id) || 
+        (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+        (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+        (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())
+      )
+    : [];
+  const activeBooking = myBookings.find(b => 
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   );
 

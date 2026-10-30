@@ -3,9 +3,19 @@ import { Home, ShoppingBag, Calendar, User } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
 export const ClientBottomNav: React.FC = () => {
-  const { clientSubRoute, setClientSubRoute, bookings, cartTotalCount } = usePamwill();
+  const { clientSubRoute, setClientSubRoute, bookings, cartTotalCount, user } = usePamwill();
 
-  const activeBookingsCount = bookings.filter(b =>
+  const isClientLoggedIn = Boolean(user && user.isAuthenticated && user.id !== 'guest');
+  const myBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        (user.id && b.customerId === user.id) || 
+        (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+        (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+        (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())
+      )
+    : [];
+
+  const activeBookingsCount = myBookings.filter(b =>
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   ).length;
 

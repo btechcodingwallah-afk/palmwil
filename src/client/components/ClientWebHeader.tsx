@@ -28,7 +28,16 @@ export const ClientWebHeader: React.FC<ClientWebHeaderProps> = ({ onOpenBookingF
 
   const [cityDropdownOpen, setCityDropdownOpen] = useState(false);
 
-  const activeBookingsCount = bookings.filter(b =>
+  const myBookings = isClientLoggedIn
+    ? bookings.filter(b => 
+        (user.id && b.customerId === user.id) || 
+        (user.email && (b.customerId === user.email || (b as any).customerEmail === user.email)) ||
+        (user.phone && b.customerPhone && b.customerPhone === user.phone) ||
+        (user.name && b.customerName && b.customerName.toLowerCase() === user.name.toLowerCase())
+      )
+    : [];
+
+  const activeBookingsCount = myBookings.filter(b =>
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   ).length;
 
