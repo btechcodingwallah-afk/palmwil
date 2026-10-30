@@ -43,7 +43,7 @@ export const PartnerBookingsPreviewView: React.FC = () => {
             ASSIGNMENTS & DISPATCH RADAR
           </span>
         </div>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 8px 0' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, margin: '0 0 8px 0', color: '#FAF8F5' }}>
           Real-Time Job Workflow Preview
         </h1>
         <p style={{ fontSize: '13px', color: '#D4C8BC', margin: 0, lineHeight: 1.5 }}>
