@@ -1,6 +1,6 @@
 import React from 'react';
 import { 
-  LayoutDashboard, Calendar, User, MessageSquare, DollarSign, HelpCircle, Sparkles 
+  LayoutDashboard, Calendar, User, MessageSquare, IndianRupee, HelpCircle, Sparkles 
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
 
@@ -28,7 +28,7 @@ export const TherapistBottomNav: React.FC = () => {
   ] : [
     { id: 'dashboard', label: 'Perks & Radar', icon: Sparkles },
     { id: 'bookings', label: 'Live Jobs', icon: Calendar },
-    { id: 'earnings', label: 'Earnings', icon: DollarSign },
+    { id: 'earnings', label: 'Earnings', icon: IndianRupee },
     { id: 'faqs', label: 'Partner FAQs', icon: HelpCircle },
     { id: 'profile', label: isTherapistLoggedIn ? 'Application' : 'Join / Sign In', icon: User }
   ];

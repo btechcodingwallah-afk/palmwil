@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  LayoutDashboard, Calendar, DollarSign, Trophy, 
+  LayoutDashboard, Calendar, IndianRupee, Trophy, 
   User, MessageSquare, Power, Bell, Menu, X, ArrowLeft, Shield, Sparkles, UserCheck, HelpCircle 
 } from 'lucide-react';
 import { usePamwill } from '../../state/store';
@@ -170,97 +170,47 @@ export const TherapistWebHeader: React.FC<TherapistWebHeaderProps> = ({ onOpenVe
               </div>
             </div>
 
-            {/* If Logged In AND Approved: Online / Offline Toggle Switch */}
-            {isTherapistLoggedIn && currentTherapist?.status === 'Approved' && (
-              <button
-                onClick={() => currentTherapist?.id && toggleTherapistOnline(currentTherapist.id)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  padding: '5px 10px',
-                  borderRadius: 'var(--radius-pill)',
-                  backgroundColor: currentTherapist?.isOnline ? 'rgba(76, 175, 80, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                  border: currentTherapist?.isOnline ? '1px solid rgba(76, 175, 80, 0.4)' : '1px solid rgba(239, 68, 68, 0.4)',
-                  color: currentTherapist?.isOnline ? 'var(--status-success)' : '#EF4444',
-                  fontSize: '10px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  letterSpacing: '0.03em',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0
-                }}
-                title={currentTherapist?.isOnline ? 'Currently Online: Accepting incoming job alerts' : 'Offline: Not accepting assignments'}
-              >
-                <span style={{
-                  width: '7px',
-                  height: '7px',
-                  borderRadius: '50%',
-                  backgroundColor: currentTherapist?.isOnline ? 'var(--status-success)' : '#EF4444'
-                }} />
-                <span>{currentTherapist?.isOnline ? 'ONLINE' : 'OFFLINE'}</span>
-              </button>
-            )}
           </div>
 
           {/* Right: Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
             {isTherapistLoggedIn ? (
               isUnderReview ? (
-                /* Under Review State: Status indicator & Sign Out */
-                <>
-                  <button
-                    onClick={onOpenVerificationModal}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      padding: '6px 12px',
-                      borderRadius: 'var(--radius-pill)',
-                      backgroundColor: 'rgba(212, 163, 89, 0.16)',
-                      border: '1px solid rgba(212, 163, 89, 0.4)',
-                      color: 'var(--accent-gold)',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap',
-                      transition: 'all 150ms ease'
-                    }}
-                    title="Click to inspect uploaded documents and review progress"
-                  >
-                    <span style={{
-                      width: '7px',
-                      height: '7px',
-                      borderRadius: '50%',
-                      backgroundColor: 'var(--accent-gold)'
-                    }} />
-                    <span>Under Review</span>
-                  </button>
-
-                  <button
-                    onClick={logoutTherapist}
-                    style={{
-                      background: 'none',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      borderRadius: 'var(--radius-pill)',
-                      padding: '5px 10px',
-                      color: '#EF4444',
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    Sign Out
-                  </button>
-                </>
+                /* Under Review State: Status indicator */
+                <button
+                  onClick={onOpenVerificationModal}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '6px 14px',
+                    borderRadius: 'var(--radius-pill)',
+                    backgroundColor: 'rgba(212, 163, 89, 0.16)',
+                    border: '1px solid rgba(212, 163, 89, 0.4)',
+                    color: 'var(--accent-gold)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap',
+                    transition: 'all 150ms ease'
+                  }}
+                  title="Click to inspect uploaded documents and review progress"
+                >
+                  <span style={{
+                    width: '7px',
+                    height: '7px',
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--accent-gold)'
+                  }} />
+                  <span>Under Review</span>
+                </button>
               ) : (
-                /* Approved Operational State: Wallet & Logout */
+                /* Approved Operational State: Earnings Balance & Online/Offline Switch */
                 <>
                   <button
                     onClick={() => handleNavClick('earnings')}
                     style={{
-                      padding: '5px 10px',
+                      padding: '5px 12px',
                       borderRadius: 'var(--radius-pill)',
                       backgroundColor: 'rgba(169, 129, 47, 0.15)',
                       border: '1px solid rgba(169, 129, 47, 0.35)',
@@ -270,31 +220,45 @@ export const TherapistWebHeader: React.FC<TherapistWebHeaderProps> = ({ onOpenVe
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '4px',
-                      whiteSpace: 'nowrap'
+                      gap: '3px',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 150ms ease'
                     }}
                     title="Current Payout Balance"
                   >
-                    <DollarSign size={12} color="var(--accent-gold)" />
-                    <span>₹{currentTherapist?.walletBalance || 0}</span>
+                    <IndianRupee size={12} color="var(--accent-gold)" />
+                    <span>{currentTherapist?.walletBalance || 0}</span>
                   </button>
 
+                  {/* Online / Offline Switch placed at right next to balance tab */}
                   <button
-                    onClick={logoutTherapist}
+                    onClick={() => currentTherapist?.id && toggleTherapistOnline(currentTherapist.id)}
                     style={{
-                      background: 'none',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      padding: '5px 11px',
                       borderRadius: 'var(--radius-pill)',
-                      padding: '5px 10px',
-                      color: '#EF4444',
+                      backgroundColor: currentTherapist?.isOnline ? 'rgba(76, 175, 80, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                      border: currentTherapist?.isOnline ? '1px solid rgba(76, 175, 80, 0.45)' : '1px solid rgba(239, 68, 68, 0.45)',
+                      color: currentTherapist?.isOnline ? 'var(--status-success)' : '#EF4444',
                       fontSize: '10px',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       cursor: 'pointer',
-                      transition: 'all 150ms ease',
-                      whiteSpace: 'nowrap'
+                      letterSpacing: '0.03em',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0,
+                      transition: 'all 150ms ease'
                     }}
+                    title={currentTherapist?.isOnline ? 'Currently Online: Accepting incoming job alerts' : 'Offline: Not accepting assignments'}
                   >
-                    Sign Out
+                    <span style={{
+                      width: '7px',
+                      height: '7px',
+                      borderRadius: '50%',
+                      backgroundColor: currentTherapist?.isOnline ? 'var(--status-success)' : '#EF4444'
+                    }} />
+                    <span>{currentTherapist?.isOnline ? 'ONLINE' : 'OFFLINE'}</span>
                   </button>
                 </>
               )
