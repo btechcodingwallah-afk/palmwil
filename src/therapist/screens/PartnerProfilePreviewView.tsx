@@ -34,12 +34,14 @@ export const PartnerProfilePreviewView: React.FC<PartnerProfilePreviewViewProps>
 
   return (
     <div style={{
-      maxWidth: '1080px',
-      margin: '0 auto',
-      padding: '24px 20px 120px 20px',
+      width: '100%',
+      maxWidth: '100%',
+      margin: '0',
+      padding: '20px 16px 80px',
       display: 'flex',
       flexDirection: 'column',
-      gap: '28px'
+      gap: '24px',
+      boxSizing: 'border-box'
     }}>
       {/* 1. TOP HEADER BANNER (HIGH CONTRAST & LUXURY OBSIDIAN) */}
       <div style={{

@@ -27,7 +27,7 @@ export const TherapistEditProfileView: React.FC = () => {
   };
 
   return (
-    <div style={{ maxWidth: '820px', margin: '0 auto', padding: '24px 20px 80px' }}>
+    <div style={{ width: '100%', maxWidth: '100%', margin: '0', padding: '20px 16px 80px', boxSizing: 'border-box' }}>
       
       {/* Back button */}
       <div style={{ marginBottom: '20px' }}>

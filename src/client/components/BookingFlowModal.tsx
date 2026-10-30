@@ -4,7 +4,7 @@ import {
   MapPin, Shield, ShieldCheck, Sparkles, User, AlertCircle, CreditCard, Smartphone,
   Navigation, CheckCircle2, Stethoscope, GraduationCap
 } from 'lucide-react';
-import { MassageService, AddOn, Booking } from '../../types';
+import { MassageService, AddOn, Booking, Therapist } from '../../types';
 import { ADD_ONS, SERVICE_CATEGORIES } from '../../data/services';
 import { PHYSIO_ADD_ONS } from '../../data/physioData';
 import { usePamwill } from '../../state/store';
@@ -164,8 +164,10 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
   // Therapy vs Spa distinction: timing selection is only for spa, therapy uses standardized clinical protocol
   const isTherapyService = selectedService.id.startsWith('physio-') || 
                            Boolean(selectedService.requiresCertification?.toLowerCase().includes('physio')) ||
-                           selectedService.category === 'Therapeutic' ||
-                           selectedService.category === 'Specialized';
+                           (selectedService.category as string) === 'Physiotherapy' ||
+                           (selectedService.category as string) === 'Clinical Rehabilitation' ||
+                           selectedService.name.toLowerCase().includes('physio') ||
+                           selectedService.name.toLowerCase().includes('rehabilitation');
   const isSpaService = !isTherapyService;
 
   const basePrice = isSpaService
@@ -254,26 +256,43 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
     : null;
   const isSelectedWithin10Km = selectedDistanceKm !== null ? selectedDistanceKm <= (selectedTherapist?.serviceRadiusKm || 10) : true;
 
-  // Filter approved therapists and compute live distance to client sanctuary coordinates
-  const therapistsWithDistance = therapists
+  const isDocOrIntern = (t: Therapist) =>
+    t.role === 'doctor' || 
+    t.role === 'physiotherapist' || 
+    t.role === 'intern' || 
+    Boolean(t.fullName?.toLowerCase().startsWith('dr.')) || 
+    Boolean(t.fullName?.toLowerCase().includes('(intern)'));
+
+  // Filter approved therapists and restrict by service type:
+  // Spa services: STRICTLY certified spa/wellness therapists (NO doctors, NO interns).
+  // Therapy services: doctors, physiotherapists, interns, and rehabilitation specialists.
+  const eligibleTherapists = therapists
     .filter(t => !t.status || t.status === 'Approved' || (t.status as string)?.toLowerCase() === 'approved' || (t.status as string) === 'Active')
-    .map(t => {
-      let distanceKm: number | null = null;
-      if (t.currentLocation?.latitude && t.currentLocation?.longitude) {
-        distanceKm = calculateDistanceKm(clientCoords, [t.currentLocation.latitude, t.currentLocation.longitude]);
-      } else {
-        distanceKm = 4.8; // Default fallback distance within metro
+    .filter(t => {
+      if (isSpaService) {
+        return !isDocOrIntern(t);
       }
-      return {
-        ...t,
-        calculatedDistanceKm: distanceKm,
-        isWithinPerimeter: distanceKm !== null && distanceKm <= (t.serviceRadiusKm || 10)
-      };
+      return true;
     });
+
+  const therapistsWithDistance = eligibleTherapists.map(t => {
+    let distanceKm: number | null = null;
+    if (t.currentLocation?.latitude && t.currentLocation?.longitude) {
+      distanceKm = calculateDistanceKm(clientCoords, [t.currentLocation.latitude, t.currentLocation.longitude]);
+    } else {
+      distanceKm = 4.8; // Default fallback distance within metro
+    }
+    return {
+      ...t,
+      calculatedDistanceKm: distanceKm,
+      isWithinPerimeter: distanceKm !== null && distanceKm <= (t.serviceRadiusKm || 10)
+    };
+  });
 
   const filteredByPrefs = therapistsWithDistance
     .filter(t => therapistGenderPref === 'No Preference' || (t.gender && t.gender.toLowerCase() === therapistGenderPref.toLowerCase()))
     .filter(t => {
+      if (!isTherapyService) return true;
       if (practitionerTier === 'All') return true;
       if (practitionerTier === 'doctor') {
         return t.role === 'doctor' || t.role === 'physiotherapist' || t.fullName?.toLowerCase().includes('dr.');
@@ -286,7 +305,9 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
 
   // Strict 10 km filter: therapists within 10 km
   const therapistsWithin10Km = filteredByPrefs.filter(t => t.isWithinPerimeter);
-  const anyWithin10Km = therapistsWithDistance.filter(t => t.isWithinPerimeter);
+  const anyWithin10Km = filteredByPrefs.length > 0
+    ? filteredByPrefs
+    : therapistsWithDistance.filter(t => t.isWithinPerimeter);
 
   // If none within 10 km matching current filter, fallback gracefully to nearest verified specialists
   const displayedTherapists = therapistsWithin10Km.length > 0
@@ -296,6 +317,12 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
     : filteredByPrefs.length > 0
     ? [...filteredByPrefs].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0))
     : [...therapistsWithDistance].sort((a, b) => (a.calculatedDistanceKm || 0) - (b.calculatedDistanceKm || 0));
+
+  useEffect(() => {
+    if (isSpaService && practitionerTier !== 'All') {
+      setPractitionerTier('All');
+    }
+  }, [isSpaService]);
 
   useEffect(() => {
     if (step === 4 && displayedTherapists.length > 0) {
@@ -973,33 +1000,55 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
           {/* ================= STEP 4: THERAPIST PREFERENCE ================= */}
           {step === 4 && (
             <div>
-              {/* Practitioner Tier Selection (Doctor vs Intern) */}
-              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
-                PRACTITIONER TIER
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
-                {[
-                  { id: 'All', label: 'All Specialists', icon: Sparkles },
-                  { id: 'doctor', label: 'Doctor (Dr.)', icon: Stethoscope },
-                  { id: 'intern', label: 'Physio Intern', icon: GraduationCap }
-                ].map(tier => (
-                  <button
-                    key={tier.id}
-                    onClick={() => setPractitionerTier(tier.id as any)}
-                    style={{
-                      padding: '10px 4px',
-                      borderRadius: 'var(--radius-md)',
-                      border: practitionerTier === tier.id ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
-                      backgroundColor: practitionerTier === tier.id ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
-                      cursor: 'pointer',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <tier.icon size={16} color={practitionerTier === tier.id ? 'var(--accent-gold)' : 'var(--text-muted)'} style={{ margin: '0 auto 4px auto' }} />
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>{tier.label}</div>
-                  </button>
-                ))}
-              </div>
+              {/* Practitioner Tier Selection (Only for Clinical / Physiotherapy, NOT for Spa) */}
+              {isTherapyService && (
+                <>
+                  <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
+                    CLINICAL PRACTITIONER TIER
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                    {[
+                      { id: 'All', label: 'All Specialists', icon: Sparkles },
+                      { id: 'doctor', label: 'Doctor (Dr.)', icon: Stethoscope },
+                      { id: 'intern', label: 'Physio Intern', icon: GraduationCap }
+                    ].map(tier => (
+                      <button
+                        key={tier.id}
+                        onClick={() => setPractitionerTier(tier.id as any)}
+                        style={{
+                          padding: '10px 4px',
+                          borderRadius: 'var(--radius-md)',
+                          border: practitionerTier === tier.id ? '2px solid var(--accent-gold)' : '1px solid var(--border-hairline)',
+                          backgroundColor: practitionerTier === tier.id ? 'var(--accent-gold-light)' : 'var(--bg-surface)',
+                          cursor: 'pointer',
+                          textAlign: 'center'
+                        }}
+                      >
+                        <tier.icon size={16} color={practitionerTier === tier.id ? 'var(--accent-gold)' : 'var(--text-muted)'} style={{ margin: '0 auto 4px auto' }} />
+                        <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)' }}>{tier.label}</div>
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {isSpaService && (
+                <div style={{
+                  padding: '10px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  backgroundColor: 'var(--accent-gold-light)',
+                  border: '1px solid var(--accent-gold)',
+                  marginBottom: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <Sparkles size={16} color="var(--accent-gold)" />
+                  <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-gold-hover)' }}>
+                    Certified CIDESCO & Luxury Spa Wellness Practitioners
+                  </span>
+                </div>
+              )}
 
               <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>
                 GENDER PREFERENCE
@@ -1131,7 +1180,19 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <h4 style={{ fontSize: '14px', fontWeight: 600, margin: 0 }}>{therapist.fullName}</h4>
-                              {isDoctor && (
+                              {isSpaService && (
+                                <span style={{
+                                  fontSize: '9px',
+                                  fontWeight: 700,
+                                  backgroundColor: 'rgba(212, 163, 89, 0.2)',
+                                  color: 'var(--accent-gold)',
+                                  padding: '1px 5px',
+                                  borderRadius: '3px'
+                                }}>
+                                  SPA PRACTITIONER
+                                </span>
+                              )}
+                              {!isSpaService && isDoctor && (
                                 <span style={{
                                   fontSize: '9px',
                                   fontWeight: 700,
@@ -1143,7 +1204,7 @@ export const BookingFlowModal: React.FC<BookingFlowModalProps> = ({
                                   DR. (MPT)
                                 </span>
                               )}
-                              {isIntern && (
+                              {!isSpaService && isIntern && (
                                 <span style={{
                                   fontSize: '9px',
                                   fontWeight: 700,

@@ -132,8 +132,8 @@ export const TherapistProfileView: React.FC = () => {
     <div className="therapist-profile-container" style={{
       width: '100%',
       maxWidth: '100%',
-      margin: '0 auto',
-      padding: '24px 32px 60px',
+      margin: '0',
+      padding: '20px 16px 60px',
       backgroundColor: '#FAF8F5',
       minHeight: '100%',
       boxSizing: 'border-box'
