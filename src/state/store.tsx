@@ -319,8 +319,11 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const navigateTo = (path: string) => {
-    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
-      window.history.pushState({}, '', path);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (window.history && window.history.pushState) {
+        window.history.pushState({}, '', path);
+      }
     }
     const { role, clientSub, therapistSub, clientHomeMode: newMode } = parseRouteFromUrl();
     setCurrentRoleState(role);
@@ -332,31 +335,43 @@ export const PamwillProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const setClientSubRoute = (route: string, param?: string) => {
     setClientSubRouteState(route);
     if (param) setSelectedProductId(param);
-    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
-      const path = route === 'home' ? '/client' : param ? `/client/${route}/${param}` : `/client/${route}`;
-      window.history.pushState({ role: 'client', sub: route }, '', path);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (window.history && window.history.pushState) {
+        const path = route === 'home' ? '/client' : param ? `/client/${route}/${param}` : `/client/${route}`;
+        window.history.pushState({ role: 'client', sub: route }, '', path);
+      }
     }
   };
 
   const setTherapistSubRoute = (route: string) => {
     setTherapistSubRouteState(route);
-    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
-      const path = route === 'dashboard' ? '/therapist' : `/therapist/${route}`;
-      window.history.pushState({ role: 'therapist', sub: route }, '', path);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (window.history && window.history.pushState) {
+        const path = route === 'dashboard' ? '/therapist' : `/therapist/${route}`;
+        window.history.pushState({ role: 'therapist', sub: route }, '', path);
+      }
     }
   };
 
   const setCurrentRole = (role: PlatformRole) => {
     setCurrentRoleState(role);
-    if (typeof window !== 'undefined' && window.history && window.history.pushState) {
-      const newPath = role === 'admin' ? '/admin' : role === 'therapist' ? '/therapist' : role === 'client' ? '/client' : '/';
-      window.history.pushState({ role }, '', newPath);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      if (window.history && window.history.pushState) {
+        const newPath = role === 'admin' ? '/admin' : role === 'therapist' ? '/therapist' : role === 'client' ? '/client' : '/';
+        window.history.pushState({ role }, '', newPath);
+      }
     }
   };
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handlePopState = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
       const { role, clientSub, therapistSub, clientHomeMode: newMode } = parseRouteFromUrl();
       setCurrentRoleState(role);
       setClientSubRouteState(clientSub);

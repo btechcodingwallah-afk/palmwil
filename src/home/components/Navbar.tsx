@@ -575,6 +575,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 setMobileMenuOpen(false);
+                window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
                 onNavigateRole('client');
               }}
               style={{

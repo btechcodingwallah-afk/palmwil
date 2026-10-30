@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, Calendar, DollarSign, MessageSquare, 
   User, Bell, Shield, Trophy, ShoppingBag, X 
@@ -52,6 +52,21 @@ export const TherapistAppRoot: React.FC = () => {
 
   const isApproved = isTherapistLoggedIn && currentTherapist?.status === 'Approved';
   const isUnderReview = isTherapistLoggedIn && currentTherapist?.status !== 'Approved';
+
+  useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    scrollToTop();
+    const rafId = requestAnimationFrame(scrollToTop);
+    const t = setTimeout(scrollToTop, 50);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(t);
+    };
+  }, [therapistSubRoute]);
 
   const handleAcceptJob = (bookingId: string) => {
     updateBookingStatus(bookingId, 'Accepted');

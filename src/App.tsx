@@ -20,6 +20,25 @@ const AppContent: React.FC = () => {
     authMode 
   } = usePamwill();
 
+  React.useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+
+    scrollToTop();
+    const rafId = requestAnimationFrame(scrollToTop);
+    const t1 = setTimeout(scrollToTop, 20);
+    const t2 = setTimeout(scrollToTop, 100);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [currentRole]);
+
   return (
     <div style={{
       minHeight: '100vh',

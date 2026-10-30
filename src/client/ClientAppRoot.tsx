@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, Calendar, MessageSquare, User, ShoppingBag, 
   X, Clock, ChevronRight, ChevronLeft, ShieldCheck, AlertCircle, Sparkles 
@@ -47,6 +47,21 @@ export const ClientAppRoot: React.FC = () => {
     ['Accepted', 'On the Way', 'Arrived', 'Service Started'].includes(b.status)
   );
   const activeTrackingBooking = (activeTrackingBookingId ? bookings.find(b => b.id === activeTrackingBookingId) : null) || inProgressJob || bookings[0];
+
+  useEffect(() => {
+    const scrollToTop = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    };
+    scrollToTop();
+    const rafId = requestAnimationFrame(scrollToTop);
+    const t = setTimeout(scrollToTop, 50);
+    return () => {
+      cancelAnimationFrame(rafId);
+      clearTimeout(t);
+    };
+  }, [clientSubRoute]);
 
   const handleStartBookingForService = (service: MassageService) => {
     setSelectedDetailService(service);

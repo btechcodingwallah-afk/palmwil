@@ -232,7 +232,10 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({
               </button>
 
               <button
-                onClick={() => onNavigateRole('client')}
+                onClick={() => {
+                  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                  onNavigateRole('client');
+                }}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -413,7 +416,10 @@ export const DownloadSection: React.FC<DownloadSectionProps> = ({
               </button>
 
               <button
-                onClick={() => onNavigateRole('therapist')}
+                onClick={() => {
+                  window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+                  onNavigateRole('therapist');
+                }}
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',

@@ -436,7 +436,10 @@ export const Footer: React.FC<FooterProps> = ({
             <Download size={12} /> Therapist APK (90 MB)
           </button>
           <button
-            onClick={() => onNavigateRole('client')}
+            onClick={() => {
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              onNavigateRole('client');
+            }}
             style={{
               background: 'none',
               border: 'none',
@@ -451,7 +454,10 @@ export const Footer: React.FC<FooterProps> = ({
             <Sparkles size={12} color="var(--cta)" /> Continue with Browser
           </button>
           <button
-            onClick={() => onNavigateRole('therapist')}
+            onClick={() => {
+              window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+              onNavigateRole('therapist');
+            }}
             style={{
               background: 'none',
               border: 'none',
